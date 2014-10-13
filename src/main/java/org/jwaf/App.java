@@ -20,8 +20,8 @@ public class App
 	{
 		System.out.println( "\n\nHello World!\n\n" );
 		
-		em.persist(new AgentType());
-		em.persist(new AgentType());
+		em.persist(new AgentEntity());
+		em.persist(new AgentEntity());
 
 		System.out.println( "\n\npersistedd!\n\n" );
 	}

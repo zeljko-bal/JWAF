@@ -16,6 +16,6 @@ public class AgentType
 	
 	private String type;
 	
-	/*@ElementCollection(fetch=FetchType.LAZY)
-	private Map<String, String> attributes;*/
+	@ElementCollection(fetch=FetchType.LAZY)
+	private Map<String, String> attributes;
 }
