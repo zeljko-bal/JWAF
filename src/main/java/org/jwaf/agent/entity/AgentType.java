@@ -1,4 +1,4 @@
-package org.jwaf;
+package org.jwaf.agent.entity;
 
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import javax.persistence.Id;
 public class AgentType
 {
 	@Id @GeneratedValue
-	private int id;
+	private Integer id;
 	
 	private String type;
 	
