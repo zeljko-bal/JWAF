@@ -1,9 +1,12 @@
 package org.jwaf.agent.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -23,10 +26,10 @@ public class AgentEntity
 	@Id @GeneratedValue
 	private Integer id;
 	
-	@OneToOne
+	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE}, optional=false)
 	private AgentIdentifier aid;
 	
-	@ManyToOne
+	@ManyToOne(optional=false)
 	private AgentType type;
 	
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -35,12 +38,24 @@ public class AgentEntity
 	@ElementCollection(fetch=FetchType.LAZY)
 	private Map<String, Serializable> publicData;
 	
-	@ManyToMany
+	@ManyToMany(cascade=CascadeType.REFRESH)
 	private List<ACLMessage> messages;
 	
 	private String state;
 	
 	private boolean hasNewMessages;
+	
+	public AgentEntity()
+	{}
+	
+	public AgentEntity(AgentType type, AgentIdentifier aid)
+	{
+		messages = new ArrayList<>();
+		privateData = new HashMap<>();
+		publicData = new HashMap<>();
+		this.type = type;
+		this.aid = aid;
+	}
 
 	public AgentIdentifier getAid() 
 	{

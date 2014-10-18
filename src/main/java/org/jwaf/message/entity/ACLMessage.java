@@ -8,11 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
@@ -32,10 +34,11 @@ public class ACLMessage implements Serializable
 	
 	private String performative;
 	
-	@ManyToOne
+	@ManyToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	private AgentIdentifier sender;
 	
-	@ManyToMany
+	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
+	@JoinTable(name = "ACLMessage_receiver")
 	private List<AgentIdentifier> receiver;
 	
 	@Lob 
@@ -49,7 +52,8 @@ public class ACLMessage implements Serializable
 	
 	private String reply_to;
 	
-	@ManyToMany
+	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
+	@JoinTable(name = "ACLMessage_in_reply_to")
 	private List<AgentIdentifier> in_reply_to;
 	
 	private String language;
@@ -61,10 +65,12 @@ public class ACLMessage implements Serializable
     @ElementCollection
 	private Map<String, String> user_defined_parameters;
     
-    private Integer unreadCount;
-    
     public ACLMessage()
-    {}
+    {
+    	this.receiver = new ArrayList<>();
+    	this.in_reply_to = new ArrayList<>();
+    	this.user_defined_parameters = new HashMap<>();
+    }
     
 	public ACLMessage(String performative, AgentIdentifier sender, Serializable content)
 	{
@@ -235,15 +241,5 @@ public class ACLMessage implements Serializable
 	public Map<String, String> getUserDefinedParameters()
 	{
 		return user_defined_parameters;
-	}
-
-	public Integer getUnreadCount() 
-	{
-		return unreadCount;
-	}
-
-	public void setUnreadCount(Integer unreadCount) 
-	{
-		this.unreadCount = unreadCount;
 	}
 }

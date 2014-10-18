@@ -3,9 +3,7 @@ package org.jwaf.message;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.LockModeType;
-
-import org.jwaf.agent.entity.AgentEntity;
+import org.jwaf.agent.AgentManager;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.message.entity.ACLMessage;
 
@@ -17,33 +15,60 @@ import org.jwaf.message.entity.ACLMessage;
 public class MessageManager 
 {
 	@Inject
-	private MessageRepository repo;
-/*
-	public void send()
+	private MessageRepository messageRepo;
+	
+	@Inject
+	AgentManager agentManager;
+
+	// TODO REST web method
+	public void handleMessage(ACLMessage message)
 	{
-		for(AgentIdentifier agentId : message.getReceiverList())
+		for(AgentIdentifier aid : message.getReceiverList())
 		{
-			sendTo(agentId, message);
+			if(agentManager.contains(aid))
+			{
+				// if agent is local to this platform
+				sendToLocal(aid, message);
+			}
+			/*else if(remoteRepo.containsAgent(aid))
+			{
+				// if we can locate agent on a remote platform
+				// TODO send to remote platform
+				sendToRemote(aid, message);
+			}*/
+			else
+			{
+				// if the receiver cannot be located leave message in outbox for manual retrieval
+				sendToOutbox(aid, message);
+			}
 		}
 	}
 	
-    private void sendTo(AgentIdentifier agentId, ACLMessage message)
+    private void sendToLocal(AgentIdentifier aid, ACLMessage message)
     {
-    	AgentEntity agent = em.find(AgentEntity.class, ???, LockModeType.PESSIMISTIC_WRITE);
+    	// persist message in local repositoey
+    	messageRepo.persist(message);
     	
-    	String state = agent.getState();
-    	
-		agent.getMessages().add(message);
-		
-		em.merge(agent);
-		
-		em.
-		
-		if(AgentState.PASSIVE.equals(state))
-    	{
-    		
-    	}  	
+    	// link messages to agents and notify them
+    	agentManager.deliverMessage(aid, message);
     }
-	*/
-
+    
+    private void sendToRemote(AgentIdentifier aid, ACLMessage message)
+    {
+    	// TODO
+    }
+    
+    private void sendToOutbox(AgentIdentifier aid, ACLMessage message)
+    {
+    	// TODO
+    }
+    
+    private void messageReceivedEventHandler()
+    {
+    	// TODO
+    	/*if()
+    	{
+    		messageRepo.remove(message);
+    	}*/
+    }
 }
