@@ -39,8 +39,8 @@ public class SetupBean
 	{
 		try
 		{
-			utx.begin();
 			
+			utx.begin();
 			
 			System.out.println( "\n\nHello World!\n\n" );
 			
@@ -49,6 +49,7 @@ public class SetupBean
 			
 			AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
 			em.persist(aid1);
+			
 			AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
 			em.persist(aid2);
 			AgentIdentifier aid3 = new AgentIdentifier("agent3@platform1");
@@ -60,13 +61,19 @@ public class SetupBean
 			AgentEntity agent2 = new AgentEntity(type, aid2);
 			em.persist(agent2);
 			
+			//////////////////////////
+			utx.commit();
+			utx.begin();
+			/////////////////////////
+			
 			ACLMessage message1 = new ACLMessage();
 			message1.getReceiverList().add(aid1);
 			message1.getReceiverList().add(aid2);
 			message1.getReceiverList().add(new AgentIdentifier(aid3.getName()));
 			message1.getReceiverList().add(new AgentIdentifier("agent4@platform2"));
 			
-			em.persist(message1);
+			//em.persist(message1);
+			messageManager.handleMessage(message1);
 			
 			utx.commit();
 			

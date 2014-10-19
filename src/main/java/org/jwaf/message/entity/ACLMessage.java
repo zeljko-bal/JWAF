@@ -65,6 +65,8 @@ public class ACLMessage implements Serializable
     @ElementCollection
 	private Map<String, String> user_defined_parameters;
     
+    private int unreadCount;
+    
     public ACLMessage()
     {
     	this.receiver = new ArrayList<>();
@@ -241,5 +243,15 @@ public class ACLMessage implements Serializable
 	public Map<String, String> getUserDefinedParameters()
 	{
 		return user_defined_parameters;
+	}
+
+	public int getUnreadCount()
+	{
+		return unreadCount;
+	}
+
+	public void setUnreadCount(int unreadCount)
+	{
+		this.unreadCount = unreadCount;
 	}
 }

@@ -68,6 +68,7 @@ public class AgentRepository
 
 		// persist
 		em.merge(agent);
+		
 		return prevState;
 	}
 	
@@ -135,7 +136,6 @@ public class AgentRepository
 		return !(em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name").setParameter("name", name).getResultList().isEmpty());
 	}
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier manageAID(AgentIdentifier aid)
 	{
 		// if aid is null

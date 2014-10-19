@@ -40,13 +40,11 @@ public class AgentManager
 
 		// activate agent and get previous state
 		prevState = agentRepo.activate(aid, message);
-		
-		AgentEntity agent = agentRepo.find(aid);
 
 		// if agent was passive activate him
 		if(AgentState.PASSIVE.equals(prevState))
 		{
-			String agentTypeName = agent.getType().getName();
+			String agentTypeName = agentRepo.find(aid).getType().getName();
 
 			// execute in a managed thread
 			execService.submit(()->
@@ -86,7 +84,6 @@ public class AgentManager
 					throw e;
 				}
 			});
-
 		}
 	}
 

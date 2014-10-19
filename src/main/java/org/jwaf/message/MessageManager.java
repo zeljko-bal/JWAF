@@ -1,14 +1,21 @@
 package org.jwaf.message;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.jwaf.agent.AgentManager;
-import org.jwaf.agent.AgentRepository;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.message.entity.ACLMessage;
 
@@ -17,6 +24,7 @@ import org.jwaf.message.entity.ACLMessage;
  */
 @Stateless
 @LocalBean
+@Path("message")
 public class MessageManager 
 {
 	@Inject
@@ -25,62 +33,71 @@ public class MessageManager
 	@Inject
 	AgentManager agentManager;
 	
-	@Inject
-	AgentRepository agentRepo;
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	public AgentIdentifier testREST() throws MalformedURLException
+	{
+		System.out.println("MessageManager#testREST");
+		AgentIdentifier ret = new AgentIdentifier("aid123");
+		ret.getUserDefinedParameters().put("asd", "dfg");
+		ret.getUserDefinedParameters().put("adfgsd", "ddfgfg");
+		
+		AgentIdentifier resolver = new AgentIdentifier("fdgdfg");
+		ret.getResolvers().add(resolver);
+		
+		ret.getAddresses().add(new URL("http://example.com/pages/"));
+		
+		return ret;
+	}
 
-	// TODO REST web method
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
 	public void handleMessage(ACLMessage message)
 	{
-		makeAidsManaged(message);
+		// set unread count
+		message.setUnreadCount(message.getReceiverList().size());
 		
-		for(AgentIdentifier aid : message.getReceiverList())
+		List<AgentIdentifier> local = new ArrayList<>();
+		List<AgentIdentifier> remote = new ArrayList<>();
+		List<AgentIdentifier> outbox = new ArrayList<>();
+		
+		// classify receivers
+		message.getReceiverList().forEach((AgentIdentifier aid)->
 		{
 			if(agentManager.contains(aid))
 			{
-				// if agent is local to this platform
-				sendToLocal(aid, message);
+				local.add(aid);
 			}
 			/*else if(remoteRepo.containsAgent(aid))
 			{
+				remote.add(aid);
 				// if we can locate agent on a remote platform
 				// TODO send to remote platform
 				sendToRemote(aid, message);
 			}*/
 			else
 			{
+				outbox.add(aid);
+				
 				// if the receiver cannot be located leave message in outbox for manual retrieval
 				sendToOutbox(aid, message);
 			}
-		}
-	}
-	
-    private void makeAidsManaged(ACLMessage message)
-    {
-		// replace all aid references with managed ones
-    	
-		message.setSender(agentRepo.manageAID(message.getSender()));
-
-		List<AgentIdentifier> managedAids = new ArrayList<>();
-
-		// add managed versions to managedAids
-		message.getReceiverList().forEach((AgentIdentifier aid)->managedAids.add(agentRepo.manageAID(aid)));
-		// replace receiver list with managedAids
-		message.getReceiverList().clear();
-		message.getReceiverList().addAll(managedAids);
+		});
 		
-		// add managed versions to managedAids
-		managedAids.clear();
-		message.getIn_reply_toList().forEach((AgentIdentifier aid)->managedAids.add(agentRepo.manageAID(aid)));
-		// replace in_reply_to list with managedAids
-		message.getIn_reply_toList().clear();
-		message.getIn_reply_toList().addAll(managedAids);
+		// persist if needed
+		if(!local.isEmpty() || !outbox.isEmpty())
+		{
+			messageRepo.persist(message);
+		}
+		
+		// send out
+		local.forEach((AgentIdentifier aid)-> sendToLocal(aid, message));
+		remote.forEach((AgentIdentifier aid)-> sendToRemote(aid, message));
+		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
 	}
 
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)
     {
-    	// persist message in local repositoey
-    	messageRepo.persist(message);
-    	
     	// link messages to agents and notify them
     	agentManager.deliverMessage(aid, message);
     }

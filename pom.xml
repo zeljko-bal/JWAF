@@ -5,7 +5,7 @@
 	<groupId>org.java-web-agent-framework</groupId>
 	<artifactId>jwaf</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>ejb</packaging>
+	<packaging>war</packaging>
 
 	<name>jwaf</name>
 	<url>http://maven.apache.org</url>
@@ -49,13 +49,39 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.6</version>
 		</dependency>
- 
+
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>
 			<version>2.6.0-M3</version>
 		</dependency>
-  
+
+
+		<!--<dependency> <groupId>javax.ws.rs</groupId> <artifactId>javax.ws.rs-api</artifactId> 
+			<version>${jaxrs.api.version}</version> <scope>provided</scope> </dependency> -->
+
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-servlet</artifactId>
+			<version>1.13</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet</artifactId>
+			<version>2.13</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- if you are using Jersey client specific features without the server 
+			side -->
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.13</version>
+			<scope>provided</scope>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
@@ -72,15 +98,17 @@
 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-ejb-plugin</artifactId>
-				<version>${version.ejb.plugin}</version>
+				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<ejbVersion>3.1</ejbVersion>
-					<generateClient>true</generateClient>
-					<debug>true</debug>
+					<!-- <webXml>src\main\webapp\WEB-INF\glassfish-web.xml</webXml> -->
+					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-
+			
+			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-ejb-plugin</artifactId> 
+				<version>${version.ejb.plugin}</version> <configuration> <ejbVersion>3.1</ejbVersion> 
+				<generateClient>true</generateClient> <debug>true</debug> </configuration> 
+				</plugin> -->
 			<plugin>
 				<groupId>org.glassfish.maven.plugin</groupId>
 				<artifactId>maven-glassfish-plugin</artifactId>
@@ -97,7 +125,7 @@
 					<components>
 						<component>
 							<name>${project.artifactId}</name>
-							<artifact>target/${project.build.finalName}.jar</artifact>
+							<artifact>target/${project.build.finalName}.war</artifact>
 						</component>
 					</components>
 					<debug>true</debug>
