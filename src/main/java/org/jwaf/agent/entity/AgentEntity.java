@@ -16,6 +16,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 
+import org.jwaf.agent.AgentState;
 import org.jwaf.message.entity.ACLMessage;
 
 
@@ -55,6 +56,7 @@ public class AgentEntity
 		publicData = new HashMap<>();
 		this.type = type;
 		this.aid = aid;
+		state = AgentState.PASSIVE;
 	}
 
 	public AgentIdentifier getAid() 
@@ -110,5 +112,10 @@ public class AgentEntity
 	public void setHasNewMessages(boolean hasNewMessages) 
 	{
 		this.hasNewMessages = hasNewMessages;
+	}
+
+	public Integer getId() 
+	{
+		return id;
 	}
 }

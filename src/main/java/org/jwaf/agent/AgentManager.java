@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
@@ -36,11 +38,10 @@ public class AgentManager
 	{
 		String prevState = null;
 
-		// TODO querry by aid
-		AgentEntity agent = agentRepo.find(aid);
-
 		// activate agent and get previous state
-		prevState = agentRepo.activate(agent, message);
+		prevState = agentRepo.activate(aid, message);
+		
+		AgentEntity agent = agentRepo.find(aid);
 
 		// if agent was passive activate him
 		if(AgentState.PASSIVE.equals(prevState))
@@ -50,6 +51,8 @@ public class AgentManager
 			// execute in a managed thread
 			execService.submit(()->
 			{
+				System.out.println("executing agent activation!!");
+				
 				try
 				{
 					// find agent by type
@@ -67,7 +70,7 @@ public class AgentManager
 						agentBean.execute();
 
 						// try to passivate
-						done = agentRepo.passivate(agent);
+						done = agentRepo.passivate(aid);
 					}
 				} 
 				catch (NamingException e) 
@@ -79,7 +82,7 @@ public class AgentManager
 				{
 					e.printStackTrace();
 					// force agent to passivate
-					agentRepo.passivate(agent, true);
+					agentRepo.passivate(aid, true);
 					throw e;
 				}
 			});
@@ -103,9 +106,19 @@ public class AgentManager
 		return agentRepo.contains(aid);
 	}
 	
+	public boolean contains(String name)
+	{
+		return agentRepo.contains(name);
+	}
+	
 	public AgentType getType(AgentIdentifier aid)
 	{
 		return agentRepo.find(aid).getType();
+	}
+	
+	public AgentType getType(String name)
+	{
+		return agentRepo.find(name).getType();
 	}
 	
 	public Map<String, Serializable> getPrivateData(AgentIdentifier aid)
@@ -113,6 +126,7 @@ public class AgentManager
 		return agentRepo.find(aid).getPrivateData();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void putPrivateData(AgentIdentifier aid, String key, Serializable value)
 	{
 		AgentEntity agent = agentRepo.find(aid);
@@ -120,6 +134,7 @@ public class AgentManager
 		agentRepo.merge(agent);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void removePrivateData(AgentIdentifier aid, String key)
 	{
 		AgentEntity agent = agentRepo.find(aid);
@@ -132,6 +147,7 @@ public class AgentManager
 		return agentRepo.find(aid).getPublicData();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void putPublicData(AgentIdentifier aid, String key, Serializable value)
 	{
 		AgentEntity agent = agentRepo.find(aid);
@@ -139,6 +155,7 @@ public class AgentManager
 		agentRepo.merge(agent);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void removePublicData(AgentIdentifier aid, String key)
 	{
 		AgentEntity agent = agentRepo.find(aid);
@@ -149,6 +166,11 @@ public class AgentManager
 	public String getState(AgentIdentifier aid) 
 	{
 		return agentRepo.find(aid).getState();
+	}
+	
+	public String getState(String name) 
+	{
+		return agentRepo.find(name).getState();
 	}
 	
 	public boolean hasNewMessages(AgentIdentifier aid) 

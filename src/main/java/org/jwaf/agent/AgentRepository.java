@@ -32,20 +32,25 @@ public class AgentRepository
 	
 	public AgentEntity find(AgentIdentifier aid)
 	{
-		// TODO querry by aid
-		return em.find(AgentEntity.class, 2);
+		return find(aid.getName());
+	}
+	
+	public AgentEntity find(String name)
+	{
+		return em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name", AgentEntity.class).setParameter("name", name).getResultList().get(0);
 	}
 	
 	public void merge(AgentEntity agent)
 	{
 		em.merge(agent);
-		em.flush();
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public String activate(AgentEntity agent, ACLMessage message)
+	public String activate(AgentIdentifier aid, ACLMessage message)
 	{
 		String prevState;
+		
+		AgentEntity agent = find(aid);
 
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
@@ -66,14 +71,16 @@ public class AgentRepository
 		return prevState;
 	}
 	
-	public boolean passivate(AgentEntity agent)
+	public boolean passivate(AgentIdentifier aid)
 	{
-		return passivate(agent, false);
+		return passivate(aid, false);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public boolean passivate(AgentEntity agent, boolean force)
+	public boolean passivate(AgentIdentifier aid, boolean force)
 	{
+		AgentEntity agent = find(aid);
+		
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
 		// if agent has new messages and isnt forced to passivate
@@ -98,15 +105,12 @@ public class AgentRepository
 			return true;
 		}
 	}
-
-	public List<ACLMessage> getMessages(AgentIdentifier aid)
-	{
-		return getMessages(find(aid));
-	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<ACLMessage> getMessages(AgentEntity agent) 
+	public List<ACLMessage> getMessages(AgentIdentifier aid) 
 	{
+		AgentEntity agent = find(aid);
+		
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
 		// get all messages
@@ -123,7 +127,44 @@ public class AgentRepository
 
 	public boolean contains(AgentIdentifier aid)
 	{
-		// TODO jpql select a From AgentEntity a where a.aid like :aid
-		return !(em.createQuery("").getResultList().isEmpty());
+		return contains(aid.getName());
+	}
+	
+	public boolean contains(String name)
+	{
+		return !(em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name").setParameter("name", name).getResultList().isEmpty());
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public AgentIdentifier manageAID(AgentIdentifier aid)
+	{
+		// if aid is null
+		if(aid == null)
+		{
+			// nothing to persist
+			return null;
+		}
+
+		if(aid.getName() != null)
+		{
+			// if aid with same name is already persistant return
+			List<AgentIdentifier> results = em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name like :name", AgentIdentifier.class)
+					.setParameter("name", aid.getName())
+					.getResultList();
+			if(!results.isEmpty())
+			{
+				return results.get(0);
+			}
+		}
+		else
+		{
+			// TODO throw or log, name cant be null
+			return null;
+		}
+
+		// else persist aid
+		em.persist(aid);
+		em.flush();
+		return aid;
 	}
 }
