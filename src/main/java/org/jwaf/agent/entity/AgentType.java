@@ -32,12 +32,14 @@ public class AgentType
 	private Map<String, String> attributes;
 	
 	public AgentType()
-	{}
+	{
+		attributes = new HashMap<>();
+	}
 	
 	public AgentType(String name)
 	{
+		this();
 		this.name = name;
-		attributes = new HashMap<>();
 	}
 
 	public String getName() 

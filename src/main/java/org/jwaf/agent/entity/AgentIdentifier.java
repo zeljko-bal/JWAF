@@ -34,10 +34,12 @@ public class AgentIdentifier
 	
 	@ElementCollection
 	@XmlElementWrapper
+	@XmlElement(name="address")
 	private List<URL> addresses;
 	
 	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
+	@XmlElement(name="resolver")
 	private List<AgentIdentifier> resolvers;
 	
 	@ElementCollection(fetch=FetchType.LAZY)
@@ -45,14 +47,16 @@ public class AgentIdentifier
 	private Map<String, String> userDefinedParameters;
 	
 	public AgentIdentifier()
-	{}
-	
-	public AgentIdentifier(String name)
 	{
-		this.name = name;
 		addresses = new ArrayList<>();
 		resolvers = new ArrayList<>();
 		userDefinedParameters = new HashMap<>();
+	}
+	
+	public AgentIdentifier(String name)
+	{
+		this();
+		this.name = name;
 	}
 	
 	public String getName()

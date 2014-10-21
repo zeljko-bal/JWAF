@@ -7,11 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
@@ -20,10 +18,17 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jwaf.agent.entity.AgentIdentifier;
 
 @Entity
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ACLMessage implements Serializable
 {
 	private static final long serialVersionUID = -1428088846499079746L;
@@ -32,37 +37,53 @@ public class ACLMessage implements Serializable
 	@GeneratedValue
 	private Integer id;
 	
+	@XmlElement
 	private String performative;
 	
 	@ManyToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE})
+	@XmlElement
 	private AgentIdentifier sender;
 	
 	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	@JoinTable(name = "ACLMessage_receiver")
+	@XmlElementWrapper
+	@XmlElement(name="AgentIdentifier")
 	private List<AgentIdentifier> receiver;
 	
 	@Lob 
-	@Basic(fetch=FetchType.LAZY)
+	@XmlElement
 	private Serializable content;
 	
+	@XmlElement
 	private String reply_with;
 	
 	@Temporal(TemporalType.TIMESTAMP)
+	@XmlElement
 	private Date reply_by;
 	
+	@XmlElement
 	private String reply_to;
 	
 	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	@JoinTable(name = "ACLMessage_in_reply_to")
+	@XmlElementWrapper
+	@XmlElement(name="AgentIdentifier")
 	private List<AgentIdentifier> in_reply_to;
 	
+	@XmlElement
 	private String language;
+	@XmlElement
 	private String encoding;
+	@XmlElement
 	private String ontology;
+	@XmlElement
 	private String protocol;
+	@XmlElement
 	private String conversation_id;
 
     @ElementCollection
+	@XmlElementWrapper
+	@XmlElement(name="parameter")
 	private Map<String, String> user_defined_parameters;
     
     private int unreadCount;
@@ -88,25 +109,18 @@ public class ACLMessage implements Serializable
 			String encoding, String ontology, String protocol,
 			String conversation_id)
 	{
+		this();
 		this.performative = performative;
 		this.sender = sender;
-		this.receiver = new ArrayList<>();
 		this.content = content;
 		this.reply_with = reply_with;
 		this.reply_by = reply_by;
 		this.reply_to = reply_to;
-		this.in_reply_to = new ArrayList<>();
 		this.language = language;
 		this.encoding = encoding;
 		this.ontology = ontology;
 		this.protocol = protocol;
 		this.conversation_id = conversation_id;
-		this.user_defined_parameters = new HashMap<>();
-	}
-	
-	public int getId()
-	{
-		return id;
 	}
 
 	public String getPerformative()

@@ -1,8 +1,6 @@
 package org.jwaf.agent;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -10,6 +8,8 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.agent.entity.AgentType;
+import org.jwaf.agent.persistence.DataStore;
+import org.jwaf.agent.persistence.DataStoreType;
 import org.jwaf.message.entity.ACLMessage;
 
 @Stateless
@@ -62,34 +62,9 @@ public abstract class AgentBean
 		return agentManager.getType(name);
 	}
 	
-	protected Map<String, Serializable> getPrivateData()
+	protected DataStore getData(DataStoreType type)
 	{
-		return agentManager.getPrivateData(aid);
-	}
-	
-	protected void putPrivateData(String key, Serializable value)
-	{
-		agentManager.putPrivateData(aid, key, value);
-	}
-	
-	protected void removePrivateData(String key)
-	{
-		agentManager.removePrivateData(aid, key);
-	}
-	
-	protected Map<String, Serializable> getPublicData()
-	{
-		return agentManager.getPublicData(aid);
-	}
-	
-	protected void putPublicData(String key, Serializable value)
-	{
-		agentManager.putPublicData(aid, key, value);
-	}
-	
-	protected void removePublicData(String key)
-	{
-		agentManager.removePublicData(aid, key);
+		return agentManager.getDataStore(aid.getName(), type);
 	}
 	
 	protected String getState()

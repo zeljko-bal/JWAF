@@ -1,22 +1,20 @@
 package org.jwaf.agent;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.enterprise.concurrent.ManagedExecutorService;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.agent.entity.AgentEntity;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.agent.entity.AgentType;
+import org.jwaf.agent.persistence.AgentRepository;
+import org.jwaf.agent.persistence.DataStore;
+import org.jwaf.agent.persistence.DataStoreType;
 import org.jwaf.message.entity.ACLMessage;
 
 /**
@@ -118,46 +116,9 @@ public class AgentManager
 		return agentRepo.find(name).getType();
 	}
 	
-	public Map<String, Serializable> getPrivateData(AgentIdentifier aid)
+	public DataStore getDataStore(String name, DataStoreType type)
 	{
-		return agentRepo.find(aid).getPrivateData();
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void putPrivateData(AgentIdentifier aid, String key, Serializable value)
-	{
-		AgentEntity agent = agentRepo.find(aid);
-		agent.getPrivateData().put(key, value);
-		agentRepo.merge(agent);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void removePrivateData(AgentIdentifier aid, String key)
-	{
-		AgentEntity agent = agentRepo.find(aid);
-		agent.getPrivateData().remove(key);
-		agentRepo.merge(agent);
-	}
-
-	public Map<String, Serializable> getPublicData(AgentIdentifier aid) 
-	{
-		return agentRepo.find(aid).getPublicData();
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void putPublicData(AgentIdentifier aid, String key, Serializable value)
-	{
-		AgentEntity agent = agentRepo.find(aid);
-		agent.getPublicData().put(key, value);
-		agentRepo.merge(agent);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void removePublicData(AgentIdentifier aid, String key)
-	{
-		AgentEntity agent = agentRepo.find(aid);
-		agent.getPublicData().remove(key);
-		agentRepo.merge(agent);
+		return agentRepo.getDataStore(name, type);
 	}
 	
 	public String getState(AgentIdentifier aid) 

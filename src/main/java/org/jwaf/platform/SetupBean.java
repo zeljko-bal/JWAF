@@ -12,7 +12,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
 
-import org.jwaf.agent.AgentState;
 import org.jwaf.agent.entity.AgentEntity;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.agent.entity.AgentType;

@@ -11,8 +11,8 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.AgentRepository;
 import org.jwaf.agent.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.AgentRepository;
 import org.jwaf.message.entity.ACLMessage;
 
 /**

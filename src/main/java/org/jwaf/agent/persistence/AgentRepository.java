@@ -1,4 +1,4 @@
-package org.jwaf.agent;
+package org.jwaf.agent.persistence;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
+import org.jwaf.agent.AgentState;
 import org.jwaf.agent.entity.AgentEntity;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.message.entity.ACLMessage;
@@ -124,6 +125,11 @@ public class AgentRepository
 		em.merge(agent);
 
 		return messages;
+	}
+	
+	public DataStore getDataStore(String agentName, DataStoreType type)
+	{
+		return new DataStore(this, type, agentName);
 	}
 
 	public boolean contains(AgentIdentifier aid)
