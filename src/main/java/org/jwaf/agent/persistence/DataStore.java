@@ -9,6 +9,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 import org.jwaf.agent.entity.AgentEntity;
+import org.jwaf.util.SerializationUtils;
 
 public class DataStore implements Map<String, String>
 {
@@ -72,7 +73,7 @@ public class DataStore implements Map<String, String>
 	
 	public Serializable getObject(Object key)
 	{
-		return deSerialize(get(key));
+		return SerializationUtils.deSerialize(get(key));
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class DataStore implements Map<String, String>
 	
 	public Serializable putObject(String key, Serializable value)
 	{
-		return deSerialize(put(key, serialize(value)));
+		return SerializationUtils.deSerialize(put(key, SerializationUtils.serialize(value)));
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class DataStore implements Map<String, String>
 	
 	public Serializable removeObject(Object key)
 	{
-		return deSerialize(remove(key));
+		return SerializationUtils.deSerialize(remove(key));
 	}
 
 	@Override
@@ -139,17 +140,5 @@ public class DataStore implements Map<String, String>
 	public Set<java.util.Map.Entry<String, String>> entrySet()
 	{
 		return getData().entrySet();
-	}
-	
-	public String serialize(Serializable o)
-	{
-		return null;
-		// TODO 
-	}
-	
-	public Serializable deSerialize(String s)
-	{
-		return null;
-		// TODO 
 	}
 }

@@ -25,6 +25,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jwaf.agent.entity.AgentIdentifier;
+import org.jwaf.util.SerializationUtils;
 
 @Entity
 @XmlRootElement
@@ -52,7 +53,7 @@ public class ACLMessage implements Serializable
 	
 	@Lob 
 	@XmlElement
-	private Serializable content;
+	private String content;
 	
 	@XmlElement
 	private String reply_with;
@@ -95,24 +96,27 @@ public class ACLMessage implements Serializable
     	this.user_defined_parameters = new HashMap<>();
     }
     
-	public ACLMessage(String performative, AgentIdentifier sender, Serializable content)
+	public ACLMessage(String performative, AgentIdentifier sender)
 	{
-		this(performative, sender,
-				content, 
-				null, null, null, null, null, null, null, null);
+		this();
+		this.performative = performative;
+		this.sender = sender;
+	}
+    
+	public ACLMessage(String performative, AgentIdentifier sender, String content)
+	{
+		this(performative, sender);
+		this.content = content;
 	}
 	
 	public ACLMessage(String performative, AgentIdentifier sender,
-			Serializable content,
+			String content,
 			String reply_with, Date reply_by, String reply_to,
 			String language,
 			String encoding, String ontology, String protocol,
 			String conversation_id)
 	{
-		this();
-		this.performative = performative;
-		this.sender = sender;
-		this.content = content;
+		this(performative, sender, content);
 		this.reply_with = reply_with;
 		this.reply_by = reply_by;
 		this.reply_to = reply_to;
@@ -150,15 +154,25 @@ public class ACLMessage implements Serializable
 		return receiver;
 	}
 
-	public Serializable getContent()
+	public String getContent()
 	{
 		return content;
 	}
+	
+	public Serializable getContentAsObject()
+	{
+		return SerializationUtils.deSerialize(getContent());
+	}
 
-	public ACLMessage setContent(Serializable content)
+	public ACLMessage setContent(String content)
 	{
 		this.content = content;
 		return this;
+	}
+	
+	public ACLMessage setContentAsObject(Serializable content)
+	{
+		return setContent(SerializationUtils.serialize(content));
 	}
 
 	public String getReply_with()
