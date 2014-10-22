@@ -20,7 +20,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
+import org.jwaf.agent.AgentEntityView;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.DataStoreType;
 import org.jwaf.message.entity.ACLMessage;
@@ -28,9 +30,10 @@ import org.jwaf.message.entity.ACLMessage;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AgentEntity
+public class AgentEntity implements AgentEntityView
 {
 	@Id @GeneratedValue
+	@XmlTransient
 	private Integer id;
 	
 	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE}, optional=false)
@@ -56,8 +59,10 @@ public class AgentEntity
 	@XmlElement(name="ACLMessage")
 	private List<ACLMessage> messages;
 	
+	@XmlTransient
 	private String state;
 	
+	@XmlTransient
 	private boolean hasNewMessages;
 	
 	public AgentEntity()
@@ -75,6 +80,7 @@ public class AgentEntity
 		this.aid = aid;
 	}
 
+	@Override
 	public AgentIdentifier getAid() 
 	{
 		return aid;
@@ -85,6 +91,7 @@ public class AgentEntity
 		this.aid = aid;
 	}
 
+	@Override
 	public AgentType getType() 
 	{
 		return type;
@@ -113,6 +120,7 @@ public class AgentEntity
 		return messages;
 	}
 
+	@Override
 	public String getState() 
 	{
 		return state;
@@ -123,6 +131,7 @@ public class AgentEntity
 		this.state = state;
 	}
 
+	@Override
 	public boolean hasNewMessages() 
 	{
 		return hasNewMessages;

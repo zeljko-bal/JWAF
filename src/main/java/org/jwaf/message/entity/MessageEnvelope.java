@@ -1,25 +1,38 @@
 package org.jwaf.message.entity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import org.jwaf.agent.entity.AgentIdentifier;
 
-public class MessageEnvelope implements Serializable
-{
-	private static final long serialVersionUID = 341257798411539923L;
-	
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+public class MessageEnvelope
+{	
+	@XmlElement
 	private AgentIdentifier from;
 	
+	@XmlElement
 	private List<AgentIdentifier> to;
 	
+	@XmlElement
 	private String acl_representation;
 	
+	@XmlElement
 	private Date date;
 	
+	@XmlElementWrapper
+	@XmlElement(name="stamp")
 	private List<String> received;
 	
+	@XmlElement
 	private ACLMessage content;
 
 	public MessageEnvelope()

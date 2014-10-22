@@ -1,5 +1,7 @@
 package org.jwaf.message;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +15,19 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.SchemaOutputResolver;
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
 
 import org.jwaf.agent.AgentManager;
 import org.jwaf.agent.entity.AgentEntity;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.agent.entity.AgentType;
+import org.jwaf.agent.persistence.DataStoreType;
+import org.jwaf.message.FIPA.FIPAPerformative;
 import org.jwaf.message.entity.ACLMessage;
 import org.jwaf.message.entity.MessageEnvelope;
 
@@ -37,14 +47,53 @@ public class MessageManager
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public AgentEntity testREST() throws MalformedURLException
+	public Response testREST() throws MalformedURLException
 	{
 		System.out.println("MessageManager#testREST");
 		AgentIdentifier aid = new AgentIdentifier("aid123");
 		AgentType type = new AgentType("type111");
 		AgentEntity ret = new AgentEntity(type, aid);
 		
-		return ret;
+		ret.getData(DataStoreType.PUBLIC).put("key1", "val1");
+		ret.getMessages().add((new ACLMessage(FIPAPerformative.DISCONFIRM, ret.getAid())).setContent("content"));
+		
+		
+		MessageEnvelope env = new MessageEnvelope();
+		env.setContent((new ACLMessage(FIPAPerformative.DISCONFIRM, ret.getAid())).setContent("content"));
+		
+		return Response.ok(env).build();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
+	@Path("schema")
+	public Response testRESTgetSchema() throws IOException, JAXBException
+	{
+		StringWriter writer = new StringWriter();  
+		
+		JAXBContext jaxbContext = JAXBContext.newInstance(MessageEnvelope.class);
+		
+		jaxbContext.generateSchema(new SchemaOutputResolver()
+		{
+		    @Override  
+		    public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {  
+		        final StreamResult result = new StreamResult(writer);  
+		        result.setSystemId("no-id"); // Result MUST contain system id, or JAXB throws an error message  
+		        return result;  
+		    }
+		});
+		
+		return Response.ok(writer.toString()).build();
+	}
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	public Response testRESTPosty(AgentEntity agent)
+	{
+		System.out.println("MessageManager#testRESTPosty");
+		System.out.println("agent: " + agent.getAid().getName() + ", of type: " + agent.getType().getName() + ", with message: " + agent.getMessages().get(0).getContent());
+		
+		return Response.accepted(agent).build();
 	}
 	
 	@POST
@@ -114,13 +163,13 @@ public class MessageManager
     {
     	// TODO
     }
-    
+    /*
     private void messageReceivedEventHandler()
     {
     	// TODO
-    	/*if()
+    	if()
     	{
     		messageRepo.remove(message);
-    	}*/
-    }
+    	}
+    }*/
 }

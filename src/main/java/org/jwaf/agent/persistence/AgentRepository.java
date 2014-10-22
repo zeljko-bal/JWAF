@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
+import org.jwaf.agent.AgentEntityView;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.entity.AgentEntity;
 import org.jwaf.agent.entity.AgentIdentifier;
@@ -26,24 +27,44 @@ public class AgentRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	public void create(AgentEntity agent)
+	protected AgentEntity find(String name)
 	{
-		em.persist(agent);
+		List<AgentEntity> result = getResultList(name);
+		
+		if(!result.isEmpty())
+		{
+			return result.get(0);
+		}
+		else
+		{
+			return null;
+		}
 	}
 	
-	public AgentEntity find(AgentIdentifier aid)
+	protected AgentEntity find(AgentIdentifier aid)
 	{
 		return find(aid.getName());
 	}
 	
-	public AgentEntity find(String name)
+	public AgentEntityView findView(String name)
 	{
-		return em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name", AgentEntity.class).setParameter("name", name).getResultList().get(0);
+		// TODO maybe detatch
+		return find(name);
+	}
+	
+	public AgentEntityView findView(AgentIdentifier aid)
+	{
+		return findView(aid.getName());
 	}
 	
 	public void merge(AgentEntity agent)
 	{
 		em.merge(agent);
+	}
+	
+	public void create(AgentEntity agent)
+	{
+		em.persist(agent);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -120,6 +141,9 @@ public class AgentRepository
 
 		// clear dependecies to message entities
 		agent.getMessages().clear();
+		
+		// no more messages for now
+		agent.setHasNewMessages(false);
 
 		// commit changes
 		em.merge(agent);
@@ -139,7 +163,12 @@ public class AgentRepository
 	
 	public boolean contains(String name)
 	{
-		return !(em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name").setParameter("name", name).getResultList().isEmpty());
+		return !getResultList(name).isEmpty();
+	}
+	
+	private List<AgentEntity> getResultList(String name)
+	{
+		return em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name", AgentEntity.class).setParameter("name", name).getResultList();
 	}
 
 	public AgentIdentifier manageAID(AgentIdentifier aid)
@@ -167,6 +196,9 @@ public class AgentRepository
 			// TODO throw or log, name cant be null
 			return null;
 		}
+		
+		// manage resolvers recursively
+		aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res));
 
 		// else persist aid
 		em.persist(aid);

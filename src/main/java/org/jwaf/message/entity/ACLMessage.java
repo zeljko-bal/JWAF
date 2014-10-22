@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.util.SerializationUtils;
@@ -30,12 +31,10 @@ import org.jwaf.util.SerializationUtils;
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ACLMessage implements Serializable
+public class ACLMessage
 {
-	private static final long serialVersionUID = -1428088846499079746L;
-
-	@Id
-	@GeneratedValue
+	@Id @GeneratedValue
+	@XmlTransient
 	private Integer id;
 	
 	@XmlElement
@@ -87,6 +86,7 @@ public class ACLMessage implements Serializable
 	@XmlElement(name="parameter")
 	private Map<String, String> user_defined_parameters;
     
+    @XmlTransient
     private int unreadCount;
     
     public ACLMessage()

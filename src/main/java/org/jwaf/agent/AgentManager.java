@@ -42,7 +42,7 @@ public class AgentManager
 		// if agent was passive activate him
 		if(AgentState.PASSIVE.equals(prevState))
 		{
-			String agentTypeName = agentRepo.find(aid).getType().getName();
+			String agentTypeName = find(aid).getType().getName();
 
 			// execute in a managed thread
 			execService.submit(()->
@@ -55,6 +55,7 @@ public class AgentManager
 					AgentBean agentBean = (AgentBean)(new InitialContext()).lookup(agentJNDIPrefix + agentTypeName);
 
 					// set agents identity
+					// TODO with reflection
 					agentBean.setAid(aid);
 
 					boolean done = false;
@@ -68,7 +69,7 @@ public class AgentManager
 						// try to passivate
 						done = agentRepo.passivate(aid);
 					}
-				} 
+				}
 				catch (NamingException e) 
 				{
 					// TODO Auto-generated catch block
@@ -108,12 +109,12 @@ public class AgentManager
 	
 	public AgentType getType(AgentIdentifier aid)
 	{
-		return agentRepo.find(aid).getType();
+		return find(aid).getType();
 	}
 	
 	public AgentType getType(String name)
 	{
-		return agentRepo.find(name).getType();
+		return find(name).getType();
 	}
 	
 	public DataStore getDataStore(String name, DataStoreType type)
@@ -123,16 +124,26 @@ public class AgentManager
 	
 	public String getState(AgentIdentifier aid) 
 	{
-		return agentRepo.find(aid).getState();
+		return find(aid).getState();
 	}
 	
 	public String getState(String name) 
 	{
-		return agentRepo.find(name).getState();
+		return find(name).getState();
 	}
 	
 	public boolean hasNewMessages(AgentIdentifier aid) 
 	{
-		return agentRepo.find(aid).hasNewMessages();
+		return find(aid).hasNewMessages();
+	}
+	
+	public AgentEntityView find(String name)
+	{
+		return agentRepo.findView(name);
+	}
+	
+	public AgentEntityView find(AgentIdentifier aid)
+	{
+		return find(aid.getName());
 	}
 }
