@@ -1,4 +1,4 @@
-package org.jwaf.agent.entity;
+package org.jwaf.agent.persistence.entity;
 
 import java.util.HashMap;
 import java.util.Map;

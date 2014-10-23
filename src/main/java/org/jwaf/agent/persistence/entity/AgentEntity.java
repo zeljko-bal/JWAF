@@ -1,4 +1,4 @@
-package org.jwaf.agent.entity;
+package org.jwaf.agent.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,10 +22,9 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.jwaf.agent.AgentEntityView;
 import org.jwaf.agent.AgentState;
-import org.jwaf.agent.persistence.DataStoreType;
-import org.jwaf.message.entity.ACLMessage;
+import org.jwaf.agent.persistence.repository.DataStoreType;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Entity
 @XmlRootElement

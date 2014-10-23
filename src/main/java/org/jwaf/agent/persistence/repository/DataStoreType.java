@@ -1,4 +1,4 @@
-package org.jwaf.agent.persistence;
+package org.jwaf.agent.persistence.repository;
 
 public enum DataStoreType
 {

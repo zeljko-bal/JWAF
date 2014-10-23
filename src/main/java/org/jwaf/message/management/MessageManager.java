@@ -1,4 +1,4 @@
-package org.jwaf.message;
+package org.jwaf.message.management;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -22,14 +22,15 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
-import org.jwaf.agent.AgentManager;
-import org.jwaf.agent.entity.AgentEntity;
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.entity.AgentType;
-import org.jwaf.agent.persistence.DataStoreType;
+import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.persistence.entity.AgentEntity;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.repository.DataStoreType;
 import org.jwaf.message.FIPA.FIPAPerformative;
-import org.jwaf.message.entity.ACLMessage;
-import org.jwaf.message.entity.MessageEnvelope;
+import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.message.persistence.entity.MessageEnvelope;
+import org.jwaf.message.persistence.repository.MessageRepository;
 
 /**
  * Session Bean implementation class MessageManager

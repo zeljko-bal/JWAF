@@ -1,4 +1,4 @@
-package org.jwaf.message;
+package org.jwaf.message.persistence.repository;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -8,9 +8,9 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.AgentRepository;
-import org.jwaf.message.entity.ACLMessage;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 /**
  * Session Bean implementation class MessageRepository

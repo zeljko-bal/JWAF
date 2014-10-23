@@ -1,4 +1,4 @@
-package org.jwaf.agent;
+package org.jwaf.agent.management;
 
 import javax.ejb.Asynchronous;
 import javax.ejb.LocalBean;
@@ -7,8 +7,9 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.AgentRepository;
+import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.repository.AgentRepository;
 
 @Stateless
 @LocalBean

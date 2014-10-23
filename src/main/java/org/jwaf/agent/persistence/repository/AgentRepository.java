@@ -1,4 +1,4 @@
-package org.jwaf.agent.persistence;
+package org.jwaf.agent.persistence.repository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +11,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.AgentEntityView;
 import org.jwaf.agent.AgentState;
-import org.jwaf.agent.entity.AgentEntity;
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.message.entity.ACLMessage;
+import org.jwaf.agent.persistence.entity.AgentEntity;
+import org.jwaf.agent.persistence.entity.AgentEntityView;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 /**
  * Session Bean implementation class AgentRepository

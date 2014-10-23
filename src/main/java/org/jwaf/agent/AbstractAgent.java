@@ -5,11 +5,12 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.jwaf.agent.annotation.AgentQualifier;
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.entity.AgentType;
-import org.jwaf.agent.persistence.DataStore;
-import org.jwaf.agent.persistence.DataStoreType;
-import org.jwaf.message.entity.ACLMessage;
+import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.repository.DataStore;
+import org.jwaf.agent.persistence.repository.DataStoreType;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 @AgentQualifier
 public abstract class AbstractAgent

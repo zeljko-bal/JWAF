@@ -1,4 +1,4 @@
-package org.jwaf.message.entity;
+package org.jwaf.message.persistence.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.jwaf.agent.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.util.SerializationUtils;
 
 @Entity

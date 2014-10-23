@@ -1,4 +1,4 @@
-package org.jwaf.agent;
+package org.jwaf.agent.management;
 
 import java.util.List;
 
@@ -6,12 +6,14 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.entity.AgentType;
-import org.jwaf.agent.persistence.AgentRepository;
-import org.jwaf.agent.persistence.DataStore;
-import org.jwaf.agent.persistence.DataStoreType;
-import org.jwaf.message.entity.ACLMessage;
+import org.jwaf.agent.AgentState;
+import org.jwaf.agent.persistence.entity.AgentEntityView;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.repository.DataStore;
+import org.jwaf.agent.persistence.repository.DataStoreType;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 /**
  * Session Bean implementation class AgentManager

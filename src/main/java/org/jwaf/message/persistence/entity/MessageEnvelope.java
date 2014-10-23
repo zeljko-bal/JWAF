@@ -1,4 +1,4 @@
-package org.jwaf.message.entity;
+package org.jwaf.message.persistence.entity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.jwaf.agent.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

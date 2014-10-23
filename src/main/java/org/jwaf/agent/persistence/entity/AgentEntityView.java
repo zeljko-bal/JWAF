@@ -1,7 +1,5 @@
-package org.jwaf.agent;
+package org.jwaf.agent.persistence.entity;
 
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.entity.AgentType;
 
 public interface AgentEntityView
 {

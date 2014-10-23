@@ -1,4 +1,4 @@
-package org.jwaf.agent.persistence;
+package org.jwaf.agent.persistence.repository;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.Set;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.jwaf.agent.entity.AgentEntity;
+import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.util.SerializationUtils;
 
 public class DataStore implements Map<String, String>

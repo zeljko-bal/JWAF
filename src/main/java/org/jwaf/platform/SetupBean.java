@@ -19,14 +19,14 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.UserTransaction;
 
 import org.jwaf.agent.AbstractAgent;
-import org.jwaf.agent.AgentManager;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.AgentTypeAttributes;
-import org.jwaf.agent.entity.AgentEntity;
-import org.jwaf.agent.entity.AgentIdentifier;
-import org.jwaf.agent.entity.AgentType;
-import org.jwaf.agent.persistence.AgentRepository;
-import org.jwaf.message.MessageManager;
+import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.persistence.entity.AgentEntity;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.message.management.MessageManager;
 
 
 @Singleton
