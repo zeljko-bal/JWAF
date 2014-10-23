@@ -26,11 +26,11 @@ public class AgentRepository
 {
 	@PersistenceContext
 	private EntityManager em;
-	
+
 	protected AgentEntity find(String name)
 	{
 		List<AgentEntity> result = getResultList(name);
-		
+
 		if(!result.isEmpty())
 		{
 			return result.get(0);
@@ -40,38 +40,38 @@ public class AgentRepository
 			return null;
 		}
 	}
-	
+
 	protected AgentEntity find(AgentIdentifier aid)
 	{
 		return find(aid.getName());
 	}
-	
+
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
 		return find(name);
 	}
-	
+
 	public AgentEntityView findView(AgentIdentifier aid)
 	{
 		return findView(aid.getName());
 	}
-	
+
 	public void merge(AgentEntity agent)
 	{
 		em.merge(agent);
 	}
-	
+
 	public void create(AgentEntity agent)
 	{
 		em.persist(agent);
 	}
-	
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String activate(AgentIdentifier aid, ACLMessage message)
 	{
 		String prevState;
-		
+
 		AgentEntity agent = find(aid);
 
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
@@ -90,20 +90,15 @@ public class AgentRepository
 
 		// persist
 		em.merge(agent);
-		
+
 		return prevState;
-	}
-	
-	public boolean passivate(AgentIdentifier aid)
-	{
-		return passivate(aid, false);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean passivate(AgentIdentifier aid, boolean force)
 	{
 		AgentEntity agent = find(aid);
-		
+
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
 		// if agent has new messages and isnt forced to passivate
@@ -128,12 +123,12 @@ public class AgentRepository
 			return true;
 		}
 	}
-	
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<ACLMessage> getMessages(AgentIdentifier aid) 
 	{
 		AgentEntity agent = find(aid);
-		
+
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
 		// get all messages
@@ -141,7 +136,7 @@ public class AgentRepository
 
 		// clear dependecies to message entities
 		agent.getMessages().clear();
-		
+
 		// no more messages for now
 		agent.setHasNewMessages(false);
 
@@ -151,6 +146,18 @@ public class AgentRepository
 		return messages;
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void ignoreNewMessages(AgentIdentifier aid)
+	{
+		AgentEntity agent = find(aid);
+
+		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
+		
+		agent.setHasNewMessages(false);
+		
+		em.merge(agent);
+	}
+
 	public DataStore getDataStore(String agentName, DataStoreType type)
 	{
 		return new DataStore(this, type, agentName);
@@ -160,12 +167,12 @@ public class AgentRepository
 	{
 		return contains(aid.getName());
 	}
-	
+
 	public boolean contains(String name)
 	{
 		return !getResultList(name).isEmpty();
 	}
-	
+
 	private List<AgentEntity> getResultList(String name)
 	{
 		return em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name", AgentEntity.class).setParameter("name", name).getResultList();
@@ -196,7 +203,7 @@ public class AgentRepository
 			// TODO throw or log, name cant be null
 			return null;
 		}
-		
+
 		// manage resolvers recursively
 		aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res));
 

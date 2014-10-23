@@ -43,12 +43,20 @@ public class MessageManager
 	private MessageRepository messageRepo;
 	
 	@Inject
-	AgentManager agentManager;
+	AgentManager agentManager;	
 	
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
 	public Response testREST() throws MalformedURLException
 	{
+		AgentIdentifier testAid = new AgentIdentifier("test1@platform1");
+		
+		ACLMessage testMessage = new ACLMessage();
+		testMessage.getReceiverList().add(testAid);
+		
+		handleMessage(testMessage);
+		
+		
 		System.out.println("MessageManager#testREST");
 		AgentIdentifier aid = new AgentIdentifier("aid123");
 		AgentType type = new AgentType("type111");

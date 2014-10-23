@@ -2,19 +2,17 @@ package org.jwaf.agent;
 
 import java.util.List;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.entity.AgentIdentifier;
 import org.jwaf.agent.entity.AgentType;
 import org.jwaf.agent.persistence.DataStore;
 import org.jwaf.agent.persistence.DataStoreType;
 import org.jwaf.message.entity.ACLMessage;
 
-@Stateless
-@LocalBean
-public abstract class AgentBean
+@AgentQualifier
+public abstract class AbstractAgent
 {
 	protected AgentIdentifier aid;
 	
@@ -35,6 +33,16 @@ public abstract class AgentBean
 	protected List<ACLMessage> getMessages()
 	{
 		return agentManager.getMessages(aid);
+	}
+	
+	protected boolean newMessagesAvailable()
+	{
+		return agentManager.hasNewMessages(aid);
+	}
+	
+	protected void ignoreNewMessages()
+	{
+		agentManager.ignoreNewMessages(aid);
 	}
 
 	protected boolean localPlatformContains(AgentIdentifier aid)
@@ -80,10 +88,5 @@ public abstract class AgentBean
 	protected String getState(String name)
 	{
 		return agentManager.getState(name);
-	}
-	
-	protected boolean newMessagesAvailable()
-	{
-		return agentManager.hasNewMessages(aid);
 	}
 }
