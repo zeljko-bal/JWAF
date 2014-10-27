@@ -47,7 +47,7 @@ public class AgentExecutor
 		}
 		catch (NamingException e) 
 		{
-			// TODO Auto-generated catch block
+			// TODO agent not found
 			// agent not found
 			e.printStackTrace();
 			// force agent to passivate
@@ -60,5 +60,32 @@ public class AgentExecutor
 			agentRepo.passivate(aid, true);
 			throw e;
 		}
-	}	
+	}
+	
+	@Asynchronous
+	public void setup(AgentIdentifier aid, String type)
+	{
+		try
+		{
+			// find agent by type
+			AbstractAgent agentBean = (AbstractAgent)(new InitialContext()).lookup(agentJNDIPrefix + type);
+
+			// set agents identity
+			agentBean.setAid(aid);
+			
+			// invoke initial setup
+			agentBean.setup();
+		}
+		catch (NamingException e) 
+		{
+			// TODO agent not found
+			// agent not found
+			e.printStackTrace();
+		}
+		finally
+		{
+			// force agent to passivate
+			agentRepo.passivate(aid, true);
+		}
+	}
 }

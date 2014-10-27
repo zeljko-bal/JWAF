@@ -1,5 +1,7 @@
 package org.jwaf.platform;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -33,7 +35,7 @@ import org.jwaf.message.management.MessageManager;
 @LocalBean
 @Startup
 @TransactionManagement(TransactionManagementType.BEAN)
-public class SetupBean 
+public class LocalPlatform 
 {
 	@PersistenceContext
 	EntityManager em;
@@ -56,15 +58,36 @@ public class SetupBean
 	@Inject
 	BeanManager beanManager;
 
+	private String name;
+
+	private URL address;
+
 	@PostConstruct
 	void setup()
 	{
+		name = "jwaf1";
+		try
+		{
+			address = new URL("http://localhost:8080/jwaf/");
+		} 
+		catch (MalformedURLException e1)
+		{
+			e1.printStackTrace();
+		}
+		
 		try
 		{
 			utx.begin();
 			registerAgentTypes();
+			
+			// persist local platform aid
+			em.persist(new AgentIdentifier(name));
+			
 			utx.commit();
 
+			
+			
+			//////////
 
 			utx.begin();
 
@@ -210,5 +233,15 @@ public class SetupBean
 			
 			System.out.println("registered agent type: "+type.getName());
 		});
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public URL getAddress()
+	{
+		return address;
 	}
 }

@@ -19,8 +19,13 @@ public class MessageEnvelope
 	@XmlElement
 	private AgentIdentifier from;
 	
-	@XmlElement
+	@XmlElementWrapper
+	@XmlElement(name="AgentIdentifier")
 	private List<AgentIdentifier> to;
+	
+	@XmlElementWrapper
+	@XmlElement(name="AgentIdentifier")
+	private List<AgentIdentifier> intended_receiver;
 	
 	@XmlElement
 	private String acl_representation;
@@ -54,5 +59,45 @@ public class MessageEnvelope
 	public void setContent(ACLMessage content)
 	{
 		this.content = content;
+	}
+
+	public String getAcl_representation()
+	{
+		return acl_representation;
+	}
+
+	public void setAcl_representation(String acl_representation)
+	{
+		this.acl_representation = acl_representation;
+	}
+
+	public Date getDate()
+	{
+		return date;
+	}
+
+	public void setDate(Date date)
+	{
+		this.date = date;
+	}
+
+	public AgentIdentifier getFrom()
+	{
+		return from;
+	}
+	
+	public void setFrom(AgentIdentifier from)
+	{
+		this.from = from;
+	}
+
+	public List<AgentIdentifier> getToList()
+	{
+		return to;
+	}
+	
+	public List<AgentIdentifier> getIntended_receiverList()
+	{
+		return intended_receiver;
 	}
 }

@@ -35,7 +35,7 @@ public class AgentEntity implements AgentEntityView
 	@XmlTransient
 	private Integer id;
 	
-	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE}, optional=false)
+	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST}, optional=false)
 	@XmlElement(required=true)
 	private AgentIdentifier aid;
 	
@@ -69,7 +69,8 @@ public class AgentEntity implements AgentEntityView
 		messages = new ArrayList<>();
 		privateData = new HashMap<>();
 		publicData = new HashMap<>();
-		state = AgentState.PASSIVE;
+		state = AgentState.INITIALIZING;
+		hasNewMessages = false;
 	}
 	
 	public AgentEntity(AgentType type, AgentIdentifier aid)

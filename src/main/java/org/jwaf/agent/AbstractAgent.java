@@ -27,9 +27,18 @@ public abstract class AbstractAgent
 
 	public abstract void execute();
 	
+	public void setup()
+	{/* no-op */}
+	
 	/*
 	 * methods delegated to agentManager
 	 */
+	
+	protected void sendMessage(ACLMessage message)
+	{
+		message.setSender(aid);
+		agentManager.sendMessage(message);
+	}
 	
 	protected List<ACLMessage> getMessages()
 	{
@@ -58,17 +67,17 @@ public abstract class AbstractAgent
 	
 	protected AgentType getType()
 	{
-		return agentManager.getType(aid);
+		return agentManager.getTypeOf(aid);
 	}
 	
 	protected AgentType getType(AgentIdentifier aid)
 	{
-		return agentManager.getType(aid);
+		return agentManager.getTypeOf(aid);
 	}
 	
 	protected AgentType getType(String name)
 	{
-		return agentManager.getType(name);
+		return agentManager.getTypeOf(name);
 	}
 	
 	protected DataStore getData(DataStoreType type)

@@ -37,9 +37,16 @@ public class MessageRepository
 	public void remove(ACLMessage message)
 	{
 		em.remove(message);
-		em.flush();
-		
-		// TODO fire messageRemovedEvent to delete orphan aids
+	}
+	
+	// TODO messageReceivedEventHandler
+	public void messageReceivedEventHandler(ACLMessage message)
+	{
+		if(message.getUnreadCount() <= 0)
+		{
+			remove(message);
+			// TODO fire messageRemovedEvent to delete orphan aids
+		}
 	}
 	
 	private void makeAidsManaged(ACLMessage message)

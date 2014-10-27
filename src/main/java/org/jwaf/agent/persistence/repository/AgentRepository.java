@@ -7,6 +7,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
@@ -16,6 +17,7 @@ import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.platform.LocalPlatform;
 
 /**
  * Session Bean implementation class AgentRepository
@@ -26,6 +28,9 @@ public class AgentRepository
 {
 	@PersistenceContext
 	private EntityManager em;
+	
+	@Inject
+	LocalPlatform localPlatform;
 
 	protected AgentEntity find(String name)
 	{
@@ -57,11 +62,19 @@ public class AgentRepository
 		return findView(aid.getName());
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void merge(AgentEntity agent)
 	{
 		em.merge(agent);
 	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void refresh(AgentEntity agent)
+	{
+		em.refresh(agent);
+	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void create(AgentEntity agent)
 	{
 		em.persist(agent);
@@ -78,6 +91,12 @@ public class AgentRepository
 
 		// get previous state
 		prevState = agent.getState();
+		
+		// if agent is not yet initialized
+		if(AgentState.INITIALIZING.equals(prevState))
+		{
+			// TODO throw not yet initialized
+		}
 
 		// add the message
 		agent.getMessages().add(message);
@@ -211,5 +230,10 @@ public class AgentRepository
 		em.persist(aid);
 		em.flush();
 		return aid;
+	}
+
+	public AgentIdentifier getPlatformAid()
+	{
+		return em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name LIKE :name", AgentIdentifier.class).setParameter("name", localPlatform.getName()).getSingleResult();
 	}
 }

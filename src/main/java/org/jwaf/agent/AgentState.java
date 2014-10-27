@@ -4,4 +4,5 @@ public class AgentState
 {
 	public static final String PASSIVE = "PASSIVE";
 	public static final String ACTIVE = "ACTIVE";
+	public static final String INITIALIZING = "CREATED";
 }

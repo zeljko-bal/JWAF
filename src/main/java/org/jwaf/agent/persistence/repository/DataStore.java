@@ -5,9 +5,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.util.SerializationUtils;
 
@@ -77,7 +74,6 @@ public class DataStore implements Map<String, String>
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String put(String key, String value)
 	{
 		AgentEntity agent =  getAgent();
@@ -92,7 +88,6 @@ public class DataStore implements Map<String, String>
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String remove(Object key)
 	{
 		AgentEntity agent =  getAgent();
@@ -107,7 +102,6 @@ public class DataStore implements Map<String, String>
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void putAll(Map<? extends String, ? extends String> m)
 	{
 		AgentEntity agent =  getAgent();
@@ -116,7 +110,6 @@ public class DataStore implements Map<String, String>
 	}
 
 	@Override
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void clear()
 	{
 		AgentEntity agent =  getAgent();
