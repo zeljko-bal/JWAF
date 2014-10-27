@@ -12,11 +12,11 @@ public class DataStore implements Map<String, String>
 {
 	private AgentRepository agentRepo;
 	
-	private DataStoreType type;
+	private AgentDataType type;
 	
 	private String agentName;
 	
-	public DataStore(AgentRepository agentRepo, DataStoreType type, String agentName)
+	public DataStore(AgentRepository agentRepo, AgentDataType type, String agentName)
 	{
 		this.agentRepo = agentRepo;
 		this.type = type;

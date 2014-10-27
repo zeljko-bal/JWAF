@@ -1,6 +1,6 @@
 package org.jwaf.agent.management;
 
-import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ejb.LocalBean;
@@ -24,8 +24,6 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
-import org.jwaf.agent.persistence.repository.DataStore;
-import org.jwaf.agent.persistence.repository.DataStoreType;
 import org.jwaf.message.management.MessageManager;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.LocalPlatform;
@@ -56,7 +54,7 @@ public class AgentManager
 	@POST
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response createAgent(CreateAgentRequest request)
+	public AgentIdentifier createAgent(CreateAgentRequest request)
 	{
 		AgentType type = null;
 		
@@ -86,7 +84,7 @@ public class AgentManager
 		// set state to passive
 		agentRepo.passivate(aid, true);
 		
-		return Response.ok(aid).build();
+		return aid;
 	}
 	
 	@DELETE
@@ -99,6 +97,16 @@ public class AgentManager
 		messageManager.handleMessage(message);
 		
 		return Response.ok().build();
+	}
+	
+	public AgentEntityView find(String name)
+	{
+		return agentRepo.findView(name);
+	}
+
+	public AgentEntityView find(AgentIdentifier aid)
+	{
+		return find(aid.getName());
 	}
 
 	public void deliverMessage(AgentIdentifier aid, ACLMessage message)
@@ -126,22 +134,6 @@ public class AgentManager
 				agentRepo.passivate(aid, true);
 			}
 		}
-	}
-	
-	public void sendMessage(ACLMessage message)
-	{
-		messageManager.handleMessage(message);
-	}
-
-	public List<ACLMessage> getMessages(AgentIdentifier aid)
-	{
-		List<ACLMessage> messages = agentRepo.getMessages(aid);
-
-		// notify that messages have ben retrieved
-		// TODO fireMessageRetrievedEvent
-		messages.forEach((ACLMessage message)->{/*fireMessageRetrievedEvent(message);*/});
-
-		return messages;
 	}
 
 	public boolean contains(AgentIdentifier aid)
@@ -192,40 +184,13 @@ public class AgentManager
 	{
 		typeRepo.remove(name);
 	}
-
-	public DataStore getDataStore(String name, DataStoreType type)
+	
+	@GET
+	@Path("public_data")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Map<String, String> getPublicData(String agentName)
 	{
-		return agentRepo.getDataStore(name, type);
-	}
-
-	public String getState(AgentIdentifier aid) 
-	{
-		return find(aid).getState();
-	}
-
-	public String getState(String name) 
-	{
-		return find(name).getState();
-	}
-
-	public boolean hasNewMessages(AgentIdentifier aid) 
-	{
-		return find(aid).hasNewMessages();
-	}
-
-	public void ignoreNewMessages(AgentIdentifier aid)
-	{
-		agentRepo.ignoreNewMessages(aid);
-	}
-
-	public AgentEntityView find(String name)
-	{
-		return agentRepo.findView(name);
-	}
-
-	public AgentEntityView find(AgentIdentifier aid)
-	{
-		return find(aid.getName());
+		return agentRepo.getPublicData(agentName);
 	}
 	
 	public AgentIdentifier getPlatformAid()

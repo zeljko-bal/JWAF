@@ -1,6 +1,6 @@
 package org.jwaf.agent.persistence.repository;
 
-public enum DataStoreType
+public enum AgentDataType
 {
 	PUBLIC, 
 	PRIVATE

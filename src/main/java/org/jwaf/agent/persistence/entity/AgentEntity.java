@@ -23,7 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.jwaf.agent.AgentState;
-import org.jwaf.agent.persistence.repository.DataStoreType;
+import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Entity
@@ -102,7 +102,7 @@ public class AgentEntity implements AgentEntityView
 		this.type = type;
 	}
 	
-	public Map<String, String> getData(DataStoreType type)
+	public Map<String, String> getData(AgentDataType type)
 	{
 		switch (type) 
 		{

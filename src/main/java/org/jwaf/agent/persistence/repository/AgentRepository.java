@@ -2,6 +2,7 @@ package org.jwaf.agent.persistence.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -55,11 +56,6 @@ public class AgentRepository
 	{
 		// TODO maybe detatch
 		return find(name);
-	}
-
-	public AgentEntityView findView(AgentIdentifier aid)
-	{
-		return findView(aid.getName());
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -144,9 +140,9 @@ public class AgentRepository
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<ACLMessage> getMessages(AgentIdentifier aid) 
+	public List<ACLMessage> getMessages(String name) 
 	{
-		AgentEntity agent = find(aid);
+		AgentEntity agent = find(name);
 
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 
@@ -166,9 +162,9 @@ public class AgentRepository
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void ignoreNewMessages(AgentIdentifier aid)
+	public void ignoreNewMessages(String name)
 	{
-		AgentEntity agent = find(aid);
+		AgentEntity agent = find(name);
 
 		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
 		
@@ -177,9 +173,16 @@ public class AgentRepository
 		em.merge(agent);
 	}
 
-	public DataStore getDataStore(String agentName, DataStoreType type)
+	public DataStore getDataStore(String agentName, AgentDataType type)
 	{
 		return new DataStore(this, type, agentName);
+	}
+	
+	public Map<String, String> getPublicData(String agentName)
+	{
+		AgentEntity agent = find(agentName);
+		em.detach(agent);
+		return agent.getData(AgentDataType.PUBLIC);
 	}
 
 	public boolean contains(AgentIdentifier aid)

@@ -16,19 +16,9 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MessageEnvelope
 {	
-	@XmlElement
-	private AgentIdentifier from;
-	
-	@XmlElementWrapper
-	@XmlElement(name="AgentIdentifier")
-	private List<AgentIdentifier> to;
-	
 	@XmlElementWrapper
 	@XmlElement(name="AgentIdentifier")
 	private List<AgentIdentifier> intended_receiver;
-	
-	@XmlElement
-	private String acl_representation;
 	
 	@XmlElement
 	private Date date;
@@ -42,9 +32,15 @@ public class MessageEnvelope
 
 	public MessageEnvelope()
     {
-    	to = new ArrayList<>();
     	received = new ArrayList<>();
     }
+	
+	public MessageEnvelope(ACLMessage content, List<AgentIdentifier> intended_receiver)
+	{
+		this();
+		this.content = content;
+		this.intended_receiver.addAll(intended_receiver);
+	}
 
 	public List<String> getReceived() 
 	{
@@ -61,16 +57,6 @@ public class MessageEnvelope
 		this.content = content;
 	}
 
-	public String getAcl_representation()
-	{
-		return acl_representation;
-	}
-
-	public void setAcl_representation(String acl_representation)
-	{
-		this.acl_representation = acl_representation;
-	}
-
 	public Date getDate()
 	{
 		return date;
@@ -79,21 +65,6 @@ public class MessageEnvelope
 	public void setDate(Date date)
 	{
 		this.date = date;
-	}
-
-	public AgentIdentifier getFrom()
-	{
-		return from;
-	}
-	
-	public void setFrom(AgentIdentifier from)
-	{
-		this.from = from;
-	}
-
-	public List<AgentIdentifier> getToList()
-	{
-		return to;
 	}
 	
 	public List<AgentIdentifier> getIntended_receiverList()

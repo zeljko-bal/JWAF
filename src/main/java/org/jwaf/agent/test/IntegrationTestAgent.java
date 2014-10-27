@@ -23,7 +23,9 @@ public class IntegrationTestAgent extends AbstractAgent
 		
 		System.out.println("aid is null"+(aid == null));
 		System.out.println("executing test agent: "+aid.getName());
-		System.out.println("localPlatformContains agent1@platform1: "+(localPlatformContains("agent1@platform1")));
+		System.out.println("localPlatformContains agent1@platform1: "+(agentServices.localPlatformContains("agent1@platform1")));
 		System.out.println("test end");
+		
+		messageServices.getMessages();
 	}
 }
