@@ -11,6 +11,7 @@ import javax.persistence.PersistenceContext;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.message.persistence.entity.OutboxEntry;
 
 /**
  * Session Bean implementation class MessageRepository
@@ -49,6 +50,26 @@ public class MessageRepository
 		}
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void createOutboxEntry(String receiverName, ACLMessage message)
+	{
+		em.persist(new OutboxEntry(receiverName, message));
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public ACLMessage retrieveOutboxMessage(String receiverName)
+	{
+		OutboxEntry entry = em.createQuery("SELECT e FROM OutboxEntry e WHERE e.receiverName LIKE :name", OutboxEntry.class).setParameter("name", receiverName).getSingleResult();
+		
+		em.remove(entry);
+		
+		ACLMessage message = entry.getMessage();
+		
+		/*fireMessageRetrievedEvent(message);*/
+		
+		return message;
+	}
+	
 	private void makeAidsManaged(ACLMessage message)
     {
 		// replace all aid references with managed ones
@@ -63,3 +84,4 @@ public class MessageRepository
 		message.getIn_reply_toList().replaceAll((AgentIdentifier aid) -> agentRepo.manageAID(aid) );
 	}
 }
+

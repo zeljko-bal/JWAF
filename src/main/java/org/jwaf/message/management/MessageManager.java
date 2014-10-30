@@ -14,6 +14,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -150,6 +151,14 @@ public class MessageManager
 		// if the receiver cannot be located leave message in outbox for manual retrieval
 		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
 	}
+	
+	@GET
+	@Path("outbox/{name}")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public ACLMessage retrieveOutboxMessage(@PathParam("name") String receiverName)
+	{
+		return messageRepo.retrieveOutboxMessage(receiverName);
+	}
 
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)
 	{
@@ -167,6 +176,7 @@ public class MessageManager
 		envelope.getReceived().add(localPlatformName);
 
 		// set reciever
+		envelope.getIntended_receiverList().clear();
 		envelope.getIntended_receiverList().add(aid);
 		
 		// set date
@@ -182,7 +192,7 @@ public class MessageManager
 
 	private void sendToOutbox(AgentIdentifier aid, ACLMessage message)
 	{
-		// TODO sendToOutbox
+		messageRepo.createOutboxEntry(aid.getName(), message);
 	}
 	/*
     private void messageReceivedEventHandler()

@@ -6,6 +6,7 @@ import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.services.AgentServices;
 import org.jwaf.agent.services.MessageServices;
+import org.jwaf.agent.services.ServiceDirectory;
 import org.jwaf.platform.LocalPlatform;
 
 @AgentQualifier
@@ -21,6 +22,9 @@ public abstract class AbstractAgent
 	
 	@Inject
 	protected AgentServices agentServices;
+	
+	@Inject
+	protected ServiceDirectory serviceDirectory;
 	
 	public void setAid(AgentIdentifier aid) 
 	{

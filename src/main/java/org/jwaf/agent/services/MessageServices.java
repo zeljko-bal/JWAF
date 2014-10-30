@@ -32,13 +32,7 @@ public class MessageServices
 	
 	public List<ACLMessage> getMessages()
 	{
-		List<ACLMessage> messages = agentRepo.getMessages(aid.getName());
-
-		// notify that messages have ben retrieved
-		// TODO fireMessageRetrievedEvent
-		messages.forEach((ACLMessage message)->{/*fireMessageRetrievedEvent(message);*/});
-
-		return messages;
+		return agentRepo.getMessages(aid.getName());
 	}
 	
 	public boolean newMessagesAvailable()

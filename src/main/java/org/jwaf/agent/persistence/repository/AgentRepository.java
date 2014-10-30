@@ -157,6 +157,10 @@ public class AgentRepository
 
 		// commit changes
 		em.merge(agent);
+		
+		// notify that messages have ben retrieved
+		// TODO fireMessageRetrievedEvent
+		messages.forEach((ACLMessage message)->{/*fireMessageRetrievedEvent(message);*/});
 
 		return messages;
 	}
