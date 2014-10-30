@@ -18,7 +18,7 @@ import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.LocalPlatform;
+import org.jwaf.platform.annotations.LocalPlatformName;
 
 /**
  * Session Bean implementation class AgentRepository
@@ -30,8 +30,8 @@ public class AgentRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	@Inject
-	LocalPlatform localPlatform;
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 
 	protected AgentEntity find(String name)
 	{
@@ -237,6 +237,18 @@ public class AgentRepository
 
 	public AgentIdentifier getPlatformAid()
 	{
-		return em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name LIKE :name", AgentIdentifier.class).setParameter("name", localPlatform.getName()).getSingleResult();
+		return em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name LIKE :name", AgentIdentifier.class).setParameter("name", localPlatformName).getSingleResult();
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void initializePlatformAid(String name, Map<String, String> parameters)
+	{
+		AgentIdentifier aid = new AgentIdentifier(name);
+		if(parameters != null)
+		{
+			aid.getUserDefinedParameters().putAll(parameters);
+		}
+		
+		em.persist(aid);
 	}
 }

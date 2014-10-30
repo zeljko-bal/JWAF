@@ -31,7 +31,7 @@ import org.jwaf.message.FIPA.FIPAPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.MessageEnvelope;
 import org.jwaf.message.persistence.repository.MessageRepository;
-import org.jwaf.platform.LocalPlatform;
+import org.jwaf.platform.annotations.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.util.XMLSchemaUtils;
 
@@ -49,8 +49,8 @@ public class MessageManager
 	@Inject
 	private AgentManager agentManager;
 
-	@Inject 
-	private LocalPlatform localPlatform;
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 
 	@Inject
 	private RemotePlatformManager remoteManager;
@@ -95,7 +95,7 @@ public class MessageManager
 	private void handleEnvelope(MessageEnvelope envelope)
 	{
 		// if already stamped by this platform discard
-		if(envelope.getReceived().contains(localPlatform.getName()))
+		if(envelope.getReceived().contains(localPlatformName))
 		{
 			return;
 		}
@@ -164,7 +164,7 @@ public class MessageManager
 		URL address = aid.getAddresses().get(0);
 
 		// stamp the envelope
-		envelope.getReceived().add(localPlatform.getName());
+		envelope.getReceived().add(localPlatformName);
 
 		// set reciever
 		envelope.getIntended_receiverList().add(aid);

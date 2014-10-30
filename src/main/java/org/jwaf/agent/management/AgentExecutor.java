@@ -10,12 +10,14 @@ import javax.naming.NamingException;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.platform.annotations.AgentJNDIPrefix;
 
 @Stateless
 @LocalBean
 public class AgentExecutor
 {
-	private final String agentJNDIPrefix = "java:global/jwaf/";
+	@Inject @AgentJNDIPrefix
+	private String agentJNDIPrefix;
 	
 	@Inject
 	private AgentRepository agentRepo;

@@ -1,6 +1,5 @@
 package org.jwaf.platform;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Set;
 
@@ -9,32 +8,32 @@ import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.transaction.UserTransaction;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.AgentTypeAttributes;
 import org.jwaf.agent.management.AgentManager;
-import org.jwaf.agent.persistence.entity.AgentEntity;
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.management.MessageManager;
+import org.jwaf.platform.annotations.AgentJNDIPrefix;
+import org.jwaf.platform.annotations.LocalPlatformAddress;
+import org.jwaf.platform.annotations.LocalPlatformName;
 
 
 @Singleton
 @LocalBean
 @Startup
-@TransactionManagement(TransactionManagementType.BEAN)
 public class LocalPlatform 
 {
 	@PersistenceContext
@@ -49,146 +48,35 @@ public class LocalPlatform
 	@Inject
 	AgentRepository agentRepo;
 
-	@Resource
-	UserTransaction utx;
-
 	@Inject @AgentQualifier
 	Instance<AbstractAgent> agents;
 
 	@Inject
 	BeanManager beanManager;
 
+    @Resource(name = "platform_name")
 	private String name;
 
+    @Resource(name = "platform_address")
+    private String addressString;
+    
 	private URL address;
+	
+	@Resource(name = "agent_jndi_prefix")
+	private String agentJNDIPrefix;
 
 	@PostConstruct
 	void setup()
 	{
-		name = "jwaf1";
 		try
 		{
-			address = new URL("http://localhost:8080/jwaf/");
-		} 
-		catch (MalformedURLException e1)
-		{
-			e1.printStackTrace();
-		}
-		
-		try
-		{
-			utx.begin();
+			address = new URL(addressString);
+			
 			registerAgentTypes();
 			
-			// persist local platform aid
-			em.persist(new AgentIdentifier(name));
-			
-			utx.commit();
+			agentRepo.initializePlatformAid(name, null);
 
-			
-			
-			//////////
-
-			utx.begin();
-
-			System.out.println( "\n\nHello World!\n\n" );
-
-			AgentType type = new AgentType("type1");
-			em.persist(type);
-
-			AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name LIKE :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
-
-			AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
-			em.persist(aid1);
-			AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
-			em.persist(aid2);
-			AgentIdentifier aid3 = new AgentIdentifier("agent3@platform1");
-			em.persist(aid3);
-
-			AgentIdentifier testAid = new AgentIdentifier("test1@platform1");
-			em.persist(testAid);
-
-
-			AgentEntity agent1 = new AgentEntity(type, aid1);
-			em.persist(agent1);
-
-			AgentEntity agent2 = new AgentEntity(type, aid2);
-			em.persist(agent2);
-
-			AgentEntity testAgent = new AgentEntity(testType, testAid);
-			em.persist(testAgent);
-
-			//////////////////////////
-			utx.commit();
-			utx.begin();
-			/////////////////////////
-			/*
-			ACLMessage message1 = new ACLMessage();
-			message1.getReceiverList().add(aid1);
-			message1.getReceiverList().add(aid2);
-			message1.getReceiverList().add(new AgentIdentifier(aid3.getName()));
-			message1.getReceiverList().add(new AgentIdentifier("agent4@platform2"));
-
-			//em.persist(message1);
-			messageManager.handleMessage(message1);
-			 */
-			utx.commit();
-
-
-			/*
-			utx.begin();
-
-			AgentType type = new AgentType("type1");
-			em.persist(type);
-
-
-			AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
-			em.persist(aid1);
-
-			utx.commit();
-			utx.begin();
-
-			AgentEntity agent = new AgentEntity(type, aid1);
-
-			agent.setState(AgentState.PASSIVE);
-
-			em.persist(agent);
-
-			utx.commit();
-			utx.begin();
-
-			ACLMessage message = new ACLMessage();
-
-			message.getReceiverList().add(aid1);
-
-			messageManager.handleMessage(message);
-
-			em.flush();
-
-			AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
-			em.persist(aid2);
-
-			utx.commit();
-			utx.begin();
-
-			agent = new AgentEntity(type, aid2);
-
-			em.persist(agent);
-
-			utx.commit();
-			utx.begin();
-
-			message = new ACLMessage();
-
-			message.getReceiverList().add(aid1);
-			message.getReceiverList().add(new AgentIdentifier("agent3@platform2"));
-			//message.getReceiverList().add(new AgentIdentifier("agent1@platform1"));
-
-			messageManager.handleMessage(message);
-
-			utx.commit();
-			 */
-			System.out.println( "\n\nTest end!\n\n" );
+			//doInitialTests();
 		}
 		catch(Exception e)
 		{
@@ -196,6 +84,7 @@ public class LocalPlatform
 		}
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void registerAgentTypes()
 	{
 		@SuppressWarnings("serial")
@@ -235,13 +124,123 @@ public class LocalPlatform
 		});
 	}
 	
+	@Produces @LocalPlatformName
 	public String getName()
 	{
 		return name;
 	}
 	
+	@Produces @LocalPlatformAddress
 	public URL getAddress()
 	{
 		return address;
 	}
+	
+	@Produces @AgentJNDIPrefix
+	public String getAgentJNDIPrefix()
+	{
+		return agentJNDIPrefix;
+	}
+	
+//	private void doInitialTests() throws NotSupportedException, SystemException
+//	{
+//		//////////
+//
+//		System.out.println( "\n\nHello World!\n\n" );
+//
+//		AgentType type = new AgentType("type1");
+//		em.persist(type);
+//
+//		AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name LIKE :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
+//
+//		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
+//		em.persist(aid1);
+//		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
+//		em.persist(aid2);
+//		AgentIdentifier aid3 = new AgentIdentifier("agent3@platform1");
+//		em.persist(aid3);
+//
+//		AgentIdentifier testAid = new AgentIdentifier("test1@platform1");
+//		em.persist(testAid);
+//
+//
+//		AgentEntity agent1 = new AgentEntity(type, aid1);
+//		em.persist(agent1);
+//
+//		AgentEntity agent2 = new AgentEntity(type, aid2);
+//		em.persist(agent2);
+//
+//		AgentEntity testAgent = new AgentEntity(testType, testAid);
+//		em.persist(testAgent);
+//
+//		//////////////////////////
+//		/////////////////////////
+//		/*
+//		ACLMessage message1 = new ACLMessage();
+//		message1.getReceiverList().add(aid1);
+//		message1.getReceiverList().add(aid2);
+//		message1.getReceiverList().add(new AgentIdentifier(aid3.getName()));
+//		message1.getReceiverList().add(new AgentIdentifier("agent4@platform2"));
+//
+//		//em.persist(message1);
+//		messageManager.handleMessage(message1);
+//		 */
+//		
+//
+//
+//		/*
+//		utx.begin();
+//
+//		AgentType type = new AgentType("type1");
+//		em.persist(type);
+//
+//
+//		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
+//		em.persist(aid1);
+//
+//		utx.commit();
+//		utx.begin();
+//
+//		AgentEntity agent = new AgentEntity(type, aid1);
+//
+//		agent.setState(AgentState.PASSIVE);
+//
+//		em.persist(agent);
+//
+//		utx.commit();
+//		utx.begin();
+//
+//		ACLMessage message = new ACLMessage();
+//
+//		message.getReceiverList().add(aid1);
+//
+//		messageManager.handleMessage(message);
+//
+//		em.flush();
+//
+//		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
+//		em.persist(aid2);
+//
+//		utx.commit();
+//		utx.begin();
+//
+//		agent = new AgentEntity(type, aid2);
+//
+//		em.persist(agent);
+//
+//		utx.commit();
+//		utx.begin();
+//
+//		message = new ACLMessage();
+//
+//		message.getReceiverList().add(aid1);
+//		message.getReceiverList().add(new AgentIdentifier("agent3@platform2"));
+//		//message.getReceiverList().add(new AgentIdentifier("agent1@platform1"));
+//
+//		messageManager.handleMessage(message);
+//
+//		utx.commit();
+//		 */
+//		System.out.println( "\n\nTest end!\n\n" );
+//	}
 }

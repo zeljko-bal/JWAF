@@ -1,5 +1,6 @@
 package org.jwaf.agent.management;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,7 +27,8 @@ import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 import org.jwaf.message.management.MessageManager;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.LocalPlatform;
+import org.jwaf.platform.annotations.LocalPlatformAddress;
+import org.jwaf.platform.annotations.LocalPlatformName;
 
 /**
  * Session Bean implementation class AgentManager
@@ -48,8 +50,11 @@ public class AgentManager
 	@Inject
 	private MessageManager messageManager;
 	
-	@Inject 
-	private LocalPlatform localPlatform;
+	@Inject @LocalPlatformName
+	private String localPlatformName;
+	
+	@Inject @LocalPlatformAddress
+	private URL localPlatformAddress;
 	
 	@POST
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -69,8 +74,8 @@ public class AgentManager
 		}
 		
 		// new aid with name : random-uuid@local-platform-name
-		AgentIdentifier aid = new AgentIdentifier(UUID.randomUUID().toString()+"@"+localPlatform.getName());
-		aid.getAddresses().add(localPlatform.getAddress());
+		AgentIdentifier aid = new AgentIdentifier(UUID.randomUUID().toString()+"@"+localPlatformName);
+		aid.getAddresses().add(localPlatformAddress);
 		aid.getUserDefinedParameters().putAll(request.getParams());
 		
 		AgentEntity newAgent = new AgentEntity(type, aid);
