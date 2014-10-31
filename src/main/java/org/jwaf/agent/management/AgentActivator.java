@@ -8,13 +8,16 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.AgentState;
+import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
-import org.jwaf.platform.annotations.AgentJNDIPrefix;
+import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.platform.annotation.resource.AgentJNDIPrefix;
 
 @Stateless
 @LocalBean
-public class AgentExecutor
+public class AgentActivator
 {
 	@Inject @AgentJNDIPrefix
 	private String agentJNDIPrefix;
@@ -23,14 +26,51 @@ public class AgentExecutor
 	private AgentRepository agentRepo;
 
 	@Asynchronous
-	public void execute(AgentIdentifier aid, String type)
+	public void activate(AgentIdentifier aid, ACLMessage message)
+	{
+		// activate agent and get previous state
+		String prevState = agentRepo.activate(aid, message);
+		
+		// agent not yet initialized
+		if(AgentState.INITIALIZING.equals(prevState))
+		{
+			// TODO logger AgentState.INITIALIZING
+			return;
+		}
+
+		// if agent was passive activate him
+		if(AgentState.PASSIVE.equals(prevState))
+		{
+			String agentTypeName = agentRepo.findView(aid.getName()).getType().getName();
+
+			// execute asynchronously
+			try
+			{
+				//execService.submit(new AgentExec(aid, agentTypeName));
+				execute(aid, agentTypeName);
+			}
+			catch(AgentSelfTerminatedException ex)
+			{
+				// TODO logger AgentSelfTerminatedException
+				System.out.println(ex.getMessage());
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				// if service submit failed force agent to passivate
+				agentRepo.passivate(aid, true);
+			}
+		}
+	}
+	
+	private void execute(AgentIdentifier aid, String type)
 	{
 		System.out.println("executing agent activation of agent: "+aid.getName() + ", of type: " + type);
 
 		try
 		{
 			// find agent by type
-			AbstractAgent agentBean = (AbstractAgent)(new InitialContext()).lookup(agentJNDIPrefix + type);
+			AbstractAgent agentBean = findAgent(type);
 
 			// set agents identity
 			agentBean.setAid(aid);
@@ -70,7 +110,7 @@ public class AgentExecutor
 		try
 		{
 			// find agent by type
-			AbstractAgent agentBean = (AbstractAgent)(new InitialContext()).lookup(agentJNDIPrefix + type);
+			AbstractAgent agentBean = findAgent(type);
 
 			// set agents identity
 			agentBean.setAid(aid);
@@ -89,5 +129,10 @@ public class AgentExecutor
 			// force agent to passivate
 			agentRepo.passivate(aid, true);
 		}
+	}
+
+	private AbstractAgent findAgent(String type) throws NamingException
+	{
+		return (AbstractAgent)(new InitialContext()).lookup(agentJNDIPrefix + type);
 	}
 }

@@ -2,8 +2,11 @@ package org.jwaf.agent.services;
 
 import java.util.Map;
 
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -12,6 +15,8 @@ import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
 
+@Stateless
+@LocalBean
 public class AgentServices
 {
 	@Inject
@@ -33,12 +38,12 @@ public class AgentServices
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
 	{
-		return agentManager.contains(aid);
+		return agentRepo.contains(aid);
 	}
 	
 	public boolean localPlatformContains(String name)
 	{
-		return agentManager.contains(name);
+		return agentRepo.contains(name);
 	}
 	
 	/*
@@ -64,9 +69,15 @@ public class AgentServices
 		return agentManager.createAgent(request);
 	}
 	
-	public void deleteAgent(String name)
+	public void requestAgentTermination(String name)
 	{
-		agentManager.deleteAgent(name);
+		agentManager.requestAgentTermination(name);
+	}
+	
+	public void terminateSelf()
+	{
+		agentRepo.remove(aid.getName());
+		throw new AgentSelfTerminatedException("agent <" + aid.getName() + "> self terminated.");
 	}
 	
 	/*
@@ -75,17 +86,17 @@ public class AgentServices
 	
 	public String getState()
 	{
-		return agentManager.find(aid).getState();
+		return agentRepo.findView(aid.getName()).getState();
 	}
 	
 	public String getState(AgentIdentifier aid)
 	{
-		return agentManager.find(aid).getState();
+		return agentRepo.findView(aid.getName()).getState();
 	}
 	
 	public String getState(String name)
 	{
-		return agentManager.find(name).getState();
+		return agentRepo.findView(name).getState();
 	}
 	
 	/*
@@ -99,7 +110,7 @@ public class AgentServices
 	
 	protected AgentType getType(AgentIdentifier aid)
 	{
-		return agentManager.getTypeOf(aid);
+		return agentManager.getTypeOf(aid.getName());
 	}
 	
 	protected AgentType getTypeOf(String name)

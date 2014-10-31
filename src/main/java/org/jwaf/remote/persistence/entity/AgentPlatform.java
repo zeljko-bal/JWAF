@@ -1,6 +1,7 @@
 package org.jwaf.remote.persistence.entity;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -32,10 +33,22 @@ public class AgentPlatform
 	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
 	@XmlElement(name="aid")
-	private List<AgentIdentifier> agentIds;
+	private List<AgentIdentifier> agentAids;
 	
 	@XmlElement
 	private URL address;
+	
+	public AgentPlatform()
+	{
+		this.agentAids = new ArrayList<>();
+	}
+
+	public AgentPlatform(String name, URL address)
+	{
+		this();
+		this.name = name;
+		this.address = address;
+	}
 
 	public String getName()
 	{
@@ -57,8 +70,8 @@ public class AgentPlatform
 		this.address = address;
 	}
 
-	public List<AgentIdentifier> getAgentIds()
+	public List<AgentIdentifier> getAgentAids()
 	{
-		return agentIds;
+		return agentAids;
 	}
 }

@@ -64,4 +64,14 @@ public class RemotePlatformRepository
 		return null;
 		
 	}
+
+	public void unregister(String platformName)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	public void unregister(String agentName, String platformName)
+	{
+		// TODO Auto-generated method stub
+	}
 }

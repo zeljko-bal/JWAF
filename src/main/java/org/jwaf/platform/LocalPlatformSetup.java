@@ -1,23 +1,19 @@
 package org.jwaf.platform;
 
-import java.net.URL;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
+import javax.ejb.DependsOn;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
@@ -25,19 +21,21 @@ import org.jwaf.agent.annotation.AgentTypeAttributes;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 import org.jwaf.message.management.MessageManager;
-import org.jwaf.platform.annotations.AgentJNDIPrefix;
-import org.jwaf.platform.annotations.LocalPlatformAddress;
-import org.jwaf.platform.annotations.LocalPlatformName;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 
 @Singleton
 @LocalBean
 @Startup
-public class LocalPlatform 
+@DependsOn("LocalPlatformPtoperties")
+public class LocalPlatformSetup 
 {
-	@PersistenceContext
-	EntityManager em;
+	//@PersistenceContext
+	//EntityManager em;
+	@Inject
+	AgentTypeRepository typeRepo;
 
 	@Inject
 	MessageManager messageManager;
@@ -53,28 +51,18 @@ public class LocalPlatform
 
 	@Inject
 	BeanManager beanManager;
-
-    @Resource(name = "platform_name")
-	private String name;
-
-    @Resource(name = "platform_address")
-    private String addressString;
-    
-	private URL address;
 	
-	@Resource(name = "agent_jndi_prefix")
-	private String agentJNDIPrefix;
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 
 	@PostConstruct
 	void setup()
 	{
 		try
-		{
-			address = new URL(addressString);
-			
+		{			
 			registerAgentTypes();
 			
-			agentRepo.initializePlatformAid(name, null);
+			//agentRepo.initializePlatformAid(localPlatformName, null); TODO initializePlatformAid
 
 			//doInitialTests();
 		}
@@ -91,7 +79,7 @@ public class LocalPlatform
 		Set<Bean<?>> beans = beanManager.getBeans(AbstractAgent.class, new AnnotationLiteral<AgentQualifier>() {});
 		
 		beans.forEach((Bean<?> agentBean)->
-		{		
+		{
 			Class<?> agentClass = agentBean.getBeanClass();
 			
 			AgentType type = new AgentType(agentClass.getSimpleName());
@@ -118,28 +106,10 @@ public class LocalPlatform
 				}
 			}
 
-			em.persist(type);
+			typeRepo.create(type);
 			
-			System.out.println("registered agent type: "+type.getName());
+			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
 		});
-	}
-	
-	@Produces @LocalPlatformName
-	public String getName()
-	{
-		return name;
-	}
-	
-	@Produces @LocalPlatformAddress
-	public URL getAddress()
-	{
-		return address;
-	}
-	
-	@Produces @AgentJNDIPrefix
-	public String getAgentJNDIPrefix()
-	{
-		return agentJNDIPrefix;
 	}
 	
 //	private void doInitialTests() throws NotSupportedException, SystemException

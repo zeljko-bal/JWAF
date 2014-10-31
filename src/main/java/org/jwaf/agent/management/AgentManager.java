@@ -18,17 +18,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
-import org.jwaf.message.management.MessageManager;
+import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotations.LocalPlatformAddress;
-import org.jwaf.platform.annotations.LocalPlatformName;
+import org.jwaf.performative.PlatformPerformative;
+import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 /**
  * Session Bean implementation class AgentManager
@@ -45,10 +45,10 @@ public class AgentManager
 	private AgentTypeRepository typeRepo;
 	
 	@Inject
-	private AgentExecutor executor;
+	private AgentActivator activator;
 	
 	@Inject
-	private MessageManager messageManager;
+	private MessageSender messageSender;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
@@ -84,7 +84,7 @@ public class AgentManager
 		agentRepo.create(newAgent);
 		
 		// invoke custom setup method
-		executor.setup(aid, request.getType());
+		activator.setup(aid, request.getType());
 		
 		// set state to passive
 		agentRepo.passivate(aid, true);
@@ -94,56 +94,15 @@ public class AgentManager
 	
 	@DELETE
 	@Path("{name}")
-	public Response deleteAgent(@PathParam("name") String name)
+	@Inject
+	public Response requestAgentTermination(@PathParam("name") String name)
 	{
-		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_DELETE, getPlatformAid());
+		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, getPlatformAid());
 		message.getReceiverList().add(find(name).getAid());
 		
-		messageManager.handleMessage(message);
+		messageSender.send(message);
 		
 		return Response.ok().build();
-	}
-	
-	public AgentEntityView find(String name)
-	{
-		return agentRepo.findView(name);
-	}
-
-	public AgentEntityView find(AgentIdentifier aid)
-	{
-		return find(aid.getName());
-	}
-
-	public void deliverMessage(AgentIdentifier aid, ACLMessage message)
-	{
-		String prevState = null;
-
-		// activate agent and get previous state
-		prevState = agentRepo.activate(aid, message);
-
-		// if agent was passive activate him
-		if(AgentState.PASSIVE.equals(prevState))
-		{
-			String agentTypeName = find(aid).getType().getName();
-
-			// execute asynchronously
-			try
-			{
-				//execService.submit(new AgentExec(aid, agentTypeName));
-				executor.execute(aid, agentTypeName);
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				// if service submit failed force agent to passivate
-				agentRepo.passivate(aid, true);
-			}
-		}
-	}
-
-	public boolean contains(AgentIdentifier aid)
-	{
-		return agentRepo.contains(aid);
 	}
 
 	@GET
@@ -152,11 +111,6 @@ public class AgentManager
 	public boolean contains(@PathParam("name") String name)
 	{
 		return agentRepo.contains(name);
-	}
-
-	public AgentType getTypeOf(AgentIdentifier aid)
-	{
-		return find(aid).getType();
 	}
 
 	@GET
@@ -191,15 +145,23 @@ public class AgentManager
 	}
 	
 	@GET
-	@Path("public_data")
+	@Path("public_data/{name}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Map<String, String> getPublicData(String agentName)
+	public Map<String, String> getPublicData(@PathParam("name") String agentName)
 	{
 		return agentRepo.getPublicData(agentName);
 	}
 	
+	@GET
+	@Path("platform_aid")
+	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public AgentIdentifier getPlatformAid()
 	{
 		return agentRepo.getPlatformAid();
+	}
+	
+	private AgentEntityView find(String name)
+	{
+		return agentRepo.findView(name);
 	}
 }

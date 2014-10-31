@@ -1,4 +1,4 @@
-package org.jwaf.rest;
+package org.jwaf.platform.rest;
 
 import javax.ws.rs.ApplicationPath;
 

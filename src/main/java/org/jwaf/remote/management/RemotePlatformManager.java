@@ -1,5 +1,6 @@
 package org.jwaf.remote.management;
 
+import java.net.URL;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -39,14 +40,24 @@ public class RemotePlatformManager
 		return repo.containsAid(name);
 	}
 	
-	public void register(AgentPlatform platform)
+	public void register(String name, URL url)
 	{
-		repo.register(platform);
+		repo.register(new AgentPlatform(name, url));
 	}
 	
 	public void register(AgentIdentifier aid, String platformName)
 	{
 		repo.register(aid, platformName);
+	}
+	
+	public void unregister(String platformName)
+	{
+		repo.unregister(platformName);
+	}
+	
+	public void unregister(String agentName, String platformName)
+	{
+		repo.unregister(agentName, platformName);
 	}
 	
 	public List<AgentIdentifier> retrieveAids(String platformName)

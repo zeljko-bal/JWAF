@@ -8,6 +8,8 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -17,8 +19,10 @@ import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.message.annotation.event.MessageRemovedEvent;
+import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotations.LocalPlatformName;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 /**
  * Session Bean implementation class AgentRepository
@@ -32,6 +36,9 @@ public class AgentRepository
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
+	
+	@Inject @MessageRetrievedEvent
+	private Event<ACLMessage> messageRetrievedEvent;
 
 	protected AgentEntity find(String name)
 	{
@@ -75,6 +82,21 @@ public class AgentRepository
 	{
 		em.persist(agent);
 	}
+	
+	public void remove(String name)
+	{
+		AgentEntity agent = find(name);
+		
+		removeTransactional(agent);
+		
+		removeOrphanedAid(agent.getAid());
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private void removeTransactional(AgentEntity agent)
+	{		
+		em.remove(agent);
+	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String activate(AgentIdentifier aid, ACLMessage message)
@@ -91,7 +113,7 @@ public class AgentRepository
 		// if agent is not yet initialized
 		if(AgentState.INITIALIZING.equals(prevState))
 		{
-			// TODO throw not yet initialized
+			return prevState;
 		}
 
 		// add the message
@@ -139,8 +161,18 @@ public class AgentRepository
 		}
 	}
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<ACLMessage> getMessages(String name) 
+	{
+		List<ACLMessage> messages = getMessagesTransactional(name);
+		
+		// notify that messages have ben retrieved
+		messages.forEach((ACLMessage message) -> messageRetrievedEvent.fire(message));
+
+		return messages;
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private List<ACLMessage> getMessagesTransactional(String name)
 	{
 		AgentEntity agent = find(name);
 
@@ -157,10 +189,6 @@ public class AgentRepository
 
 		// commit changes
 		em.merge(agent);
-		
-		// notify that messages have ben retrieved
-		// TODO fireMessageRetrievedEvent
-		messages.forEach((ACLMessage message)->{/*fireMessageRetrievedEvent(message);*/});
 
 		return messages;
 	}
@@ -245,7 +273,7 @@ public class AgentRepository
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void initializePlatformAid(String name, Map<String, String> parameters)
+	public AgentIdentifier createAid(String name, Map<String, String> parameters)
 	{
 		AgentIdentifier aid = new AgentIdentifier(name);
 		if(parameters != null)
@@ -254,5 +282,20 @@ public class AgentRepository
 		}
 		
 		em.persist(aid);
+		
+		return aid;
+	}
+	
+	public void messageRemovedEventHandler(@Observes @MessageRemovedEvent ACLMessage message)
+	{
+		removeOrphanedAid(message.getSender());
+		message.getReceiverList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
+		message.getIn_reply_toList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private void removeOrphanedAid(AgentIdentifier aid)
+	{
+		// TODO check dependencies, remove aid
 	}
 }

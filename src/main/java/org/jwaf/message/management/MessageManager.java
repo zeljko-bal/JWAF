@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -23,16 +24,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
-import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AgentActivator;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.message.FIPA.FIPAPerformative;
+import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.message.annotation.event.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.message.persistence.entity.MessageEnvelope;
+import org.jwaf.message.persistence.entity.TransportMessage;
 import org.jwaf.message.persistence.repository.MessageRepository;
-import org.jwaf.platform.annotations.LocalPlatformName;
+import org.jwaf.performative.FIPAPerformative;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.util.XMLSchemaUtils;
 
@@ -46,15 +49,18 @@ public class MessageManager
 {
 	@Inject
 	private MessageRepository messageRepo;
-
+	
 	@Inject
-	private AgentManager agentManager;
-
-	@Inject @LocalPlatformName
-	private String localPlatformName;
+	private AgentRepository agentRepo;
 
 	@Inject
 	private RemotePlatformManager remoteManager;
+	
+	@Inject
+	private AgentActivator activator;
+	
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
@@ -77,26 +83,26 @@ public class MessageManager
 		ret.getMessages().add((new ACLMessage(FIPAPerformative.DISCONFIRM, ret.getAid())).setContent("content"));
 
 
-		MessageEnvelope env = new MessageEnvelope();
+		TransportMessage tm = new TransportMessage();
 
-		return Response.ok(env).build();
+		return Response.ok(tm).build();
 	}
 
 	@POST
 	@Path("acl")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public void handleMessage(ACLMessage message)
+	public void handleMessage(@Observes @MessageSentEvent ACLMessage message)
 	{
-		handleEnvelope(new MessageEnvelope(message, message.getReceiverList()));
+		handleTransportMessage(new TransportMessage(message, message.getReceiverList()));
 	}
 
 	@POST
-	@Path("envelope")
+	@Path("transport")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	private void handleEnvelope(MessageEnvelope envelope)
+	public void handleTransportMessage(TransportMessage transportMessage)
 	{
 		// if already stamped by this platform discard
-		if(envelope.getReceived().contains(localPlatformName))
+		if(transportMessage.getStamps().contains(localPlatformName))
 		{
 			return;
 		}
@@ -105,12 +111,12 @@ public class MessageManager
 		List<AgentIdentifier> remote = new ArrayList<>();
 		List<AgentIdentifier> outbox = new ArrayList<>();
 
-		List<AgentIdentifier> recievers = envelope.getIntended_receiverList();
+		List<AgentIdentifier> recievers = transportMessage.getIntendedReceivers();
 
 		// classify receivers
 		recievers.forEach((AgentIdentifier aid)->
 		{
-			if(agentManager.contains(aid))
+			if(agentRepo.contains(aid))
 			{
 				// if agent is local
 				local.add(aid);
@@ -133,7 +139,7 @@ public class MessageManager
 			}
 		});
 		
-		ACLMessage message = envelope.getContent();
+		ACLMessage message = transportMessage.getContent();
 
 		// persist if needed
 		if(!local.isEmpty() || !outbox.isEmpty())
@@ -147,7 +153,7 @@ public class MessageManager
 		// if agent is local send to local agent
 		local.forEach((AgentIdentifier aid)-> sendToLocal(aid, message));
 		// if we can locate agent on a remote platform send to remote platform
-		remote.forEach((AgentIdentifier aid)-> sendToRemote(aid, envelope));
+		remote.forEach((AgentIdentifier aid)-> sendToRemote(aid, transportMessage));
 		// if the receiver cannot be located leave message in outbox for manual retrieval
 		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
 	}
@@ -163,60 +169,50 @@ public class MessageManager
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)
 	{
 		// link messages to agents and notify them
-		// TODO maybe async/event
-		agentManager.deliverMessage(aid, message);
+		activator.activate(aid, message);
 	}
 
-	private void sendToRemote(AgentIdentifier aid, MessageEnvelope envelope)
+	private void sendToRemote(AgentIdentifier aid, TransportMessage transportMessage)
 	{
 		// obtain the address
 		URL address = aid.getAddresses().get(0);
 
-		// stamp the envelope
-		envelope.getReceived().add(localPlatformName);
+		// stamp the message
+		transportMessage.getStamps().add(localPlatformName);
 
 		// set reciever
-		envelope.getIntended_receiverList().clear();
-		envelope.getIntended_receiverList().add(aid);
+		transportMessage.getIntendedReceivers().clear();
+		transportMessage.getIntendedReceivers().add(aid);
 		
 		// set date
-		if(envelope.getDate() == null)
+		if(transportMessage.getDateSent() == null)
 		{
-			envelope.setDate(new Date());
+			transportMessage.setDateSent(new Date());
 		}
 
 		// call remote service
 		Client client = ClientBuilder.newClient();
-		client.target(address.toString()).path("message").path("envelope").request().post(Entity.xml(envelope));
+		client.target(address.toString()).path("message").path("transport").request().post(Entity.xml(transportMessage));
 	}
 
 	private void sendToOutbox(AgentIdentifier aid, ACLMessage message)
 	{
 		messageRepo.createOutboxEntry(aid.getName(), message);
 	}
-	/*
-    private void messageReceivedEventHandler()
-    {
-    	// TODO messageReceivedEventHandler
-    	if()
-    	{
-    		messageRepo.remove(message);
-    	}
-    }*/
 
 	@GET
 	@Path("/acl/schema")
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getAclSchema() throws IOException, JAXBException
-	{		
+	public Response getAclMessageSchema() throws IOException, JAXBException
+	{
 		return Response.ok(XMLSchemaUtils.generate(ACLMessage.class)).build();
 	}
 
 	@GET
-	@Path("/envelope/schema")
+	@Path("/transport/schema")
 	@Produces(MediaType.APPLICATION_XML)
-	public Response getEnvelopeSchema() throws IOException, JAXBException
+	public Response getTransportMessageSchema() throws IOException, JAXBException
 	{
-		return Response.ok(XMLSchemaUtils.generate(MessageEnvelope.class)).build();
+		return Response.ok(XMLSchemaUtils.generate(TransportMessage.class)).build();
 	}
 }

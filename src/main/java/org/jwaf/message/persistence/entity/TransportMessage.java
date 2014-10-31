@@ -14,37 +14,37 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-public class MessageEnvelope
+public class TransportMessage
 {	
 	@XmlElementWrapper
 	@XmlElement(name="AgentIdentifier")
-	private List<AgentIdentifier> intended_receiver;
+	private List<AgentIdentifier> intendedReceivers;
 	
 	@XmlElement
-	private Date date;
+	private Date dateSent;
 	
 	@XmlElementWrapper
 	@XmlElement(name="stamp")
-	private List<String> received;
+	private List<String> stamps;
 	
 	@XmlElement
 	private ACLMessage content;
 
-	public MessageEnvelope()
+	public TransportMessage()
     {
-    	received = new ArrayList<>();
+		stamps = new ArrayList<>();
     }
 	
-	public MessageEnvelope(ACLMessage content, List<AgentIdentifier> intended_receiver)
+	public TransportMessage(ACLMessage content, List<AgentIdentifier> intendedReceivers)
 	{
 		this();
 		this.content = content;
-		this.intended_receiver.addAll(intended_receiver);
+		this.intendedReceivers.addAll(intendedReceivers);
 	}
 
-	public List<String> getReceived() 
+	public List<String> getStamps() 
 	{
-		return received;
+		return stamps;
 	}
 	
     public ACLMessage getContent()
@@ -57,18 +57,18 @@ public class MessageEnvelope
 		this.content = content;
 	}
 
-	public Date getDate()
+	public Date getDateSent()
 	{
-		return date;
+		return dateSent;
 	}
 
-	public void setDate(Date date)
+	public void setDateSent(Date date)
 	{
-		this.date = date;
+		this.dateSent = date;
 	}
 	
-	public List<AgentIdentifier> getIntended_receiverList()
+	public List<AgentIdentifier> getIntendedReceivers()
 	{
-		return intended_receiver;
+		return intendedReceivers;
 	}
 }

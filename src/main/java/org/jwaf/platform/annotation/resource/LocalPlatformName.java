@@ -1,4 +1,4 @@
-package org.jwaf.platform.annotations;
+package org.jwaf.platform.annotation.resource;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

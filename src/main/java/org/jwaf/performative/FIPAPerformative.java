@@ -1,4 +1,4 @@
-package org.jwaf.message.FIPA;
+package org.jwaf.performative;
 
 public class FIPAPerformative
 {

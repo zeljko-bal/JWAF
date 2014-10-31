@@ -7,7 +7,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.services.AgentServices;
 import org.jwaf.agent.services.MessageServices;
 import org.jwaf.agent.services.ServiceDirectory;
-import org.jwaf.platform.LocalPlatform;
+import org.jwaf.platform.LocalPlatformSetup;
 
 @AgentQualifier
 public abstract class AbstractAgent
@@ -15,7 +15,7 @@ public abstract class AbstractAgent
 	protected AgentIdentifier aid;
 	
 	@Inject 
-	protected LocalPlatform localPlatform;
+	protected LocalPlatformSetup localPlatform;
 	
 	@Inject
 	protected MessageServices messageServices;
@@ -31,6 +31,7 @@ public abstract class AbstractAgent
 		this.aid = aid;
 		messageServices.setAid(aid);
 		agentServices.setAid(aid);
+		serviceDirectory.setAid(aid);
 	}
 
 	public abstract void execute();

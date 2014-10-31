@@ -4,12 +4,17 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.message.annotation.event.MessageRemovedEvent;
+import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.OutboxEntry;
 
@@ -25,6 +30,12 @@ public class MessageRepository
 	
 	@Inject
 	AgentRepository agentRepo;
+	
+	@Inject @MessageRetrievedEvent
+	private Event<ACLMessage> messageRetrievedEvent;
+	
+	@Inject @MessageRemovedEvent
+	private Event<ACLMessage> messageRemovedEvent;
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void persist(ACLMessage message)
@@ -33,20 +44,34 @@ public class MessageRepository
 		
 		em.persist(message);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void remove(ACLMessage message)
+	
+	public void messageRetrievedEventHandler(@Observes @MessageRetrievedEvent ACLMessage message)
 	{
-		em.remove(message);
+		if(removeUnusedMessage(message))
+		{
+			messageRemovedEvent.fire(message);
+		}
 	}
 	
-	// TODO messageReceivedEventHandler
-	public void messageReceivedEventHandler(ACLMessage message)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private boolean removeUnusedMessage(ACLMessage message)
 	{
+		em.refresh(message, LockModeType.PESSIMISTIC_WRITE);
+		
+		// decrement unread count
+		message.setUnreadCount(message.getUnreadCount()-1);
+				
 		if(message.getUnreadCount() <= 0)
 		{
-			remove(message);
-			// TODO fire messageRemovedEvent to delete orphan aids
+			em.remove(message);
+			
+			return true;
+		}
+		else 
+		{
+			em.merge(message);
+			
+			return false;
 		}
 	}
 	
@@ -56,18 +81,23 @@ public class MessageRepository
 		em.persist(new OutboxEntry(receiverName, message));
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public ACLMessage retrieveOutboxMessage(String receiverName)
+	{		
+		ACLMessage message = retrieveOutboxMessageTransactional(receiverName);
+		
+		messageRetrievedEvent.fire(message);
+		
+		return message;
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private ACLMessage retrieveOutboxMessageTransactional(String receiverName)
 	{
 		OutboxEntry entry = em.createQuery("SELECT e FROM OutboxEntry e WHERE e.receiverName LIKE :name", OutboxEntry.class).setParameter("name", receiverName).getSingleResult();
 		
 		em.remove(entry);
 		
-		ACLMessage message = entry.getMessage();
-		
-		/*fireMessageRetrievedEvent(message);*/
-		
-		return message;
+		return entry.getMessage();
 	}
 	
 	private void makeAidsManaged(ACLMessage message)
