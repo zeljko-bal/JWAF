@@ -38,12 +38,12 @@ public class AgentServices
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
 	{
-		return agentRepo.contains(aid);
+		return agentManager.contains(aid.getName());
 	}
 	
 	public boolean localPlatformContains(String name)
 	{
-		return agentRepo.contains(name);
+		return agentManager.contains(name);
 	}
 	
 	/*
@@ -103,18 +103,23 @@ public class AgentServices
 	 * type
 	 */
 	
-	protected AgentType getType()
+	public AgentType getType()
 	{
 		return agentManager.getTypeOf(aid.getName());
 	}
 	
-	protected AgentType getType(AgentIdentifier aid)
+	public AgentType getTypeOf(AgentIdentifier aid)
 	{
 		return agentManager.getTypeOf(aid.getName());
 	}
 	
-	protected AgentType getTypeOf(String name)
+	public AgentType getTypeOf(String name)
 	{
 		return agentManager.getTypeOf(name);
+	}
+	
+	public AgentType findType(String typeName)
+	{
+		return agentManager.findType(typeName);
 	}
 }

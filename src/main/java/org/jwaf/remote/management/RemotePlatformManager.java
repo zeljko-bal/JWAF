@@ -19,7 +19,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
-import org.jwaf.agent.annotation.event.AgentCreatedEvent;
+import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.annotation.event.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
@@ -80,7 +80,7 @@ public class RemotePlatformManager
 	@POST
 	@Path("aid/register/{name}")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public void register(AgentIdentifier aid, @PathParam("name") String platformName)
+	public void registerAid(AgentIdentifier aid, @PathParam("name") String platformName)
 	{
 		repo.register(aid, platformName);
 	}
@@ -94,7 +94,7 @@ public class RemotePlatformManager
 	
 	@DELETE
 	@Path("aid/{platformName}/{agentName}")
-	public void unregister(@PathParam("platformName") String platformName, @PathParam("agentName") String agentName)
+	public void unregisterAid(@PathParam("platformName") String platformName, @PathParam("agentName") String agentName)
 	{
 		repo.unregister(agentName, platformName);
 	}
@@ -115,7 +115,7 @@ public class RemotePlatformManager
 		return repo.retrieveAgentIds(platformName);
 	}
 	
-	public void agentCreatedEventHandler(@Observes @AgentCreatedEvent AgentIdentifier aid)
+	public void agentInitializedEventHandler(@Observes @AgentInitializedEvent AgentIdentifier aid)
 	{
 		retrievePlatforms().forEach((AgentPlatform platform) -> 
 		{

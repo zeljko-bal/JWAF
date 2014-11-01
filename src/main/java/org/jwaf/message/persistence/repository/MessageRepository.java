@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
+import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.annotation.event.MessageRemovedEvent;
@@ -36,6 +37,9 @@ public class MessageRepository
 	
 	@Inject @MessageRemovedEvent
 	private Event<ACLMessage> messageRemovedEvent;
+	
+	@Inject @AidReferenceDroppedEvent
+	private Event<AgentIdentifier> aidReferenceDroppedEvent;
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void persist(ACLMessage message)
@@ -50,6 +54,10 @@ public class MessageRepository
 		if(removeUnusedMessage(message))
 		{
 			messageRemovedEvent.fire(message);
+			// drop aid references
+			aidReferenceDroppedEvent.fire(message.getSender());
+			message.getReceiverList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid));
+			message.getIn_reply_toList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid));
 		}
 	}
 	

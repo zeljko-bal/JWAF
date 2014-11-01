@@ -18,7 +18,6 @@ import javax.inject.Inject;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.AgentTypeAttributes;
-import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
@@ -39,9 +38,6 @@ public class LocalPlatformSetup
 
 	@Inject
 	MessageManager messageManager;
-	
-	@Inject
-	AgentManager agentManager;
 	
 	@Inject
 	AgentRepository agentRepo;

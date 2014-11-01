@@ -18,11 +18,10 @@ import javax.persistence.PersistenceContext;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotation.event.AgentCreatedEvent;
 import org.jwaf.agent.annotation.event.AgentRemovedEvent;
-import org.jwaf.agent.annotation.event.RemoteAidUnregisteredEvent;
+import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.message.annotation.event.MessageRemovedEvent;
 import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
@@ -98,8 +97,10 @@ public class AgentRepository
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void removeTransactional(AgentEntity agent)
-	{		
+	{
 		em.remove(agent);
+		
+		decrementAidReferenceCount(agent.getAid());
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -283,21 +284,27 @@ public class AgentRepository
 		return aid;
 	}
 	
-	public void messageRemovedEventHandler(@Observes @MessageRemovedEvent ACLMessage message)
+	public void AidReferenceDroppedEventHandler(@Observes @AidReferenceDroppedEvent AgentIdentifier aid)
 	{
-		removeOrphanedAid(message.getSender());
-		message.getReceiverList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
-		message.getIn_reply_toList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
+		decrementAidReferenceCount(aid);
+		removeOrphanedAid(aid);
 	}
 	
-	public void remoteAidUnregisteredEventHandler(@Observes @RemoteAidUnregisteredEvent AgentIdentifier aid)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private void decrementAidReferenceCount(AgentIdentifier aid)
 	{
-		removeOrphanedAid(aid);
+		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
+		aid.setRefCount(aid.getRefCount() - 1);
+		em.merge(aid);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void removeOrphanedAid(AgentIdentifier aid)
 	{
-		// TODO check dependencies, remove aid
+		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
+		if(aid.getRefCount() <= 0)
+		{
+			em.remove(aid);
+		}
 	}
 }

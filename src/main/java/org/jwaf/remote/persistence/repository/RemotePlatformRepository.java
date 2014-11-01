@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
+import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.annotation.event.RemoteAidUnregisteredEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
@@ -25,6 +26,9 @@ public class RemotePlatformRepository
 	
 	@Inject @RemoteAidUnregisteredEvent
 	private Event<AgentIdentifier> remoteAidUnregisteredEvent;
+	
+	@Inject @AidReferenceDroppedEvent
+	private Event<AgentIdentifier> aidReferenceDroppedEvent;
 	
 	public AgentPlatform find(String name)
 	{
@@ -84,7 +88,7 @@ public class RemotePlatformRepository
 		
 		unregisterTransactional(platform);
 		
-		platform.getAgentIds().forEach((AgentIdentifier aid) -> remoteAidUnregisteredEvent.fire(aid));
+		platform.getAgentIds().forEach((AgentIdentifier aid) -> fireUnregisterEvents(aid));
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -97,7 +101,13 @@ public class RemotePlatformRepository
 	{
 		AgentIdentifier aid = unregisterAidTransactional(agentName, platformName);
 		
+		fireUnregisterEvents(aid);
+	}
+
+	private void fireUnregisterEvents(AgentIdentifier aid)
+	{
 		remoteAidUnregisteredEvent.fire(aid);
+		aidReferenceDroppedEvent.fire(aid);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

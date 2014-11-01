@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.ws.rs.Consumes;
@@ -18,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -56,6 +58,9 @@ public class AgentManager
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
 	
+	@Inject @AgentInitializedEvent
+	private Event<AgentIdentifier> agentInitializedEvent;
+	
 	@POST
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -77,6 +82,7 @@ public class AgentManager
 		AgentIdentifier aid = new AgentIdentifier(UUID.randomUUID().toString()+"@"+localPlatformName);
 		aid.getAddresses().add(localPlatformAddress);
 		aid.getUserDefinedParameters().putAll(request.getParams());
+		aid.setRefCount(1);
 		
 		AgentEntity newAgent = new AgentEntity(type, aid);
 		
@@ -88,6 +94,8 @@ public class AgentManager
 		
 		// set state to passive
 		agentRepo.passivate(aid, true);
+		
+		agentInitializedEvent.fire(aid);
 		
 		return aid;
 	}
