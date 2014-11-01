@@ -28,14 +28,14 @@ public class AgentPlatform
 	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
 	@XmlElement(name="aid")
-	private List<AgentIdentifier> agentAids;
+	private List<AgentIdentifier> agentIds;
 	
 	@XmlElement
 	private URL address;
 	
 	public AgentPlatform()
 	{
-		this.agentAids = new ArrayList<>();
+		this.agentIds = new ArrayList<>();
 	}
 
 	public AgentPlatform(String name, URL address)
@@ -65,8 +65,8 @@ public class AgentPlatform
 		this.address = address;
 	}
 
-	public List<AgentIdentifier> getAgentAids()
+	public List<AgentIdentifier> getAgentIds()
 	{
-		return agentAids;
+		return agentIds;
 	}
 }

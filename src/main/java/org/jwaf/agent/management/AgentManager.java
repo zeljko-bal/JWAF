@@ -114,7 +114,7 @@ public class AgentManager
 	}
 
 	@GET
-	@Path("type/{name}")
+	@Path("type/of/{name}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public AgentType getTypeOf(@PathParam("name") String name)
 	{

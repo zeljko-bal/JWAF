@@ -16,6 +16,9 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.AgentState;
+import org.jwaf.agent.annotation.event.AgentCreatedEvent;
+import org.jwaf.agent.annotation.event.AgentRemovedEvent;
+import org.jwaf.agent.annotation.event.RemoteAidUnregisteredEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -39,6 +42,12 @@ public class AgentRepository
 	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
+	
+	@Inject @AgentCreatedEvent
+	private Event<AgentIdentifier> agentCreatedEvent;
+	
+	@Inject @AgentRemovedEvent
+	private Event<AgentIdentifier> agentRemovedEvent;
 
 	protected AgentEntity findAgent(String name)
 	{
@@ -72,6 +81,8 @@ public class AgentRepository
 	public void create(AgentEntity agent)
 	{
 		em.persist(agent);
+		
+		agentCreatedEvent.fire(agent.getAid());
 	}
 	
 	public void remove(String name)
@@ -81,6 +92,8 @@ public class AgentRepository
 		removeTransactional(agent);
 		
 		removeOrphanedAid(agent.getAid());
+		
+		agentRemovedEvent.fire(agent.getAid());
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -275,6 +288,11 @@ public class AgentRepository
 		removeOrphanedAid(message.getSender());
 		message.getReceiverList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
 		message.getIn_reply_toList().forEach((AgentIdentifier aid) -> removeOrphanedAid(aid));
+	}
+	
+	public void remoteAidUnregisteredEventHandler(@Observes @RemoteAidUnregisteredEvent AgentIdentifier aid)
+	{
+		removeOrphanedAid(aid);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
