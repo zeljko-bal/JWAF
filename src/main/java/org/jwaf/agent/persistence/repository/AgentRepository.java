@@ -255,12 +255,12 @@ public class AgentRepository
 		return aid;
 	}
 	
-	protected AgentIdentifier findAid(String name)
+	public AgentIdentifier findAid(String name)
 	{
 		return em.find(AgentIdentifier.class, name);
 	}
 	
-	protected boolean containsAid(String name)
+	public boolean containsAid(String name)
 	{
 		return findAid(name) != null;
 	}

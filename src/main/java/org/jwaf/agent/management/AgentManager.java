@@ -19,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
@@ -163,6 +164,7 @@ public class AgentManager
 	@GET
 	@Path("platform_aid")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	@javax.enterprise.inject.Produces @LocalPlatformAid
 	public AgentIdentifier getPlatformAid()
 	{
 		return agentRepo.getPlatformAid();
