@@ -93,7 +93,7 @@ public class MessageRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private ACLMessage retrieveOutboxMessageTransactional(String receiverName)
 	{
-		OutboxEntry entry = em.createQuery("SELECT e FROM OutboxEntry e WHERE e.receiverName LIKE :name", OutboxEntry.class).setParameter("name", receiverName).getSingleResult();
+		OutboxEntry entry = em.find(OutboxEntry.class, receiverName);
 		
 		em.remove(entry);
 		

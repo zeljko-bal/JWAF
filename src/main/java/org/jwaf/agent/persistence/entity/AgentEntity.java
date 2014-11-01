@@ -9,7 +9,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
@@ -30,11 +29,8 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AgentEntity implements AgentEntityView
-{
-	@Id @GeneratedValue
-	@XmlTransient
-	private Integer id;
-	
+{	
+	@Id
 	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST}, optional=false)
 	@XmlElement(required=true)
 	private AgentIdentifier aid;

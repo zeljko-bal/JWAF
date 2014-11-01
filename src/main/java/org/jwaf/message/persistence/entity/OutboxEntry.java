@@ -1,20 +1,17 @@
 package org.jwaf.message.persistence.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
 @Entity
 public class OutboxEntry
 {
-	@Id @GeneratedValue
-	private Integer id;
+	@Id
+	private String receiverName;
 	
 	@OneToOne
 	private ACLMessage message;
-	
-	private String receiverName;
 	
 	public OutboxEntry()
 	{}

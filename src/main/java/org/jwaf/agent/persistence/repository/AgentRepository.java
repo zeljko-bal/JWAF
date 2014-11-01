@@ -40,29 +40,20 @@ public class AgentRepository
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
 
-	protected AgentEntity find(String name)
+	protected AgentEntity findAgent(String name)
 	{
-		List<AgentEntity> result = getResultList(name);
-
-		if(!result.isEmpty())
-		{
-			return result.get(0);
-		}
-		else
-		{
-			return null;
-		}
+		return em.find(AgentEntity.class, name);
 	}
 
-	protected AgentEntity find(AgentIdentifier aid)
+	protected AgentEntity findAgent(AgentIdentifier aid)
 	{
-		return find(aid.getName());
+		return findAgent(aid.getName());
 	}
 
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
-		return find(name);
+		return findAgent(name);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -85,7 +76,7 @@ public class AgentRepository
 	
 	public void remove(String name)
 	{
-		AgentEntity agent = find(name);
+		AgentEntity agent = findAgent(name);
 		
 		removeTransactional(agent);
 		
@@ -103,9 +94,7 @@ public class AgentRepository
 	{
 		String prevState;
 
-		AgentEntity agent = find(aid);
-
-		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
+		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
 		// get previous state
 		prevState = agent.getState();
@@ -134,9 +123,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean passivate(AgentIdentifier aid, boolean force)
 	{
-		AgentEntity agent = find(aid);
-
-		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
+		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
 		// if agent has new messages and isnt forced to passivate
 		if(agent.hasNewMessages() && !force)
@@ -174,9 +161,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private List<ACLMessage> getMessagesTransactional(String name)
 	{
-		AgentEntity agent = find(name);
-
-		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
+		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 
 		// get all messages
 		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());		
@@ -196,9 +181,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void ignoreNewMessages(String name)
 	{
-		AgentEntity agent = find(name);
-
-		em.lock(agent, LockModeType.PESSIMISTIC_WRITE);
+		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 		
 		agent.setHasNewMessages(false);
 		
@@ -212,7 +195,7 @@ public class AgentRepository
 	
 	public Map<String, String> getPublicData(String agentName)
 	{
-		AgentEntity agent = find(agentName);
+		AgentEntity agent = findAgent(agentName);
 		em.detach(agent);
 		return agent.getData(AgentDataType.PUBLIC);
 	}
@@ -224,12 +207,7 @@ public class AgentRepository
 
 	public boolean contains(String name)
 	{
-		return !getResultList(name).isEmpty();
-	}
-
-	private List<AgentEntity> getResultList(String name)
-	{
-		return em.createQuery("SELECT a FROM AgentEntity a WHERE a.aid.name LIKE :name", AgentEntity.class).setParameter("name", name).getResultList();
+		return findAgent(name) != null;
 	}
 
 	public AgentIdentifier manageAID(AgentIdentifier aid)
@@ -244,18 +222,14 @@ public class AgentRepository
 		if(aid.getName() != null)
 		{
 			// if aid with same name is already persistant return
-			List<AgentIdentifier> results = em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name like :name", AgentIdentifier.class)
-					.setParameter("name", aid.getName())
-					.getResultList();
-			if(!results.isEmpty())
+			if(!containsAid(aid.getName()))
 			{
-				return results.get(0);
+				return findAid(aid.getName());
 			}
 		}
 		else
 		{
-			// TODO throw or log, name cant be null
-			return null;
+			throw new NullPointerException("[AgentRepository#manageAID] Agent name cannot be null.");
 		}
 
 		// manage resolvers recursively
@@ -266,10 +240,20 @@ public class AgentRepository
 		em.flush();
 		return aid;
 	}
+	
+	protected AgentIdentifier findAid(String name)
+	{
+		return em.find(AgentIdentifier.class, name);
+	}
+	
+	protected boolean containsAid(String name)
+	{
+		return findAid(name) != null;
+	}
 
 	public AgentIdentifier getPlatformAid()
 	{
-		return em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name LIKE :name", AgentIdentifier.class).setParameter("name", localPlatformName).getSingleResult();
+		return em.find(AgentIdentifier.class, localPlatformName);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

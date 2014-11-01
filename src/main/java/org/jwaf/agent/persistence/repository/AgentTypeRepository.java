@@ -19,7 +19,7 @@ public class AgentTypeRepository
 	
 	public AgentType find(String name) throws NoResultException
 	{
-		return em.createQuery("SELECT t FROM AgentType t WHERE t.name LIKE :name", AgentType.class).setParameter("name", name).getSingleResult();
+		return em.find(AgentType.class, name);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

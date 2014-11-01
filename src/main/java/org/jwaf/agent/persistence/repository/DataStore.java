@@ -30,7 +30,7 @@ public class DataStore implements Map<String, String>
 	
 	private AgentEntity getAgent()
 	{
-		return agentRepo.find(agentName);
+		return agentRepo.findAgent(agentName);
 	}
 	
 	private void merge(AgentEntity agent)
