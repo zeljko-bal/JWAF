@@ -13,6 +13,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
 
 @Stateless
@@ -24,6 +25,9 @@ public class AgentServices
 	
 	@Inject
 	private AgentRepository agentRepo;
+	
+	@Inject
+	private AgentTypeRepository typeRepo;
 	
 	private AgentIdentifier aid;
 	
@@ -38,12 +42,12 @@ public class AgentServices
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
 	{
-		return agentManager.contains(aid.getName());
+		return agentRepo.contains(aid.getName());
 	}
 	
 	public boolean localPlatformContains(String name)
 	{
-		return agentManager.contains(name);
+		return agentRepo.contains(name);
 	}
 	
 	/*
@@ -57,7 +61,7 @@ public class AgentServices
 	
 	public Map<String, String> getPublicData(String agentName)
 	{
-		return agentManager.getPublicData(agentName);
+		return agentRepo.getPublicData(agentName);
 	}
 	
 	/*
@@ -66,12 +70,12 @@ public class AgentServices
 	
 	public AgentIdentifier createAgent(CreateAgentRequest request)
 	{
-		return agentManager.createAgent(request);
+		return agentManager.initialize(request);
 	}
 	
 	public void requestAgentTermination(String name)
 	{
-		agentManager.requestAgentTermination(name);
+		agentManager.requestTermination(name);
 	}
 	
 	public void terminateSelf()
@@ -105,21 +109,21 @@ public class AgentServices
 	
 	public AgentType getType()
 	{
-		return agentManager.getTypeOf(aid.getName());
+		return agentRepo.findView(aid.getName()).getType();
 	}
 	
 	public AgentType getTypeOf(AgentIdentifier aid)
 	{
-		return agentManager.getTypeOf(aid.getName());
+		return agentRepo.findView(aid.getName()).getType();
 	}
 	
 	public AgentType getTypeOf(String name)
 	{
-		return agentManager.getTypeOf(name);
+		return agentRepo.findView(name).getType();
 	}
 	
 	public AgentType findType(String typeName)
 	{
-		return agentManager.findType(typeName);
+		return typeRepo.find(typeName);
 	}
 }

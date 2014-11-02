@@ -9,7 +9,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Event;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
@@ -24,7 +23,6 @@ import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 /**
  * Session Bean implementation class AgentRepository
@@ -36,8 +34,8 @@ public class AgentRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	@Inject @LocalPlatformName
-	private String localPlatformName;
+	@Inject @AidReferenceDroppedEvent
+	private Event<AgentIdentifier> aidReferenceDroppedEvent;
 	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
@@ -53,11 +51,6 @@ public class AgentRepository
 		return em.find(AgentEntity.class, name);
 	}
 
-	protected AgentEntity findAgent(AgentIdentifier aid)
-	{
-		return findAgent(aid.getName());
-	}
-
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
@@ -65,23 +58,29 @@ public class AgentRepository
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void merge(AgentEntity agent)
+	protected void merge(AgentEntity agent)
 	{
 		em.merge(agent);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void refresh(AgentEntity agent)
+	protected void refresh(AgentEntity agent)
 	{
 		em.refresh(agent);
 	}
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public void create(AgentEntity agent)
 	{
-		em.persist(agent);
+		createTransactional(agent);
 		
 		agentCreatedEvent.fire(agent.getAid());
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private void createTransactional(AgentEntity agent)
+	{
+		em.persist(agent);
 	}
 	
 	public void remove(String name)
@@ -90,8 +89,7 @@ public class AgentRepository
 		
 		removeTransactional(agent);
 		
-		removeOrphanedAid(agent.getAid());
-		
+		aidReferenceDroppedEvent.fire(agent.getAid());
 		agentRemovedEvent.fire(agent.getAid());
 	}
 	
@@ -99,8 +97,6 @@ public class AgentRepository
 	private void removeTransactional(AgentEntity agent)
 	{
 		em.remove(agent);
-		
-		decrementAidReferenceCount(agent.getAid());
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -162,7 +158,7 @@ public class AgentRepository
 		}
 	}
 
-	public List<ACLMessage> getMessages(String name) 
+	public List<ACLMessage> getMessages(String name)
 	{
 		List<ACLMessage> messages = getMessagesTransactional(name);
 		
@@ -222,89 +218,5 @@ public class AgentRepository
 	public boolean contains(String name)
 	{
 		return findAgent(name) != null;
-	}
-
-	public AgentIdentifier manageAID(AgentIdentifier aid)
-	{
-		// if aid is null
-		if(aid == null)
-		{
-			// nothing to persist
-			return null;
-		}
-
-		if(aid.getName() != null)
-		{
-			// if aid with same name is already persistant return
-			if(!containsAid(aid.getName()))
-			{
-				return findAid(aid.getName());
-			}
-		}
-		else
-		{
-			throw new NullPointerException("[AgentRepository#manageAID] Agent name cannot be null.");
-		}
-
-		// manage resolvers recursively
-		aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res));
-
-		// else persist aid
-		em.persist(aid);
-		em.flush();
-		return aid;
-	}
-	
-	public AgentIdentifier findAid(String name)
-	{
-		return em.find(AgentIdentifier.class, name);
-	}
-	
-	public boolean containsAid(String name)
-	{
-		return findAid(name) != null;
-	}
-
-	public AgentIdentifier getPlatformAid()
-	{
-		return em.find(AgentIdentifier.class, localPlatformName);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public AgentIdentifier createAid(String name, Map<String, String> parameters)
-	{
-		AgentIdentifier aid = new AgentIdentifier(name);
-		if(parameters != null)
-		{
-			aid.getUserDefinedParameters().putAll(parameters);
-		}
-		
-		em.persist(aid);
-		
-		return aid;
-	}
-	
-	public void AidReferenceDroppedEventHandler(@Observes @AidReferenceDroppedEvent AgentIdentifier aid)
-	{
-		decrementAidReferenceCount(aid);
-		removeOrphanedAid(aid);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void decrementAidReferenceCount(AgentIdentifier aid)
-	{
-		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
-		aid.setRefCount(aid.getRefCount() - 1);
-		em.merge(aid);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void removeOrphanedAid(AgentIdentifier aid)
-	{
-		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
-		if(aid.getRefCount() <= 0)
-		{
-			em.remove(aid);
-		}
 	}
 }

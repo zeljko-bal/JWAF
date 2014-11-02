@@ -9,7 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.event.persistence.entity.EventEntity;
 
 @Stateless
@@ -20,12 +20,16 @@ public class EventRepository
 	private EntityManager em;
 	
 	@Inject
-	private AgentRepository agentRepo;
-	
+	private AidRepository aidRepo;
 	
 	public EventEntity find(String name)
 	{
 		return em.find(EventEntity.class, name);
+	}
+	
+	public boolean exists(String name)
+	{
+		return find(name) != null;
 	}
 	
 	public void register(String name)
@@ -54,7 +58,7 @@ public class EventRepository
 	{
 		EventEntity event = find(eventName);
 		
-		AgentIdentifier aid = agentRepo.findAid(agentName);
+		AgentIdentifier aid = aidRepo.findAid(agentName);
 		
 		event.getRegisteredAgents().add(aid);
 		

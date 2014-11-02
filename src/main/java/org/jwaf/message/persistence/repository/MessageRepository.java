@@ -13,7 +13,7 @@ import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.message.annotation.event.MessageRemovedEvent;
 import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -30,7 +30,7 @@ public class MessageRepository
 	EntityManager em;
 	
 	@Inject
-	AgentRepository agentRepo;
+	AidRepository aidRepo;
 	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
@@ -113,13 +113,13 @@ public class MessageRepository
 		// replace all aid references with managed ones
 		
 		// replace sender aid with managedAid
-		message.setSender(agentRepo.manageAID(message.getSender()));
+		message.setSender(aidRepo.manageAID(message.getSender()));
 
 		// replace receiver list with managedAids		
-		message.getReceiverList().replaceAll((AgentIdentifier aid) -> agentRepo.manageAID(aid) );
+		message.getReceiverList().replaceAll((AgentIdentifier aid) -> aidRepo.manageAID(aid) );
 		
 		// replace in_reply_to list with managedAids		
-		message.getIn_reply_toList().replaceAll((AgentIdentifier aid) -> agentRepo.manageAID(aid) );
+		message.getIn_reply_toList().replaceAll((AgentIdentifier aid) -> aidRepo.manageAID(aid) );
 	}
 }
 

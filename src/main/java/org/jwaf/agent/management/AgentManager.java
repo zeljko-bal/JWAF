@@ -1,7 +1,6 @@
 package org.jwaf.agent.management;
 
 import java.net.URL;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.ejb.LocalBean;
@@ -9,20 +8,10 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
-import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
@@ -38,7 +27,6 @@ import org.jwaf.platform.annotation.resource.LocalPlatformName;
  */
 @Stateless
 @LocalBean
-@Path("agent")
 public class AgentManager 
 {
 	@Inject
@@ -62,10 +50,10 @@ public class AgentManager
 	@Inject @AgentInitializedEvent
 	private Event<AgentIdentifier> agentInitializedEvent;
 	
-	@POST
-	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public AgentIdentifier createAgent(CreateAgentRequest request)
+	@Inject @LocalPlatformAid
+	private AgentIdentifier localPlatformAid;
+	
+	public AgentIdentifier initialize(CreateAgentRequest request)
 	{
 		AgentType type = null;
 		
@@ -101,77 +89,11 @@ public class AgentManager
 		return aid;
 	}
 	
-	@DELETE
-	@Path("{name}")
-	@Inject
-	public Response requestAgentTermination(@PathParam("name") String name)
+	public void requestTermination(String name)
 	{
-		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, getPlatformAid());
-		message.getReceiverList().add(find(name).getAid());
+		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, localPlatformAid);
+		message.getReceiverList().add(agentRepo.findView(name).getAid());
 		
 		messageSender.send(message);
-		
-		return Response.ok().build();
-	}
-
-	@GET
-	@Path("contains/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public boolean contains(@PathParam("name") String name)
-	{
-		return agentRepo.contains(name);
-	}
-
-	@GET
-	@Path("type/of/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public AgentType getTypeOf(@PathParam("name") String name)
-	{
-		return find(name).getType();
-	}
-	
-	@GET
-	@Path("type/info/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public AgentType findType(@PathParam("name") String name)
-	{
-		return typeRepo.find(name);
-	}
-	
-	@POST
-	@Path("type/info")
-	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public void createType(AgentType type)
-	{
-		typeRepo.create(type);
-	}
-	
-	@DELETE
-	@Path("type/info/{name}")
-	public void removeType(@PathParam("name") String name)
-	{
-		typeRepo.remove(name);
-	}
-	
-	@GET
-	@Path("public_data/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Map<String, String> getPublicData(@PathParam("name") String agentName)
-	{
-		return agentRepo.getPublicData(agentName);
-	}
-	
-	@GET
-	@Path("platform_aid")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	@javax.enterprise.inject.Produces @LocalPlatformAid
-	public AgentIdentifier getPlatformAid()
-	{
-		return agentRepo.getPlatformAid();
-	}
-	
-	private AgentEntityView find(String name)
-	{
-		return agentRepo.findView(name);
 	}
 }

@@ -36,6 +36,11 @@ public class EventManager
 	@Inject @AgentJNDIPrefix
 	private String agentJNDIPrefix;
 
+	public boolean exists(String name)
+	{
+		return eventRepo.exists(name);
+	}
+	
 	public void register(String name)
 	{
 		eventRepo.register(name);
@@ -98,7 +103,7 @@ public class EventManager
 		message.setPerformative(PlatformPerformative.EVENT_MESSAGE);
 		message.setSender(localPlatformAid);
 		message.getReceiverList().addAll(event.getRegisteredAgents());
-		message.getUserDefinedParameters().put("EVENT_NAME", event.getName());
+		message.getUserDefinedParameters().put(EventMessageProperties.EVENT_NAME, event.getName());
 		
 		messageSender.send(message);
 	}
