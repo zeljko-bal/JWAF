@@ -9,7 +9,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -110,7 +109,7 @@ public class MessageManager
 		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
 	}
 	
-	public ACLMessage retrieveOutboxMessage(@PathParam("name") String receiverName)
+	public ACLMessage retrieveOutboxMessage(String receiverName)
 	{
 		return messageRepo.retrieveOutboxMessage(receiverName);
 	}
