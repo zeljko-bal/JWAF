@@ -39,7 +39,7 @@ public class MessageRepository
 	private Event<ACLMessage> messageRemovedEvent;
 	
 	@Inject @AidReferenceDroppedEvent
-	private Event<AgentIdentifier> aidReferenceDroppedEvent;
+	private Event<String> aidReferenceDroppedEvent;
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void persist(ACLMessage message)
@@ -55,9 +55,9 @@ public class MessageRepository
 		{
 			messageRemovedEvent.fire(message);
 			// drop aid references
-			aidReferenceDroppedEvent.fire(message.getSender());
-			message.getReceiverList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid));
-			message.getIn_reply_toList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid));
+			aidReferenceDroppedEvent.fire(message.getSender().getName());
+			message.getReceiverList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid.getName()));
+			message.getIn_reply_toList().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid.getName()));
 		}
 	}
 	

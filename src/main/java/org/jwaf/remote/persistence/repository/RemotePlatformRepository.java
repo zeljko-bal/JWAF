@@ -13,8 +13,8 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
-import org.jwaf.agent.annotation.event.RemoteAidUnregisteredEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 @Stateless
@@ -24,11 +24,11 @@ public class RemotePlatformRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	@Inject @RemoteAidUnregisteredEvent
-	private Event<AgentIdentifier> remoteAidUnregisteredEvent;
+	@Inject
+	private AidRepository aidRepo;
 	
 	@Inject @AidReferenceDroppedEvent
-	private Event<AgentIdentifier> aidReferenceDroppedEvent;
+	private Event<String> aidReferenceDroppedEvent;
 	
 	public AgentPlatform find(String name)
 	{
@@ -66,7 +66,7 @@ public class RemotePlatformRepository
 	{
 		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
 		
-		platform.getAgentIds().add(aid);
+		platform.getAgentIds().add(aidRepo.manageAID(aid));
 		
 		em.merge(platform);
 	}
@@ -88,7 +88,7 @@ public class RemotePlatformRepository
 		
 		unregisterTransactional(platform);
 		
-		platform.getAgentIds().forEach((AgentIdentifier aid) -> fireUnregisterEvents(aid));
+		platform.getAgentIds().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid.getName()));
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -99,36 +99,18 @@ public class RemotePlatformRepository
 	
 	public void unregister(String agentName, String platformName)
 	{
-		AgentIdentifier aid = unregisterAidTransactional(agentName, platformName);
+		unregisterAidTransactional(agentName, platformName);
 		
-		fireUnregisterEvents(aid);
-	}
-
-	private void fireUnregisterEvents(AgentIdentifier aid)
-	{
-		remoteAidUnregisteredEvent.fire(aid);
-		aidReferenceDroppedEvent.fire(aid);
+		aidReferenceDroppedEvent.fire(agentName);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private AgentIdentifier unregisterAidTransactional(String agentName, String platformName)
+	private void unregisterAidTransactional(String agentName, String platformName)
 	{
 		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
-		
-		AgentIdentifier ret = null;
-		
-		for(AgentIdentifier aid : platform.getAgentIds())
-		{
-			if(aid.getName().equals(agentName)) 
-			{
-				ret = aid;
-			}
-		}
 		
 		platform.getAgentIds().removeIf((AgentIdentifier aid)-> aid.getName().equals(agentName));
 		
 		em.merge(platform);
-		
-		return ret;
 	}
 }

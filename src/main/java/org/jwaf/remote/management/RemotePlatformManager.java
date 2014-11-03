@@ -24,7 +24,7 @@ import org.jwaf.remote.persistence.repository.RemotePlatformRepository;
 public class RemotePlatformManager
 {
 	@Inject
-	RemotePlatformRepository repo;
+	private RemotePlatformRepository repo;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;

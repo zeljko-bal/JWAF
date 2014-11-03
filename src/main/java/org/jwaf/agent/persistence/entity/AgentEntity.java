@@ -31,7 +31,7 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 public class AgentEntity implements AgentEntityView
 {	
 	@Id
-	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE, CascadeType.PERSIST}, optional=false)
+	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE}, optional=false)
 	@XmlElement(required=true)
 	private AgentIdentifier aid;
 	

@@ -1,7 +1,5 @@
 package org.jwaf.agent.persistence.repository;
 
-import java.util.Map;
-
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -42,7 +40,7 @@ public class AidRepository
 			// if aid with same name is already persistant return
 			if(!containsAid(aid.getName()))
 			{
-				return findAid(aid.getName());
+				return aquireAidReference(aid.getName());
 			}
 		}
 		else
@@ -52,10 +50,22 @@ public class AidRepository
 
 		// manage resolvers recursively
 		aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res));
+		aid.setRefCount(1);
 
 		// else persist aid
 		em.persist(aid);
 		em.flush();
+		return aid;
+	}
+	
+	private AgentIdentifier aquireAidReference(String name)
+	{
+		AgentIdentifier aid = em.find(AgentIdentifier.class, name, LockModeType.PESSIMISTIC_WRITE);
+		if(aid != null)
+		{
+			aid.setRefCount(aid.getRefCount() + 1);
+		}
+		
 		return aid;
 	}
 	
@@ -76,21 +86,18 @@ public class AidRepository
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public AgentIdentifier createAid(String name, Map<String, String> parameters)
-	{
-		AgentIdentifier aid = new AgentIdentifier(name);
-		if(parameters != null)
-		{
-			aid.getUserDefinedParameters().putAll(parameters);
-		}
+	public AgentIdentifier createAid(AgentIdentifier aid)
+	{		
+		aid.setRefCount(1);
 		
 		em.persist(aid);
 		
 		return aid;
 	}
 	
-	public void aidReferenceDroppedEventHandler(@Observes @AidReferenceDroppedEvent AgentIdentifier aid)
+	public void aidReferenceDroppedEventHandler(@Observes @AidReferenceDroppedEvent String agentName)
 	{
+		AgentIdentifier aid = findAid(agentName);
 		decrementAidReferenceCount(aid);
 		removeOrphanedAid(aid);
 	}

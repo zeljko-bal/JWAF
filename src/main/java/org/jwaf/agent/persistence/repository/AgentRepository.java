@@ -35,7 +35,7 @@ public class AgentRepository
 	private EntityManager em;
 	
 	@Inject @AidReferenceDroppedEvent
-	private Event<AgentIdentifier> aidReferenceDroppedEvent;
+	private Event<String> aidReferenceDroppedEvent;
 	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
@@ -89,7 +89,7 @@ public class AgentRepository
 		
 		removeTransactional(agent);
 		
-		aidReferenceDroppedEvent.fire(agent.getAid());
+		aidReferenceDroppedEvent.fire(agent.getAid().getName());
 		agentRemovedEvent.fire(agent.getAid());
 	}
 	

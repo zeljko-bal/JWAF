@@ -16,6 +16,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
+import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.performative.PlatformPerformative;
@@ -31,6 +32,9 @@ public class AgentManager
 {
 	@Inject
 	private AgentRepository agentRepo;
+	
+	@Inject
+	private AidRepository aidRepo;
 	
 	@Inject
 	private AgentTypeRepository typeRepo;
@@ -71,7 +75,7 @@ public class AgentManager
 		AgentIdentifier aid = new AgentIdentifier(UUID.randomUUID().toString()+"@"+localPlatformName);
 		aid.getAddresses().add(localPlatformAddress);
 		aid.getUserDefinedParameters().putAll(request.getParams());
-		aid.setRefCount(1);
+		aid = aidRepo.createAid(aid);
 		
 		AgentEntity newAgent = new AgentEntity(type, aid);
 		
