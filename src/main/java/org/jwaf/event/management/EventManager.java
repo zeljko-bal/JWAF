@@ -27,11 +27,11 @@ public class EventManager
 	@Inject
 	private EventRepository eventRepo;
 	
-	@Inject @LocalPlatformAid
-	private AgentIdentifier localPlatformAid;
-
 	@Inject
 	private MessageSender messageSender;
+	
+	@Inject @LocalPlatformAid
+	private AgentIdentifier localPlatformAid;
 
 	@Inject @AgentJNDIPrefix
 	private String agentJNDIPrefix;
