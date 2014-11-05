@@ -46,7 +46,7 @@ public class LocalPlatformPtoperties
 	@Produces @LocalPlatformName
 	public String getName()
 	{
-		return name;
+		return "jwaf1";//name;/* TODO @LocalPlatformName*/
 	}
 	
 	@Produces @LocalPlatformAddress

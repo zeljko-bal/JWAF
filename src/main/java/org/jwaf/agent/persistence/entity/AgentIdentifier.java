@@ -31,7 +31,7 @@ public class AgentIdentifier
 	@ElementCollection
 	@XmlElementWrapper
 	@XmlElement(name="address")
-	private List<URL> addresses;
+	private List<String> addresses;
 	
 	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
@@ -70,7 +70,7 @@ public class AgentIdentifier
 	
 	public List<URL> getAddresses()
 	{
-		return addresses;
+		return new URLListWrapper(addresses);
 	}
 	
 	public List<AgentIdentifier> getResolvers()

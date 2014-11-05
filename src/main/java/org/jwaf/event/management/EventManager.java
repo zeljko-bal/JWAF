@@ -2,12 +2,12 @@ package org.jwaf.event.management;
 
 import java.io.Serializable;
 
+import javax.ejb.Asynchronous;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import javax.ws.rs.Path;
 
 import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -21,7 +21,6 @@ import org.jwaf.platform.annotation.resource.AgentJNDIPrefix;
 
 @Stateless
 @LocalBean
-@Path("event")
 public class EventManager
 {
 	@Inject
@@ -66,6 +65,7 @@ public class EventManager
 		eventRepo.unsubscribe(agentName, eventName);
 	}
 
+	@Asynchronous
 	public void fire(String eventName, String content)
 	{
 		EventEntity event = eventRepo.find(eventName);
@@ -82,6 +82,7 @@ public class EventManager
 		sendEventMessage(event, new ACLMessage().setContent(contentToSend));
 	}
 	
+	@Asynchronous
 	public void fire(String eventName, Serializable content)
 	{
 		EventEntity event = eventRepo.find(eventName);

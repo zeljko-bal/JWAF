@@ -1,5 +1,6 @@
 package org.jwaf.platform;
 
+import java.net.URL;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -18,10 +19,13 @@ import javax.inject.Inject;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.AgentTypeAttributes;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
+import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.message.management.MessageManager;
+import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 
@@ -41,6 +45,9 @@ public class LocalPlatformSetup
 	
 	@Inject
 	AgentRepository agentRepo;
+	
+	@Inject
+	AidRepository aidRepo;
 
 	@Inject @AgentQualifier
 	Instance<AbstractAgent> agents;
@@ -50,16 +57,23 @@ public class LocalPlatformSetup
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
+	
+	@Inject @LocalPlatformAddress
+	private URL localPlatformAddress;
 
 	@PostConstruct
 	void setup()
 	{
 		try
-		{			
+		{
 			registerAgentTypes();
 			
-			//agentRepo.initializePlatformAid(localPlatformName, null); TODO initializePlatformAid
-
+			// create local platform aid
+			AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
+			platformAid.getAddresses().add(localPlatformAddress);
+			platformAid.getUserDefinedParameters().put("X-agent-platform", "true");
+			aidRepo.createAid(platformAid);
+			
 			//doInitialTests();
 		}
 		catch(Exception e)

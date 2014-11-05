@@ -5,16 +5,12 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 @Stateless
 @LocalBean
@@ -22,9 +18,6 @@ public class AidRepository
 {
 	@PersistenceContext
 	private EntityManager em;
-	
-	@Inject @LocalPlatformName
-	private String localPlatformName;
 	
 	public AgentIdentifier manageAID(AgentIdentifier aid)
 	{
@@ -77,12 +70,6 @@ public class AidRepository
 	public boolean containsAid(String name)
 	{
 		return findAid(name) != null;
-	}
-
-	@Produces @LocalPlatformAid
-	public AgentIdentifier getPlatformAid()
-	{
-		return em.find(AgentIdentifier.class, localPlatformName);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

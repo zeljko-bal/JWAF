@@ -1,5 +1,6 @@
 package org.jwaf.agent.interfaces.rest;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,6 +19,7 @@ import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 
 @Path("agent")
+@Stateless
 public class AgentResource
 {
 	@Inject
@@ -52,7 +54,7 @@ public class AgentResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response contains(@PathParam("name") String name)
 	{
-		return Response.ok(agentRepo.contains(name)).build();
+		return Response.ok(Boolean.toString((agentRepo.contains(name)))).build();
 	}
 	
 	@GET
