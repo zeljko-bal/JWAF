@@ -79,7 +79,7 @@ public class EventManager
 			contentToSend = processor.process(contentToSend);
 		}
 		
-		sendEventMessage(event, new ACLMessage().setContent(contentToSend));
+		sendEventMessage(event, contentToSend);
 	}
 	
 	@Asynchronous
@@ -96,11 +96,14 @@ public class EventManager
 			contentToSend = processor.process(contentToSend);
 		}
 		
-		sendEventMessage(event, new ACLMessage().setContentAsObject(contentToSend));
+		sendEventMessage(event, contentToSend);
 	}
 
-	private void sendEventMessage(EventEntity event, ACLMessage message)
+	private void sendEventMessage(EventEntity event, Serializable content)
 	{
+		ACLMessage message = new ACLMessage();
+		
+		message.setContentAsObject(content);
 		message.setPerformative(PlatformPerformative.EVENT_MESSAGE);
 		message.setSender(localPlatformAid);
 		message.getReceiverList().addAll(event.getRegisteredAgents());
