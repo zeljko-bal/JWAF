@@ -19,12 +19,10 @@ import javax.inject.Inject;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.AgentTypeAttributes;
+import org.jwaf.agent.management.AgentTypeManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.agent.persistence.repository.AgentRepository;
-import org.jwaf.agent.persistence.repository.AgentTypeRepository;
-import org.jwaf.agent.persistence.repository.AidRepository;
-import org.jwaf.message.management.MessageManager;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
@@ -38,22 +36,22 @@ public class LocalPlatformSetup
 	//@PersistenceContext
 	//EntityManager em;
 	@Inject
-	AgentTypeRepository typeRepo;
+	private AgentTypeManager typeManager;
 
-	@Inject
-	MessageManager messageManager;
+	/*@Inject
+	private MessageManager messageManager;
 	
 	@Inject
-	AgentRepository agentRepo;
+	private AgentRepository agentRepo;*/
 	
 	@Inject
-	AidRepository aidRepo;
+	private AidManager aidManager;
 
 	@Inject @AgentQualifier
-	Instance<AbstractAgent> agents;
+	private Instance<AbstractAgent> agents;
 
 	@Inject
-	BeanManager beanManager;
+	private BeanManager beanManager;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
@@ -62,7 +60,7 @@ public class LocalPlatformSetup
 	private URL localPlatformAddress;
 
 	@PostConstruct
-	void setup()
+	private void setup()
 	{
 		try
 		{
@@ -72,7 +70,7 @@ public class LocalPlatformSetup
 			AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 			platformAid.getAddresses().add(localPlatformAddress);
 			platformAid.getUserDefinedParameters().put("X-agent-platform", "true");
-			aidRepo.createAid(platformAid);
+			aidManager.createAid(platformAid);
 			
 			//doInitialTests();
 		}
@@ -116,7 +114,7 @@ public class LocalPlatformSetup
 				}
 			}
 
-			typeRepo.create(type);
+			typeManager.create(type);
 			
 			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
 		});

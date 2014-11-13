@@ -13,8 +13,8 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 @Stateless
@@ -25,7 +25,7 @@ public class RemotePlatformRepository
 	private EntityManager em;
 	
 	@Inject
-	private AidRepository aidRepo;
+	private AidManager aidManager;
 	
 	@Inject @AidReferenceDroppedEvent
 	private Event<String> aidReferenceDroppedEvent;
@@ -66,7 +66,7 @@ public class RemotePlatformRepository
 	{
 		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
 		
-		platform.getAgentIds().add(aidRepo.manageAID(aid));
+		platform.getAgentIds().add(aidManager.manageAID(aid));
 		
 		em.merge(platform);
 	}

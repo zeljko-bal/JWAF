@@ -25,4 +25,14 @@ public class AidManager
 	{
 		return aidRepository.findAid(localPlatformName);
 	}
+	
+	public AgentIdentifier manageAID(AgentIdentifier aid)
+	{
+		return aidRepository.manageAID(aid);
+	}
+	
+	public AgentIdentifier createAid(AgentIdentifier aid)
+	{		
+		return aidRepository.createAid(aid);
+	}
 }

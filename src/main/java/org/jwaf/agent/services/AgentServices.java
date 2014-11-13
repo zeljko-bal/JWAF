@@ -8,12 +8,12 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
-import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
 
 @Stateless
@@ -27,7 +27,7 @@ public class AgentServices
 	private AgentRepository agentRepo;
 	
 	@Inject
-	private AgentTypeRepository typeRepo;
+	private AgentTypeManager typeManager;
 	
 	private AgentIdentifier aid;
 	
@@ -124,6 +124,6 @@ public class AgentServices
 	
 	public AgentType findType(String typeName)
 	{
-		return typeRepo.find(typeName);
+		return typeManager.find(typeName);
 	}
 }

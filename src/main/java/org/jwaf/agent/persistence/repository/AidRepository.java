@@ -19,6 +19,7 @@ public class AidRepository
 	@PersistenceContext
 	private EntityManager em;
 	
+	// TODO manageAID fix
 	public AgentIdentifier manageAID(AgentIdentifier aid)
 	{
 		// if aid is null
@@ -74,7 +75,7 @@ public class AidRepository
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier createAid(AgentIdentifier aid)
-	{		
+	{
 		aid.setRefCount(1);
 		
 		em.persist(aid);

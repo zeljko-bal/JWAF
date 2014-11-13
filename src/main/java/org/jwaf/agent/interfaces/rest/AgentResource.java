@@ -13,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
-import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 
 @Path("agent")
 @Stateless
@@ -29,7 +29,7 @@ public class AgentResource
 	private AgentManager agentManager;
 	
 	@Inject
-	private AgentTypeRepository typeRepo;
+	private AgentTypeManager typeManager;
 	
 	// /agent/
 	
@@ -80,7 +80,7 @@ public class AgentResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response findType(@PathParam("name") String name)
 	{
-		return Response.ok(typeRepo.find(name)).build();
+		return Response.ok(typeManager.find(name)).build();
 	}
 	
 	@POST
@@ -88,7 +88,7 @@ public class AgentResource
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response createType(AgentType type)
 	{
-		typeRepo.create(type);
+		typeManager.create(type);
 		return Response.accepted().build();
 	}
 	
@@ -96,7 +96,7 @@ public class AgentResource
 	@Path("type/info/{name}")
 	public Response removeType(@PathParam("name") String name)
 	{
-		typeRepo.remove(name);
+		typeManager.remove(name);
 		return Response.ok().build();
 	}
 }

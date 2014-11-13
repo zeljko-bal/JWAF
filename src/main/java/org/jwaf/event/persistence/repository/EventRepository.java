@@ -10,8 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.event.persistence.entity.EventEntity;
 
 @Stateless
@@ -22,7 +22,7 @@ public class EventRepository
 	private EntityManager em;
 	
 	@Inject
-	private AidRepository aidRepo;
+	private AidManager aidManager;
 	
 	@Inject @AidReferenceDroppedEvent
 	private Event<String> aidReferenceDroppedEvent;
@@ -70,7 +70,7 @@ public class EventRepository
 	{
 		EventEntity event = find(eventName);
 		
-		AgentIdentifier aid = aidRepo.manageAID(new AgentIdentifier(agentName));
+		AgentIdentifier aid = aidManager.manageAID(new AgentIdentifier(agentName));
 		
 		event.getRegisteredAgents().add(aid);
 		
