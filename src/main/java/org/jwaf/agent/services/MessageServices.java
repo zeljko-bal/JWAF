@@ -6,8 +6,8 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
@@ -19,7 +19,7 @@ public class MessageServices
 	private MessageSender messageSender;
 	
 	@Inject
-	private AgentRepository agentRepo;
+	private AgentManager agentManager;
 	
 	private AgentIdentifier aid;
 	
@@ -36,16 +36,16 @@ public class MessageServices
 	
 	public List<ACLMessage> getMessages()
 	{
-		return agentRepo.getMessages(aid.getName());
+		return agentManager.getMessages(aid.getName());
 	}
 	
 	public boolean newMessagesAvailable()
 	{
-		return agentRepo.findView(aid.getName()).hasNewMessages();
+		return agentManager.findView(aid.getName()).hasNewMessages();
 	}
 	
 	public void ignoreNewMessages()
 	{
-		agentRepo.ignoreNewMessages(aid.getName());
+		agentManager.ignoreNewMessages(aid.getName());
 	}
 }

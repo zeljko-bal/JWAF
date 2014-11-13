@@ -13,7 +13,6 @@ import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
 
 @Stateless
@@ -22,9 +21,6 @@ public class AgentServices
 {
 	@Inject
 	private AgentManager agentManager;
-	
-	@Inject
-	private AgentRepository agentRepo;
 	
 	@Inject
 	private AgentTypeManager typeManager;
@@ -42,12 +38,12 @@ public class AgentServices
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
 	{
-		return agentRepo.contains(aid.getName());
+		return agentManager.contains(aid.getName());
 	}
 	
 	public boolean localPlatformContains(String name)
 	{
-		return agentRepo.contains(name);
+		return agentManager.contains(name);
 	}
 	
 	/*
@@ -56,12 +52,12 @@ public class AgentServices
 	
 	public DataStore getData(AgentDataType type)
 	{
-		return agentRepo.getDataStore(aid.getName(), type);
+		return agentManager.getDataStore(aid.getName(), type);
 	}
 	
 	public Map<String, String> getPublicData(String agentName)
 	{
-		return agentRepo.getPublicData(agentName);
+		return agentManager.getPublicData(agentName);
 	}
 	
 	/*
@@ -80,7 +76,7 @@ public class AgentServices
 	
 	public void terminateSelf()
 	{
-		agentRepo.remove(aid.getName());
+		agentManager.remove(aid.getName());
 		throw new AgentSelfTerminatedException("agent <" + aid.getName() + "> self terminated.");
 	}
 	
@@ -90,17 +86,17 @@ public class AgentServices
 	
 	public String getState()
 	{
-		return agentRepo.findView(aid.getName()).getState();
+		return agentManager.findView(aid.getName()).getState();
 	}
 	
 	public String getState(AgentIdentifier aid)
 	{
-		return agentRepo.findView(aid.getName()).getState();
+		return agentManager.findView(aid.getName()).getState();
 	}
 	
 	public String getState(String name)
 	{
-		return agentRepo.findView(name).getState();
+		return agentManager.findView(name).getState();
 	}
 	
 	/*
@@ -109,17 +105,17 @@ public class AgentServices
 	
 	public AgentType getType()
 	{
-		return agentRepo.findView(aid.getName()).getType();
+		return agentManager.findView(aid.getName()).getType();
 	}
 	
 	public AgentType getTypeOf(AgentIdentifier aid)
 	{
-		return agentRepo.findView(aid.getName()).getType();
+		return agentManager.findView(aid.getName()).getType();
 	}
 	
 	public AgentType getTypeOf(String name)
 	{
-		return agentRepo.findView(name).getType();
+		return agentManager.findView(name).getType();
 	}
 	
 	public AgentType findType(String typeName)

@@ -14,8 +14,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 
 import org.jwaf.agent.management.AgentActivator;
+import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.annotation.event.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
@@ -34,7 +34,7 @@ public class MessageManager
 	private MessageRepository messageRepo;
 	
 	@Inject
-	private AgentRepository agentRepo;
+	private AgentManager agentManager;
 
 	@Inject
 	private RemotePlatformManager remoteManager;
@@ -67,7 +67,7 @@ public class MessageManager
 		// classify receivers
 		recievers.forEach((AgentIdentifier aid)->
 		{
-			if(agentRepo.contains(aid))
+			if(agentManager.contains(aid))
 			{
 				// if agent is local
 				local.add(aid);
