@@ -17,7 +17,7 @@ import org.jwaf.event.processor.EventProcessor;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.performative.PlatformPerformative;
-import org.jwaf.platform.annotation.resource.AgentJNDIPrefix;
+import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 
 @Stateless
 @LocalBean
@@ -32,7 +32,7 @@ public class EventManager
 	@Inject @LocalPlatformAid
 	private AgentIdentifier localPlatformAid;
 
-	@Inject @AgentJNDIPrefix
+	@Inject @EJBJNDIPrefix
 	private String agentJNDIPrefix;
 
 	public boolean exists(String name)

@@ -14,5 +14,5 @@ import javax.inject.Qualifier;
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface AgentJNDIPrefix
+public @interface EJBJNDIPrefix
 {}

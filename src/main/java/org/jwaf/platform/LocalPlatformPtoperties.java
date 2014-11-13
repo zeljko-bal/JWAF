@@ -10,7 +10,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 
-import org.jwaf.platform.annotation.resource.AgentJNDIPrefix;
+import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
@@ -28,7 +28,7 @@ public class LocalPlatformPtoperties
 	private URL address;
 	
 	@Resource(name = "agent_jndi_prefix")
-	private String agentJNDIPrefix;
+	private String ejbJNDIPrefix;
 	
 	@PostConstruct
 	public void setup()
@@ -55,9 +55,9 @@ public class LocalPlatformPtoperties
 		return address;
 	}
 	
-	@Produces @AgentJNDIPrefix
+	@Produces @EJBJNDIPrefix
 	public String getAgentJNDIPrefix()
 	{
-		return agentJNDIPrefix;
+		return ejbJNDIPrefix;
 	}
 }

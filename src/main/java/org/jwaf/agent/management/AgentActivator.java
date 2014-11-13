@@ -13,13 +13,13 @@ import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.AgentJNDIPrefix;
+import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 
 @Stateless
 @LocalBean
 public class AgentActivator
 {
-	@Inject @AgentJNDIPrefix
+	@Inject @EJBJNDIPrefix
 	private String agentJNDIPrefix;
 	
 	@Inject

@@ -18,6 +18,11 @@ public class CreateAgentRequest
 	@XmlElementWrapper
 	@XmlElement(name="parameter")
 	private Map<String, String> params;
+	
+	public CreateAgentRequest(String type)
+	{
+		this.type = type;
+	}
 
 	public String getType()
 	{
