@@ -20,6 +20,8 @@ import org.jwaf.message.annotation.event.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
 import org.jwaf.message.persistence.repository.MessageRepository;
+import org.jwaf.platform.MessageParam;
+import org.jwaf.platform.PlatformMessageManager;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 
@@ -42,6 +44,9 @@ public class MessageManager
 	@Inject
 	private AgentActivator activator;
 	
+	@Inject
+	private PlatformMessageManager platformMsgManager;
+	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
 	
@@ -55,6 +60,13 @@ public class MessageManager
 		// if already stamped by this platform discard
 		if(transportMessage.getStamps().contains(localPlatformName))
 		{
+			return;
+		}
+		
+		// if this is a platform message pass it to PlatformMessageManager
+		if(transportMessage.getContent().getUserDefinedParameters().containsKey(MessageParam.PLATFORM_MESSAGE))
+		{
+			platformMsgManager.handle(transportMessage.getContent());
 			return;
 		}
 		

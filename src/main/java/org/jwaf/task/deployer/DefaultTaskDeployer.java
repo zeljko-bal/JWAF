@@ -42,7 +42,7 @@ public class DefaultTaskDeployer implements TaskDeployer
 	@Override
 	public TaskResult processResult(TaskResult result)
 	{
-		agentManager.requestTermination(result.getAid().getName());
+		agentManager.requestTermination(result.getEmployee().getName());
 		return result;
 	}
 }

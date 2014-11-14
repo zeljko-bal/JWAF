@@ -16,7 +16,6 @@ import org.jwaf.event.persistence.repository.EventRepository;
 import org.jwaf.event.processor.EventProcessor;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.performative.PlatformPerformative;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 
 @Stateless
@@ -79,7 +78,7 @@ public class EventManager
 			contentToSend = processor.process(contentToSend);
 		}
 		
-		sendEventMessage(event, contentToSend);
+		sendEventMessage(event, new ACLMessage().setContent(contentToSend));
 	}
 	
 	@Asynchronous
@@ -96,18 +95,15 @@ public class EventManager
 			contentToSend = processor.process(contentToSend);
 		}
 		
-		sendEventMessage(event, contentToSend);
+		sendEventMessage(event, new ACLMessage().setContentAsObject(contentToSend));
 	}
 
-	private void sendEventMessage(EventEntity event, Serializable content)
-	{
-		ACLMessage message = new ACLMessage();
-		
-		message.setContentAsObject(content);
-		message.setPerformative(PlatformPerformative.EVENT_MESSAGE);
+	private void sendEventMessage(EventEntity event, ACLMessage message)
+	{		
+		message.setPerformative(event.getName());
 		message.setSender(localPlatformAid);
 		message.getReceiverList().addAll(event.getRegisteredAgents());
-		message.getUserDefinedParameters().put(EventMessageProperties.EVENT_NAME, event.getName());
+		message.getUserDefinedParameters().put(EventMessageProperties.IS_EVENT, "true");
 		
 		messageSender.send(message);
 	}
@@ -128,4 +124,6 @@ public class EventManager
 			return null;
 		}
 	}
+	
+	// TODO unsubscribe agent on destroy
 }
