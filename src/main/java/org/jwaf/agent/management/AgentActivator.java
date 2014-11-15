@@ -20,7 +20,7 @@ import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 public class AgentActivator
 {
 	@Inject @EJBJNDIPrefix
-	private String agentJNDIPrefix;
+	private String ejbJNDIPrefix;
 	
 	@Inject
 	private AgentRepository agentRepo;
@@ -133,6 +133,6 @@ public class AgentActivator
 
 	private AbstractAgent findAgent(String type) throws NamingException
 	{
-		return (AbstractAgent)(new InitialContext()).lookup(agentJNDIPrefix + type);
+		return (AbstractAgent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 	}
 }

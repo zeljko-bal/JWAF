@@ -1,4 +1,4 @@
-package org.jwaf.platform;
+package org.jwaf.platform.message;
 
 import javax.inject.Inject;
 import javax.naming.InitialContext;
@@ -10,7 +10,7 @@ import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 public class PlatformMessageManager
 {
 	@Inject @EJBJNDIPrefix
-	private String agentJNDIPrefix;
+	private String ejbJNDIPrefix;
 	
 	public void handle(ACLMessage content)
 	{
@@ -30,6 +30,6 @@ public class PlatformMessageManager
 	
 	private PlatformMessageHandler findHandler(String type) throws NamingException
 	{
-		return (PlatformMessageHandler)(new InitialContext()).lookup(agentJNDIPrefix + type);
+		return (PlatformMessageHandler)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 	}
 }

@@ -1,18 +1,14 @@
 package org.jwaf.task.persistence.entity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
 @Entity
 @XmlRootElement
@@ -23,9 +19,8 @@ public class TaskResult
 	@XmlTransient
 	private Integer id;
 	
-	@ManyToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	@XmlElement
-	private AgentIdentifier employee;
+	private String employee;
 	
 	@XmlElement
 	private String employer;
@@ -37,14 +32,14 @@ public class TaskResult
 	@XmlElement
 	private String content;
 
-	public AgentIdentifier getEmployee()
+	public String getEmployee()
 	{
 		return employee;
 	}
 
-	public void setEmployee(AgentIdentifier aid)
+	public void setEmployee(String employee)
 	{
-		this.employee = aid;
+		this.employee = employee;
 	}
 
 	public String getEmployer()

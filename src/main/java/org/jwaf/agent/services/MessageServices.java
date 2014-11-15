@@ -14,7 +14,7 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 @Stateless
 @LocalBean
 public class MessageServices
-{	
+{
 	@Inject
 	private MessageSender messageSender;
 	

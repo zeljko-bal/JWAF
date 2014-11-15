@@ -20,9 +20,9 @@ import org.jwaf.message.annotation.event.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
 import org.jwaf.message.persistence.repository.MessageRepository;
-import org.jwaf.platform.MessageParam;
-import org.jwaf.platform.PlatformMessageManager;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.message.MessageParam;
+import org.jwaf.platform.message.PlatformMessageManager;
 import org.jwaf.remote.management.RemotePlatformManager;
 
 /**

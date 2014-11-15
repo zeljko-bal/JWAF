@@ -56,7 +56,7 @@ public class LocalPlatformPtoperties
 	}
 	
 	@Produces @EJBJNDIPrefix
-	public String getAgentJNDIPrefix()
+	public String getEJBJNDIPrefix()
 	{
 		return ejbJNDIPrefix;
 	}

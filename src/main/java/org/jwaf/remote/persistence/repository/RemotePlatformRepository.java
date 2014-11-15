@@ -45,7 +45,7 @@ public class RemotePlatformRepository
 		return getAidResultList(name).get(0);
 	}
 	
-	public boolean contains(String name)
+	public boolean containsPlatform(String name)
 	{
 		return find(name) != null;
 	}

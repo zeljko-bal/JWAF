@@ -1,4 +1,4 @@
-package org.jwaf.platform;
+package org.jwaf.platform.message;
 
 public class MessageParam
 {

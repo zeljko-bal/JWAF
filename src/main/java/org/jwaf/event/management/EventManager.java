@@ -32,7 +32,7 @@ public class EventManager
 	private AgentIdentifier localPlatformAid;
 
 	@Inject @EJBJNDIPrefix
-	private String agentJNDIPrefix;
+	private String ejbJNDIPrefix;
 
 	public boolean exists(String name)
 	{
@@ -112,15 +112,10 @@ public class EventManager
 	{
 		try
 		{
-			return (EventProcessor)(new InitialContext()).lookup(agentJNDIPrefix + type);
+			return (EventProcessor)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 		}
-		catch (NamingException e)
+		catch (NamingException | ClassCastException e)
 		{
-			return null;
-		}
-		catch (Exception e)
-		{
-			// TODO log findEventProcessor Exception
 			return null;
 		}
 	}

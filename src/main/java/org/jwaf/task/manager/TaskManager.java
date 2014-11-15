@@ -26,7 +26,7 @@ public class TaskManager
 	private TaskResultRepository resultRepo;
 	
 	@Inject @EJBJNDIPrefix
-	private String agentJNDIPrefix;
+	private String ejbJNDIPrefix;
 	
 	public void deploy(TaskRequest request)
 	{
@@ -69,9 +69,9 @@ public class TaskManager
 	{
 		try
 		{
-			return (TaskDeployer)(new InitialContext()).lookup(agentJNDIPrefix + type);
+			return (TaskDeployer)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 		}
-		catch (NamingException e)
+		catch (NamingException | ClassCastException e)
 		{
 			// TODO log cant find TaskDeployer of type
 			return null;

@@ -39,9 +39,9 @@ public class RemotePlatformManager
 		return repo.findAid(name);
 	}
 	
-	public boolean contains(String name)
+	public boolean containsPlatform(String name)
 	{
-		return repo.contains(name);
+		return repo.containsPlatform(name);
 	}
 	
 	public boolean containsAid(String name)

@@ -45,7 +45,7 @@ public class RemotePlatformResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response contains(@PathParam("name") String name)
 	{
-		return Response.ok(Boolean.toString(remoteManager.contains(name))).build();
+		return Response.ok(Boolean.toString(remoteManager.containsPlatform(name))).build();
 	}
 	
 	@GET
