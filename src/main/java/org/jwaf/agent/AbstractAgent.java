@@ -1,5 +1,8 @@
 package org.jwaf.agent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
 import org.jwaf.agent.annotation.AgentQualifier;
@@ -47,4 +50,9 @@ public abstract class AbstractAgent
 	
 	public void setup()
 	{/* no-op */}
+	
+	public static Map<String, String> getTypeAttributes()
+	{
+		return new HashMap<>();
+	}
 }

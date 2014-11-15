@@ -15,14 +15,16 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
-import org.jwaf.agent.annotation.AgentTypeAttributes;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
@@ -58,6 +60,9 @@ public class LocalPlatformSetup
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
+	
+	@Inject @EJBJNDIPrefix
+	private String ejbJNDIPrefix;
 
 	@PostConstruct
 	private void setup()
@@ -80,6 +85,7 @@ public class LocalPlatformSetup
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void registerAgentTypes()
 	{
@@ -92,32 +98,27 @@ public class LocalPlatformSetup
 			
 			AgentType type = new AgentType(agentClass.getSimpleName());
 
-			// if it has attributes specified
-			if(agentClass.isAnnotationPresent(AgentTypeAttributes.class))
+			try
 			{
-				// get all attributes
-				String[] attributes  = agentClass.getAnnotation(AgentTypeAttributes.class).value();
-
-				for(int i=0;i<attributes.length;i++)
-				{
-					// extract key value pair in form "key:value"
-					String[] attribute = attributes[i].trim().split(":", 2);
-
-					if(attribute.length == 2)
-					{
-						if(!attribute[0].isEmpty() && !attribute[1].isEmpty())
-						{
-							// if all there add to type entity
-							type.getAttributes().put(attribute[0], attribute[1]);
-						}
-					}
-				}
+				AbstractAgent agent = findAgent(type.getName());
+				
+				type.getAttributes().putAll(agent.getTypeAttributes());
+			} 
+			catch (Exception e)
+			{
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 			typeManager.create(type);
 			
 			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
 		});
+	}
+	
+	private AbstractAgent findAgent(String type) throws NamingException
+	{
+		return (AbstractAgent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 	}
 	
 //	private void doInitialTests() throws NotSupportedException, SystemException
