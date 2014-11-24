@@ -1,5 +1,7 @@
 package org.jwaf.platform.message;
 
+import javax.ejb.LocalBean;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -7,6 +9,8 @@ import javax.naming.NamingException;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 
+@Stateless
+@LocalBean
 public class PlatformMessageManager
 {
 	@Inject @EJBJNDIPrefix
