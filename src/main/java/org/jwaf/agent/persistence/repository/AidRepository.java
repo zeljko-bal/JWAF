@@ -31,8 +31,8 @@ public class AidRepository
 
 		if(aid.getName() != null)
 		{
-			// if aid with same name is already persistant return
-			if(!containsAid(aid.getName()))
+			// if aid with same name already is persistant return
+			if(containsAid(aid.getName()))
 			{
 				return aquireAidReference(aid.getName());
 			}

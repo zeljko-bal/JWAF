@@ -104,7 +104,7 @@ public class LocalPlatformSetup
 				
 				type.getAttributes().putAll(agent.getTypeAttributes());
 			} 
-			catch (Exception e)
+			catch (NamingException e)
 			{
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -9,9 +9,9 @@ import javax.inject.Inject;
 import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
-import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.DataStore;
 

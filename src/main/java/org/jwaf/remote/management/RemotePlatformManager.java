@@ -10,9 +10,11 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 
 import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.annotation.event.AgentRemovedEvent;
+import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
@@ -95,5 +97,45 @@ public class RemotePlatformManager
 			Client client = ClientBuilder.newClient();
 			client.target(platform.getAddress().toString()).path("remote").path("aid").path(localPlatformName).path(aid.getName()).request().delete();
 		});
+	}
+	
+	public void sendAgent(String agentName, String platformName)
+	{
+		AgentEntity agent = null;
+		// TODO find AgentEntity, retrieve, set in transit
+		
+		URL address = find(platformName).getAddress();
+		
+		Client client = ClientBuilder.newClient();
+		client.target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent));
+		
+		// TODO remove agent if successfull and throw transported, else set agent to active and throw transport failed
+	}
+	
+	public boolean willAcceptAgent(AgentIdentifier aid)
+	{
+		// TODO willAcceptAgent implementation
+		return true;
+	}
+	
+	public boolean willRemoteAcceptAgent(AgentIdentifier aid, String platformName)
+	{
+		URL address = find(platformName).getAddress();
+		
+		Client client = ClientBuilder.newClient();
+		Response resp =  client.target(address.toString()).path("remote").path("will_accept").request().post(Entity.xml(aid));
+		
+		if(resp.getEntity() instanceof String)
+		{
+			return new Boolean((String) resp.getEntity());
+		}
+		
+		return false;
+	}
+	
+	public void receiveRemoteAgent(AgentEntity agent)
+	{
+		agent.setHasNewMessages(!agent.getMessages().isEmpty());
+		// TODO send to agent manager for initialization
 	}
 }

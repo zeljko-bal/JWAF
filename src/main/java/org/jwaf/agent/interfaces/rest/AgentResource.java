@@ -14,17 +14,13 @@ import javax.ws.rs.core.Response;
 
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
-import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 
 @Path("agent")
 @Stateless
 public class AgentResource
-{
-	@Inject
-	private AgentRepository agentRepo;
-	
+{	
 	@Inject
 	private AgentManager agentManager;
 	
@@ -54,7 +50,7 @@ public class AgentResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response contains(@PathParam("name") String name)
 	{
-		return Response.ok(Boolean.toString((agentRepo.contains(name)))).build();
+		return Response.ok(Boolean.toString((agentManager.contains(name)))).build();
 	}
 	
 	@GET
@@ -62,7 +58,7 @@ public class AgentResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getPublicData(@PathParam("name") String agentName)
 	{
-		return Response.ok(agentRepo.getPublicData(agentName)).build();
+		return Response.ok(agentManager.getPublicData(agentName)).build();
 	}
 	
 	// /agent/type/
@@ -72,7 +68,7 @@ public class AgentResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response getTypeOf(@PathParam("name") String name)
 	{
-		return Response.ok(agentRepo.findView(name).getType()).build();
+		return Response.ok(agentManager.findView(name).getType()).build();
 	}
 	
 	@GET

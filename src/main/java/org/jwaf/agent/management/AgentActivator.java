@@ -3,12 +3,14 @@ package org.jwaf.agent.management;
 import javax.ejb.Asynchronous;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.AgentState;
+import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
@@ -24,6 +26,9 @@ public class AgentActivator
 	
 	@Inject
 	private AgentRepository agentRepo;
+	
+	@Inject @AgentInitializedEvent
+	private Event<AgentIdentifier> agentInitializedEvent;
 
 	@Asynchronous
 	public void activate(AgentIdentifier aid, ACLMessage message)
@@ -46,7 +51,6 @@ public class AgentActivator
 			// execute asynchronously
 			try
 			{
-				//execService.submit(new AgentExec(aid, agentTypeName));
 				execute(aid, agentTypeName);
 			}
 			catch(AgentSelfTerminatedException ex)
@@ -104,7 +108,6 @@ public class AgentActivator
 		}
 	}
 	
-	@Asynchronous
 	public void setup(AgentIdentifier aid, String type)
 	{
 		try
@@ -128,6 +131,9 @@ public class AgentActivator
 		{
 			// force agent to passivate
 			agentRepo.passivate(aid, true);
+			
+			// notify that agent is initialized
+			agentInitializedEvent.fire(aid);
 		}
 	}
 

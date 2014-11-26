@@ -7,16 +7,15 @@ import java.util.UUID;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
 import org.jwaf.agent.annotation.LocalPlatformAid;
-import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
@@ -54,9 +53,6 @@ public class AgentManager
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
 	
-	@Inject @AgentInitializedEvent
-	private Event<AgentIdentifier> agentInitializedEvent;
-	
 	@Inject @LocalPlatformAid
 	private AgentIdentifier localPlatformAid;
 	
@@ -87,11 +83,6 @@ public class AgentManager
 		
 		// invoke custom setup method
 		activator.setup(aid, request.getType());
-		
-		// set state to passive
-		agentRepo.passivate(aid, true);
-		
-		agentInitializedEvent.fire(aid);
 		
 		return aid;
 	}

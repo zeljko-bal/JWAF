@@ -63,13 +63,6 @@ public class AgentRepository
 		em.merge(agent);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	protected void refresh(AgentEntity agent)
-	{
-		em.refresh(agent);
-	}
-
-	
 	public void create(AgentEntity agent)
 	{
 		createTransactional(agent);
@@ -102,12 +95,10 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public String activate(AgentIdentifier aid, ACLMessage message)
 	{
-		String prevState;
-
 		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
 		// get previous state
-		prevState = agent.getState();
+		String prevState = agent.getState();
 		
 		// if agent is not yet initialized
 		if(AgentState.INITIALIZING.equals(prevState))

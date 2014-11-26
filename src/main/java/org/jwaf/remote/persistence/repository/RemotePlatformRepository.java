@@ -64,7 +64,7 @@ public class RemotePlatformRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void register(AgentIdentifier aid, String platformName)
 	{
-		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
+		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);  // TODO Lock??
 		
 		platform.getAgentIds().add(aidManager.manageAID(aid));
 		
@@ -107,7 +107,7 @@ public class RemotePlatformRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void unregisterAidTransactional(String agentName, String platformName)
 	{
-		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
+		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE); // TODO Lock??
 		
 		platform.getAgentIds().removeIf((AgentIdentifier aid)-> aid.getName().equals(agentName));
 		

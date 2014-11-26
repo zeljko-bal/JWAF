@@ -6,8 +6,8 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.management.AgentManager;
-import org.jwaf.agent.management.CreateAgentRequest;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.performative.PlatformPerformative;
