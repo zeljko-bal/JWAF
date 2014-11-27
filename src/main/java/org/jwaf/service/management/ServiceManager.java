@@ -41,8 +41,7 @@ public class ServiceManager
 	@Asynchronous
 	public Future<Object> callAsynch(AgentIdentifier aid, String serviceName, Object param)
 	{
-		AgentService service = findService(serviceName);
-		Object result = service.call(param);
+		Object result = callSynch(aid, serviceName, param);
 		return new AsyncResult<Object>(result);
 	}
 	

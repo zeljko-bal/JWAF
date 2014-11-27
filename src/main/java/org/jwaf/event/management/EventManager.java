@@ -99,11 +99,11 @@ public class EventManager
 	}
 
 	private void sendEventMessage(EventEntity event, ACLMessage message)
-	{		
+	{
 		message.setPerformative(event.getName());
 		message.setSender(localPlatformAid);
 		message.getReceiverList().addAll(event.getRegisteredAgents());
-		message.getUserDefinedParameters().put(EventMessageProperties.IS_EVENT, "true");
+		message.getUserDefinedParameters().put(EventMessageProperties.IS_EVENT, Boolean.toString(true));
 		
 		messageSender.send(message);
 	}

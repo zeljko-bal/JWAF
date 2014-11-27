@@ -84,6 +84,7 @@ public class AgentServices
 	 * state
 	 */
 	
+	// TODO remove if unused/unnecessery
 	public String getState()
 	{
 		return agentManager.findView(aid.getName()).getState();
@@ -121,5 +122,11 @@ public class AgentServices
 	public AgentType findType(String typeName)
 	{
 		return typeManager.find(typeName);
+	}
+	
+	public AgentType findTypeBy(String key, String value)
+	{
+		// TODO AgentType findTypeBy
+		return null;
 	}
 }

@@ -15,11 +15,11 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
+import org.jwaf.agent.annotation.TypeAttribute;
+import org.jwaf.agent.annotation.TypeAttributes;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -85,7 +85,6 @@ public class LocalPlatformSetup
 		}
 	}
 
-	@SuppressWarnings("static-access")
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void registerAgentTypes()
 	{
@@ -98,27 +97,18 @@ public class LocalPlatformSetup
 			
 			AgentType type = new AgentType(agentClass.getSimpleName());
 
-			try
+			if(agentClass.isAnnotationPresent(TypeAttributes.class))
 			{
-				AbstractAgent agent = findAgent(type.getName());
-				
-				type.getAttributes().putAll(agent.getTypeAttributes());
-			} 
-			catch (NamingException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				for(TypeAttribute attribute : agentClass.getAnnotation(TypeAttributes.class).value())
+				{
+					type.getAttributes().put(attribute.key(), attribute.value());
+				}
 			}
 
 			typeManager.create(type);
 			
 			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
 		});
-	}
-	
-	private AbstractAgent findAgent(String type) throws NamingException
-	{
-		return (AbstractAgent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 	}
 	
 //	private void doInitialTests() throws NotSupportedException, SystemException

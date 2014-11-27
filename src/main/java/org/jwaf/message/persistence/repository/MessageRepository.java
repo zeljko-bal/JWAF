@@ -35,6 +35,7 @@ public class MessageRepository
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
 	
+	// TODO remove if unused
 	@Inject @MessageRemovedEvent
 	private Event<ACLMessage> messageRemovedEvent;
 	

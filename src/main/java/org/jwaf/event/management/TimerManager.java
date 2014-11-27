@@ -70,11 +70,11 @@ public class TimerManager
 	@Timeout
 	public void timeout(Timer timer)
 	{
-		Serializable serInfo = timer.getInfo();
+		Serializable serializableInfo = timer.getInfo();
 		
-		if(serInfo instanceof TimerEventInfo)
+		if(serializableInfo instanceof TimerEventInfo)
 		{
-			TimerEventInfo info = (TimerEventInfo)serInfo;
+			TimerEventInfo info = (TimerEventInfo)serializableInfo;
 			TimerEventParam param = new TimerEventParam(info.getTimerName(), new Date());
 			
 			eventManager.fire(info.getEventName(), param);
