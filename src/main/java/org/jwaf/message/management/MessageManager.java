@@ -120,11 +120,6 @@ public class MessageManager
 		// if the receiver cannot be located leave message in outbox for manual retrieval
 		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
 	}
-	
-	public ACLMessage retrieveOutboxMessage(String receiverName)
-	{
-		return messageRepo.retrieveOutboxMessage(receiverName);
-	}
 
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)
 	{
@@ -158,5 +153,10 @@ public class MessageManager
 	private void sendToOutbox(AgentIdentifier aid, ACLMessage message)
 	{
 		messageRepo.createOutboxEntry(aid.getName(), message);
+	}
+	
+	public ACLMessage retrieveOutboxMessage(String receiverName)
+	{
+		return messageRepo.retrieveOutboxMessage(receiverName);
 	}
 }

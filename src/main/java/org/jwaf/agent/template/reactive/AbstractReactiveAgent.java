@@ -6,17 +6,17 @@ import org.jwaf.agent.AbstractAgent;
 
 public abstract class AbstractReactiveAgent extends AbstractAgent
 {
-	protected MessageHandlingBlock messageHandlingBlock;
+	protected MessageHandlingService messageHandlingService;
 
 	@PostConstruct
 	protected void initializeMessageHandlingBlock()
 	{
-		messageHandlingBlock = new MessageHandlingBlock(this, messageServices);
+		messageHandlingService = new MessageHandlingService(this, messageServices);
 	}
 	
 	@Override
 	public void execute()
 	{
-		messageHandlingBlock.invokeMessageHandlers();
+		messageHandlingService.invokeMessageHandlers();
 	}
 }

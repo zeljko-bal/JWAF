@@ -31,9 +31,9 @@ public class RemotePlatformManager
 	@Inject @LocalPlatformName
 	private String localPlatformName;
 	
-	public AgentPlatform find(String name)
+	public AgentPlatform findPlatform(String name)
 	{
-		return repo.find(name);
+		return repo.findPlatform(name);
 	}
 	
 	public AgentIdentifier findAid(String name)
@@ -51,9 +51,9 @@ public class RemotePlatformManager
 		return repo.containsAid(name);
 	}
 	
-	public void register(String name, URL url)
+	public void registerPlatform(String name, URL url)
 	{
-		repo.register(new AgentPlatform(name, url));
+		repo.registerPlatform(new AgentPlatform(name, url));
 	}
 	
 	public void registerAid(AgentIdentifier aid, String platformName)
@@ -61,9 +61,9 @@ public class RemotePlatformManager
 		repo.register(aid, platformName);
 	}
 	
-	public void unregister(String platformName)
+	public void unregisterPlatform(String platformName)
 	{
-		repo.unregister(platformName);
+		repo.unregisterPlatform(platformName);
 	}
 	
 	public void unregisterAid(String platformName, String agentName)
@@ -104,7 +104,7 @@ public class RemotePlatformManager
 		AgentEntity agent = null;
 		// TODO find AgentEntity, retrieve, set in transit
 		
-		URL address = find(platformName).getAddress();
+		URL address = findPlatform(platformName).getAddress();
 		
 		Client client = ClientBuilder.newClient();
 		client.target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent));
@@ -120,7 +120,7 @@ public class RemotePlatformManager
 	
 	public boolean willRemoteAcceptAgent(AgentIdentifier aid, String platformName)
 	{
-		URL address = find(platformName).getAddress();
+		URL address = findPlatform(platformName).getAddress();
 		
 		Client client = ClientBuilder.newClient();
 		Response resp =  client.target(address.toString()).path("remote").path("will_accept").request().post(Entity.xml(aid));

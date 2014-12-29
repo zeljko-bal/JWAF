@@ -27,6 +27,7 @@ public class ServiceManager
 		return findService(name) != null;
 	}
 	
+	// TODO ServiceManager getAttributes preko anotacija
 	public Map<String, String> getAttributes(String name)
 	{
 		return findService(name).getAttributes();

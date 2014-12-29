@@ -30,7 +30,7 @@ public class RemotePlatformRepository
 	@Inject @AidReferenceDroppedEvent
 	private Event<String> aidReferenceDroppedEvent;
 	
-	public AgentPlatform find(String name)
+	public AgentPlatform findPlatform(String name)
 	{
 		return em.find(AgentPlatform.class, name);
 	}
@@ -47,7 +47,7 @@ public class RemotePlatformRepository
 	
 	public boolean containsPlatform(String name)
 	{
-		return find(name) != null;
+		return findPlatform(name) != null;
 	}
 	
 	public boolean containsAid(String name)
@@ -56,7 +56,7 @@ public class RemotePlatformRepository
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void register(AgentPlatform platform)
+	public void registerPlatform(AgentPlatform platform)
 	{
 		em.persist(platform);
 	}
@@ -73,7 +73,7 @@ public class RemotePlatformRepository
 	
 	public List<AgentIdentifier> retrieveAgentIds(String platformName)
 	{
-		return find(platformName).getAgentIds();
+		return findPlatform(platformName).getAgentIds();
 	}
 	
 	public List<AgentPlatform> retrievePlatforms()
@@ -82,7 +82,7 @@ public class RemotePlatformRepository
 	}
 	
 	
-	public void unregister(String platformName)
+	public void unregisterPlatform(String platformName)
 	{
 		AgentPlatform platform = em.find(AgentPlatform.class, platformName);
 		

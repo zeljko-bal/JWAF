@@ -27,9 +27,9 @@ public class RemotePlatformResource
 	@GET
 	@Path("platform/find/{name}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response find(@PathParam("name") String name)
+	public Response findPlatform(@PathParam("name") String name)
 	{
-		return Response.ok(remoteManager.find(name)).build();
+		return Response.ok(remoteManager.findPlatform(name)).build();
 	}
 	
 	@GET
@@ -43,7 +43,7 @@ public class RemotePlatformResource
 	@GET
 	@Path("platform/contains/{name}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response contains(@PathParam("name") String name)
+	public Response containsPlatform(@PathParam("name") String name)
 	{
 		return Response.ok(Boolean.toString(remoteManager.containsPlatform(name))).build();
 	}
@@ -58,9 +58,9 @@ public class RemotePlatformResource
 	
 	@POST
 	@Path("platform/register/{name}/{url}")
-	public Response register(@PathParam("name") String name, @PathParam("url") URL url)
+	public Response registerPlatform(@PathParam("name") String name, @PathParam("url") URL url)
 	{
-		remoteManager.register(name, url);
+		remoteManager.registerPlatform(name, url);
 		return Response.ok().build();
 	}
 	
@@ -75,9 +75,9 @@ public class RemotePlatformResource
 	
 	@DELETE
 	@Path("platform/{name}")
-	public Response unregister(@PathParam("name") String platformName)
+	public Response unregisterPlatform(@PathParam("name") String platformName)
 	{
-		remoteManager.unregister(platformName);
+		remoteManager.unregisterPlatform(platformName);
 		return Response.ok().build();
 	}
 	
