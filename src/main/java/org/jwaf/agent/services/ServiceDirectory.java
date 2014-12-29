@@ -1,5 +1,6 @@
 package org.jwaf.agent.services;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -16,6 +17,12 @@ public class ServiceDirectory
 {
 	@Inject
 	private ServiceManager serviceManager;
+	
+	public List<String> find(Map<String, String> attributes)
+	{
+		// TODO find service by attributes
+		return null;
+	}
 	
 	public boolean exists(String name)
 	{

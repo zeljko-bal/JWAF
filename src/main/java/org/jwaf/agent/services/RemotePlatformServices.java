@@ -17,18 +17,14 @@ public class RemotePlatformServices
 	@Inject
 	private RemotePlatformManager remoteManager;
 	
-	public AgentIdentifier findAid(String name)
-	{
-		return remoteManager.findAid(name);
-	}
-	
 	public boolean containsPlatform(String name)
 	{
 		return remoteManager.containsPlatform(name);
 	}
 	
-	public boolean containsAid(String name)
+	public boolean containsAid(String name, String platformName)
 	{
+		// TODO platform containsAid
 		return remoteManager.containsAid(name);
 	}
 	
