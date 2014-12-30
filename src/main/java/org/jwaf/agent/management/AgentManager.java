@@ -10,6 +10,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
+import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotation.LocalPlatformAid;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
@@ -137,5 +138,38 @@ public class AgentManager
 	public boolean contains(String name)
 	{
 		return agentRepo.contains(name);
+	}
+	
+	/*
+	 * agent transport methods
+	 */
+
+	public void arrived(String agentName)
+	{
+		String typeName = findView(agentName).getType().getName();
+		activator.onArrival(aidManager.manageAID(new AgentIdentifier(agentName)), typeName);
+	}
+
+	public AgentEntity depart(String agentName)
+	{
+		return agentRepo.depart(agentName);
+	}
+
+	public void departed(String agentName)
+	{
+		agentRepo.remove(agentName);
+	}
+
+	public void cancelDeparture(String agentName)
+	{
+		agentRepo.passivate(aidManager.manageAID(new AgentIdentifier(agentName)), true);
+	}
+
+	public boolean receiveAgent(AgentEntity agent)
+	{
+		agent.setHasNewMessages(!agent.getMessages().isEmpty());
+		agent.setState(AgentState.IN_TRANSIT);
+		agentRepo.create(agent);
+		return true; // TODO implement acceptance check
 	}
 }

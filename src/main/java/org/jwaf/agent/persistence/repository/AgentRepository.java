@@ -210,4 +210,13 @@ public class AgentRepository
 	{
 		return findAgent(name) != null;
 	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public AgentEntity depart(String agentName)
+	{
+		AgentEntity agent = findAgent(agentName);
+		agent.setState(AgentState.IN_TRANSIT);
+		em.merge(agent);
+		return agent;
+	}
 }

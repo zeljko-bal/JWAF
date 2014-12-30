@@ -136,6 +136,36 @@ public class AgentActivator
 			agentInitializedEvent.fire(aid);
 		}
 	}
+	
+	@Asynchronous
+	public void onArrival(AgentIdentifier aid, String type)
+	{
+		try
+		{
+			// find agent by type
+			AbstractAgent agentBean = findAgent(type);
+
+			// set agents identity
+			agentBean.setAid(aid);
+			
+			// invoke onArrival
+			agentBean.onArrival();
+		}
+		catch (NamingException e) 
+		{
+			// TODO agent not found
+			// agent not found
+			e.printStackTrace();
+		}
+		finally
+		{
+			// force agent to passivate
+			agentRepo.passivate(aid, true);
+			
+			// notify that agent has arrived
+			// TODO agentArrivedEvent.fire(aid);
+		}
+	}
 
 	private AbstractAgent findAgent(String type) throws NamingException
 	{

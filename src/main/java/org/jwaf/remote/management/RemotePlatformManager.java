@@ -10,13 +10,15 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 
 import org.jwaf.agent.annotation.event.AgentInitializedEvent;
 import org.jwaf.agent.annotation.event.AgentRemovedEvent;
+import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.remote.exception.AgentTransportFailed;
+import org.jwaf.remote.exception.AgentTransportSuccessful;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 import org.jwaf.remote.persistence.repository.RemotePlatformRepository;
 
@@ -27,6 +29,9 @@ public class RemotePlatformManager
 {
 	@Inject
 	private RemotePlatformRepository repo;
+	
+	@Inject
+	private AgentManager agentManager;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
@@ -99,43 +104,35 @@ public class RemotePlatformManager
 		});
 	}
 	
-	public void sendAgent(String agentName, String platformName)
+	public void sendAgent(String agentName, String platformName) throws AgentTransportSuccessful, AgentTransportFailed
 	{
-		AgentEntity agent = null;
-		// TODO find AgentEntity, retrieve, set in transit
+		AgentEntity agent = agentManager.depart(agentName);
 		
 		URL address = findPlatform(platformName).getAddress();
 		
-		Client client = ClientBuilder.newClient();
-		client.target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent));
-		
-		// TODO remove agent if successfull and throw transported, else set agent to active and throw transport failed
-	}
-	
-	public boolean willAcceptAgent(AgentIdentifier aid)
-	{
-		// TODO willAcceptAgent implementation
-		return true;
-	}
-	
-	public boolean willRemoteAcceptAgent(AgentIdentifier aid, String platformName)
-	{
-		URL address = findPlatform(platformName).getAddress();
-		
-		Client client = ClientBuilder.newClient();
-		Response resp =  client.target(address.toString()).path("remote").path("will_accept").request().post(Entity.xml(aid));
-		
-		if(resp.getEntity() instanceof String)
+		// if response is http ok (200)
+		if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
 		{
-			return new Boolean((String) resp.getEntity());
+			agentManager.departed(agentName);
+			ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.xml(agentName));
+			throw new AgentTransportSuccessful();
 		}
-		
-		return false;
+		else
+		{
+			agentManager.cancelDeparture(agentName);
+			throw new AgentTransportFailed();
+		}
 	}
 	
-	public void receiveRemoteAgent(AgentEntity agent)
+	public boolean receiveRemoteAgent(AgentEntity agent)
 	{
-		agent.setHasNewMessages(!agent.getMessages().isEmpty());
-		// TODO send to agent manager for initialization
+		return agentManager.receiveAgent(agent);
 	}
+	
+	public void arrived(String agentName)
+	{
+		agentManager.arrived(agentName);
+	}
+	
+	// TODO manage aids
 }

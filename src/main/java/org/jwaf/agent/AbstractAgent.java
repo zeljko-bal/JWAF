@@ -55,4 +55,7 @@ public abstract class AbstractAgent
 	
 	public void setup()
 	{/* no-op */}
+	
+	public void onArrival()
+	{/* no-op */}
 }
