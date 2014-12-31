@@ -10,7 +10,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.inject.Instance;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
@@ -20,10 +19,12 @@ import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.annotation.AgentQualifier;
 import org.jwaf.agent.annotation.TypeAttribute;
 import org.jwaf.agent.annotation.TypeAttributes;
+import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
@@ -48,9 +49,9 @@ public class LocalPlatformSetup
 	
 	@Inject
 	private AidManager aidManager;
-
-	@Inject @AgentQualifier
-	private Instance<AbstractAgent> agents;
+	
+	@Inject
+	private AgentManager agentManager;
 
 	@Inject
 	private BeanManager beanManager;
@@ -76,6 +77,11 @@ public class LocalPlatformSetup
 			platformAid.getAddresses().add(localPlatformAddress);
 			platformAid.getUserDefinedParameters().put("X-agent-platform", "true");
 			aidManager.createAid(platformAid);
+			
+			// create cleanup agent
+			CreateAgentRequest createCleanupRequest = new CreateAgentRequest("CleanUpAgent");
+			createCleanupRequest.getParams().put("X-cleanup-agent", "true");
+			agentManager.initialize(createCleanupRequest);
 			
 			//doInitialTests();
 		}

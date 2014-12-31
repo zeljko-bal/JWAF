@@ -1,15 +1,16 @@
 package org.jwaf.agent.persistence.repository;
 
+import java.util.List;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Observes;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
+import javax.validation.ConstraintViolationException;
 
-import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
 @Stateless
@@ -19,92 +20,79 @@ public class AidRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	// TODO manageAID fix
 	public AgentIdentifier manageAID(AgentIdentifier aid)
+	{
+		return manageAID(aid, false);
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	public AgentIdentifier manageAID(AgentIdentifier aid, boolean update)
 	{
 		// if aid is null
 		if(aid == null)
 		{
-			// nothing to persist
+			// nothing to manage
 			return null;
 		}
 
 		if(aid.getName() != null)
 		{
+			AgentIdentifier existentAid = em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
+			
 			// if aid with same name already is persistant return
-			if(containsAid(aid.getName()))
+			if(existentAid != null)
 			{
-				return aquireAidReference(aid.getName());
+				if(update)
+				{
+					existentAid.getAddresses().addAll(aid.getAddresses());
+					existentAid.getUserDefinedParameters().putAll(aid.getUserDefinedParameters());
+					existentAid.getResolvers().addAll(aid.getResolvers());
+					em.merge(existentAid);
+					em.flush();
+				}
+				
+				return existentAid;
+			}
+			else // persist aid
+			{
+				// manage resolvers recursively
+				aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res, update));
+				
+				em.persist(aid);
+				em.flush();
+				return aid;
 			}
 		}
 		else
 		{
 			throw new NullPointerException("[AgentRepository#manageAID] Agent name cannot be null.");
 		}
-
-		// manage resolvers recursively
-		aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res));
-		aid.setRefCount(1);
-
-		// else persist aid
-		em.persist(aid);
-		em.flush();
-		return aid;
 	}
 	
-	private AgentIdentifier aquireAidReference(String name)
-	{
-		AgentIdentifier aid = em.find(AgentIdentifier.class, name, LockModeType.PESSIMISTIC_WRITE);
-		if(aid != null)
-		{
-			aid.setRefCount(aid.getRefCount() + 1);
-		}
-		
-		return aid;
-	}
-	
-	public AgentIdentifier findAid(String name)
+	public AgentIdentifier find(String name)
 	{
 		return em.find(AgentIdentifier.class, name);
 	}
 	
-	public boolean containsAid(String name)
+	public void cleanUp()
 	{
-		return findAid(name) != null;
+		List<AgentIdentifier> agentIdentifiers = em.createQuery("SELECT a FROM AgentIdentifier a", AgentIdentifier.class).getResultList();
+		
+		agentIdentifiers.forEach(aid -> removeIfUnused(aid));
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public AgentIdentifier createAid(AgentIdentifier aid)
-	{
-		aid.setRefCount(1);
-		
-		em.persist(aid);
-		
-		return aid;
-	}
-	
-	public void aidReferenceDroppedEventHandler(@Observes @AidReferenceDroppedEvent String agentName)
-	{
-		AgentIdentifier aid = findAid(agentName);
-		decrementAidReferenceCount(aid);
-		removeOrphanedAid(aid);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void decrementAidReferenceCount(AgentIdentifier aid)
+	private void removeIfUnused(AgentIdentifier aid)
 	{
 		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
-		aid.setRefCount(aid.getRefCount() - 1);
-		em.merge(aid);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private	void removeOrphanedAid(AgentIdentifier aid)
-	{
-		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
-		if(aid.getRefCount() <= 0)
+		
+		// try to remove aid, if there is a reference to it do nothing
+		try
 		{
 			em.remove(aid);
+			em.flush();
 		}
+		catch(ConstraintViolationException e)
+		{/*no-op, still in use*/}
 	}
 }

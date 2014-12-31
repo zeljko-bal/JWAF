@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
+import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
@@ -47,6 +48,12 @@ public class TimerManager
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createSingleActionTimer(duration, tcfg);
+	}
+	
+	public void registerTimer(String timerName, String eventName, ScheduleExpression schedule)
+	{
+		TimerConfig tcfg = createTimeConfig(timerName, eventName);
+		timerService.createCalendarTimer(schedule, tcfg);
 	}
 
 	private TimerConfig createTimeConfig(String timerName, String eventName)

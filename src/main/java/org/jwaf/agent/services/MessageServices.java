@@ -48,4 +48,9 @@ public class MessageServices
 	{
 		agentManager.ignoreNewMessages(aid.getName());
 	}
+	
+	public void ignoreAndForgetNewMessages()
+	{
+		getMessages();
+	}
 }

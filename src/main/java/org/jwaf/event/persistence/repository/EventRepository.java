@@ -4,12 +4,11 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.persistence.entity.EventEntity;
@@ -24,12 +23,9 @@ public class EventRepository
 	@Inject
 	private AidManager aidManager;
 	
-	@Inject @AidReferenceDroppedEvent
-	private Event<String> aidReferenceDroppedEvent;
-	
 	public EventEntity find(String name)
 	{
-		return em.find(EventEntity.class, name);
+		return em.find(EventEntity.class, name, LockModeType.READ);
 	}
 	
 	public boolean exists(String name)
@@ -50,25 +46,18 @@ public class EventRepository
 		em.persist(event);
 	}
 	
-	public void unregister(String name)
-	{
-		EventEntity event = find(name);
-		
-		unregisterTransactional(event);
-		
-		event.getRegisteredAgents().forEach((AgentIdentifier aid) -> aidReferenceDroppedEvent.fire(aid.getName()));
-	}
-	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void unregisterTransactional(EventEntity event)
-	{		
+	public void unregister(String eventName)
+	{
+		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
+		
 		em.remove(event);
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void subscribe(String agentName, String eventName)
 	{
-		EventEntity event = find(eventName);
+		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
 		
 		AgentIdentifier aid = aidManager.manageAID(new AgentIdentifier(agentName));
 		
@@ -77,17 +66,10 @@ public class EventRepository
 		em.merge(event);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void unsubscribe(String agentName, String eventName)
 	{
-		unsubscribeTransactional(agentName, eventName);
-		
-		aidReferenceDroppedEvent.fire(agentName);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void unsubscribeTransactional(String agentName, String eventName)
-	{
-		EventEntity event = find(eventName);
+		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
 		
 		event.getRegisteredAgents().removeIf((AgentIdentifier aid) -> aid.getName().equals(agentName));
 		

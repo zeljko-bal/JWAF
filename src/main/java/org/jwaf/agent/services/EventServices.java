@@ -2,9 +2,12 @@ package org.jwaf.agent.services;
 
 import java.io.Serializable;
 import java.util.Date;
+
 import javax.ejb.LocalBean;
+import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
@@ -87,6 +90,11 @@ public class EventServices
 	public void registerTimer(String timerName, String eventName, Date expiration)
 	{
 		timerManager.registerTimer(timerName, eventName, expiration);
+	}
+	
+	public void registerTimer(String timerName, String eventName, ScheduleExpression schedule)
+	{
+		timerManager.registerTimer(timerName, eventName, schedule);
 	}
 	
 	public void registerTimer(String timerName, String eventName, long duration)

@@ -23,7 +23,7 @@ public class AidManager
 	@Produces @LocalPlatformAid
 	public AgentIdentifier getPlatformAid()
 	{
-		return aidRepository.findAid(localPlatformName);
+		return aidRepository.find(localPlatformName);
 	}
 	
 	public AgentIdentifier manageAID(AgentIdentifier aid)
@@ -32,7 +32,7 @@ public class AidManager
 	}
 	
 	public AgentIdentifier createAid(AgentIdentifier aid)
-	{		
-		return aidRepository.createAid(aid);
+	{
+		return aidRepository.manageAID(aid);
 	}
 }

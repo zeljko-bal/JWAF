@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 @Entity
 @XmlRootElement
@@ -41,9 +40,6 @@ public class AgentIdentifier
 	@ElementCollection(fetch=FetchType.LAZY)
 	@XmlElementWrapper
 	private Map<String, String> userDefinedParameters;
-	
-	@XmlTransient
-	private int refCount;
 	
 	public AgentIdentifier()
 	{
@@ -81,15 +77,5 @@ public class AgentIdentifier
 	public Map<String, String> getUserDefinedParameters()
 	{
 		return userDefinedParameters;
-	}
-
-	public int getRefCount()
-	{
-		return refCount;
-	}
-
-	public void setRefCount(int refCount)
-	{
-		this.refCount = refCount;
 	}
 }

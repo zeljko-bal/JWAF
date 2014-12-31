@@ -17,7 +17,6 @@ import javax.persistence.PersistenceContext;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotation.event.AgentCreatedEvent;
 import org.jwaf.agent.annotation.event.AgentRemovedEvent;
-import org.jwaf.agent.annotation.event.AidReferenceDroppedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -33,9 +32,6 @@ public class AgentRepository
 {
 	@PersistenceContext
 	private EntityManager em;
-	
-	@Inject @AidReferenceDroppedEvent
-	private Event<String> aidReferenceDroppedEvent;
 	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
@@ -82,7 +78,6 @@ public class AgentRepository
 		
 		removeTransactional(agent);
 		
-		aidReferenceDroppedEvent.fire(agent.getAid().getName());
 		agentRemovedEvent.fire(agent.getAid());
 	}
 	
@@ -214,7 +209,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentEntity depart(String agentName)
 	{
-		AgentEntity agent = findAgent(agentName);
+		AgentEntity agent = em.find(AgentEntity.class, agentName, LockModeType.PESSIMISTIC_WRITE);
 		agent.setState(AgentState.IN_TRANSIT);
 		em.merge(agent);
 		return agent;
