@@ -49,7 +49,7 @@ public class AgentServices
 		agentManager.requestTermination(name);
 	}
 	
-	public void terminateSelf()
+	public void terminate()
 	{
 		agentManager.remove(aid.getName());
 		throw new AgentSelfTerminatedException("agent <" + aid.getName() + "> self terminated.");

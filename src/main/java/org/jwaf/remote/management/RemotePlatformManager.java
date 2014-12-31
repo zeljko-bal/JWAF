@@ -36,6 +36,12 @@ public class RemotePlatformManager
 	@Inject @LocalPlatformName
 	private String localPlatformName;
 	
+	public AgentPlatform locationOf(String agentName)
+	{
+		// TODO AgentPlatform locationOf
+		return null;
+	}
+	
 	public AgentPlatform findPlatform(String name)
 	{
 		return repo.findPlatform(name);
@@ -54,6 +60,11 @@ public class RemotePlatformManager
 	public boolean containsAid(String name)
 	{
 		return repo.containsAid(name);
+	}
+	
+	public boolean containsAid(String name, String platformName)
+	{
+		return repo.containsAid(name, platformName);
 	}
 	
 	public void registerPlatform(String name, URL url)
@@ -135,4 +146,5 @@ public class RemotePlatformManager
 	}
 	
 	// TODO manage aids
+	// TODO rest service calling
 }

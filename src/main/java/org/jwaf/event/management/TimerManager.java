@@ -26,31 +26,31 @@ public class TimerManager
 	@Inject
 	private EventManager eventManager;
 	
-	public void registerTimer(String timerName, String eventName, Date initialExpiration, long intervalDuration)
+	public void register(String timerName, String eventName, Date initialExpiration, long intervalDuration)
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createIntervalTimer(initialExpiration, intervalDuration, tcfg);
 	}
 	
-	public void registerTimer(String timerName, String eventName, long initialDuration, long intervalDuration)
+	public void register(String timerName, String eventName, long initialDuration, long intervalDuration)
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createIntervalTimer(initialDuration, intervalDuration, tcfg);
 	}
 	
-	public void registerTimer(String timerName, String eventName, Date expiration)
+	public void register(String timerName, String eventName, Date expiration)
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createSingleActionTimer(expiration, tcfg);
 	}
 	
-	public void registerTimer(String timerName, String eventName, long duration)
+	public void register(String timerName, String eventName, long duration)
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createSingleActionTimer(duration, tcfg);
 	}
 	
-	public void registerTimer(String timerName, String eventName, ScheduleExpression schedule)
+	public void register(String timerName, String eventName, ScheduleExpression schedule)
 	{
 		TimerConfig tcfg = createTimeConfig(timerName, eventName);
 		timerService.createCalendarTimer(schedule, tcfg);
@@ -62,7 +62,7 @@ public class TimerManager
 		return new TimerConfig(info, true);
 	}
 	
-	public void unregisterTimer(String timerName)
+	public void unregister(String timerName)
 	{
 		timerService.getTimers().removeIf((Timer t) -> 
 		{

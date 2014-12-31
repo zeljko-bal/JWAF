@@ -1,5 +1,6 @@
 package org.jwaf.service.management;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -21,6 +22,12 @@ public class ServiceManager
 {
 	@Inject @EJBJNDIPrefix
 	private String ejbJNDIPrefix;
+	
+	public List<String> find(Map<String, String> attributes)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	public boolean exists(String name)
 	{

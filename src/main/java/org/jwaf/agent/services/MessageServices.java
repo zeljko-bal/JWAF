@@ -28,13 +28,13 @@ public class MessageServices
 		this.aid = aid;
 	}
 	
-	public void sendMessage(ACLMessage message)
+	public void send(ACLMessage message)
 	{
 		message.setSender(aid);
 		messageSender.send(message);
 	}
 	
-	public List<ACLMessage> getMessages()
+	public List<ACLMessage> getAll()
 	{
 		return agentManager.getMessages(aid.getName());
 	}
@@ -51,6 +51,6 @@ public class MessageServices
 	
 	public void ignoreAndForgetNewMessages()
 	{
-		getMessages();
+		getAll();
 	}
 }

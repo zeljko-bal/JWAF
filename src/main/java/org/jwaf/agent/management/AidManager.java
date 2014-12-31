@@ -1,5 +1,8 @@
 package org.jwaf.agent.management;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
@@ -24,6 +27,16 @@ public class AidManager
 	public AgentIdentifier getPlatformAid()
 	{
 		return aidRepository.find(localPlatformName);
+	}
+	
+	public List<AgentIdentifier> find(Map<String, String> publicData)
+	{
+		return aidRepository.find(publicData);
+	}
+	
+	public AgentIdentifier find(String name)
+	{
+		return aidRepository.find(name);
 	}
 	
 	public AgentIdentifier manageAID(AgentIdentifier aid)

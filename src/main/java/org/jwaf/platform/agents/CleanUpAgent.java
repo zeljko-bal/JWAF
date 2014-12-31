@@ -18,9 +18,9 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	
 	public void setup()
 	{
-		eventServices.register("aid-cleanup"); // TODO check if exists event, timer
-		eventServices.subscribe("aid-cleanup");
-		eventServices.registerTimer("cleanup-timer", "aid-cleanup", (new ScheduleExpression()).dayOfMonth(15));
+		event.register("aid-cleanup"); // TODO check if exists event, timer
+		event.subscribe("aid-cleanup");
+		timer.register("cleanup-timer", "aid-cleanup", (new ScheduleExpression()).dayOfMonth(15));
 	}
 	
 	@HandleMessage("aid-cleanup")

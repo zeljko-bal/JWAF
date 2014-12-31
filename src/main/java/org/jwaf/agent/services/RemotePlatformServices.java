@@ -24,8 +24,7 @@ public class RemotePlatformServices
 	
 	public boolean containsAid(String name, String platformName)
 	{
-		// TODO platform containsAid
-		return remoteManager.containsAid(name);
+		return remoteManager.containsAid(name, platformName);
 	}
 	
 	public List<AgentPlatform> retrievePlatforms()
@@ -36,5 +35,10 @@ public class RemotePlatformServices
 	public List<AgentIdentifier> retrieveAgentIds(String platformName)
 	{
 		return remoteManager.retrieveAgentIds(platformName);
+	}
+	
+	public AgentPlatform locationOf(String agentName)
+	{
+		return remoteManager.locationOf(agentName);
 	}
 }

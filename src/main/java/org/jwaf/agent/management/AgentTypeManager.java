@@ -1,5 +1,8 @@
 package org.jwaf.agent.management;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +20,12 @@ public class AgentTypeManager
 	public AgentType find(String name)
 	{
 		return typeRepo.find(name);
+	}
+	
+	public List<AgentType> find(Map<String, String> attributes)
+	{
+		// TODO find(Map<String, String> attributes)
+		return null;
 	}
 	
 	public void create(AgentType type)

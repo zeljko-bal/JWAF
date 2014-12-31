@@ -117,7 +117,7 @@ public class MessageHandlingService
 	public void invokeMessageHandlers()
 	{
 		// for each new message
-		messageServices.getMessages().forEach((ACLMessage message) -> 
+		messageServices.getAll().forEach((ACLMessage message) -> 
 		{
 			AgentMessageHandler handler = messageHandlers.get(message.getPerformative());
 			

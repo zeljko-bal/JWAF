@@ -32,7 +32,16 @@ public class RemotePlatformRepository
 	
 	private List<AgentIdentifier> getAidResultList(String name)
 	{
-		return em.createQuery("SELECT a FROM AgentIdentifier a WHERE a.name like :name AND a MEMBER OF SELECT pl.agentAids FROM AgentPlatform AS pl", AgentIdentifier.class).setParameter("name", name).getResultList();
+		return em.createQuery(
+				"SELECT a FROM AgentIdentifier a WHERE a.name like :name AND a MEMBER OF SELECT pl.agentAids FROM AgentPlatform AS pl", 
+				AgentIdentifier.class).setParameter("name", name).getResultList();
+	}
+	
+	private List<AgentIdentifier> getAidResultList(String name, String platformName)
+	{
+		return em.createQuery(
+				"SELECT a FROM AgentIdentifier a WHERE a.name like :name AND a MEMBER OF SELECT pl.agentAids FROM AgentPlatform AS pl WHERE pl.name like :platformName", 
+				AgentIdentifier.class).setParameter("name", name).setParameter("platformName", platformName).getResultList();
 	}
 	
 	public AgentIdentifier findAid(String name)
@@ -48,6 +57,11 @@ public class RemotePlatformRepository
 	public boolean containsAid(String name)
 	{
 		return !getAidResultList(name).isEmpty();
+	}
+	
+	public boolean containsAid(String name, String platformName)
+	{
+		return !getAidResultList(name, platformName).isEmpty();
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

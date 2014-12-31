@@ -11,7 +11,7 @@ public abstract class AbstractReactiveAgent extends AbstractAgent
 	@PostConstruct
 	protected void initializeMessageHandlingBlock()
 	{
-		messageHandlingService = new MessageHandlingService(this, messageServices);
+		messageHandlingService = new MessageHandlingService(this, message);
 	}
 	
 	@Override

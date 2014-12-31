@@ -35,7 +35,6 @@ public class TypeServices
 	
 	public List<AgentType> find(Map<String, String> attributes)
 	{
-		// TODO AgentType findTypeBy
-		return null;
+		return typeManager.find(attributes);
 	}
 }

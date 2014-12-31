@@ -11,6 +11,7 @@ import org.jwaf.agent.services.MessageServices;
 import org.jwaf.agent.services.RemotePlatformServices;
 import org.jwaf.agent.services.ServiceDirectory;
 import org.jwaf.agent.services.TaskServices;
+import org.jwaf.agent.services.TimerServices;
 import org.jwaf.agent.services.TypeServices;
 
 @AgentQualifier
@@ -19,36 +20,39 @@ public abstract class AbstractAgent
 	protected AgentIdentifier aid;
 	
 	@Inject
-	protected AgentDirectory agentDirectory;
+	protected AgentDirectory agent;
 	
 	@Inject
-	protected MessageServices messageServices;
+	protected MessageServices message;
 	
 	@Inject
-	protected AgentServices agentServices;
+	protected AgentServices self;
 	
 	@Inject
-	protected TaskServices taskServices;
+	protected TaskServices task;
 	
 	@Inject
-	protected EventServices eventServices;
+	protected EventServices event;
 	
 	@Inject
-	protected RemotePlatformServices remoteServices;
+	protected TimerServices timer;
 	
 	@Inject
-	protected ServiceDirectory serviceDirectory;
+	protected RemotePlatformServices remotePlatforms;
 	
 	@Inject
-	protected TypeServices typeServices;
+	protected ServiceDirectory service;
+	
+	@Inject
+	protected TypeServices type;
 	
 	public void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;
-		messageServices.setAid(aid);
-		agentServices.setAid(aid);
-		taskServices.setAid(aid);
-		eventServices.setAid(aid);
+		message.setAid(aid);
+		self.setAid(aid);
+		task.setAid(aid);
+		event.setAid(aid);
 	}
 
 	public abstract void execute();

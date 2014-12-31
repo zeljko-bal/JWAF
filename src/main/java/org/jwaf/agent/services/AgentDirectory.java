@@ -8,7 +8,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 @Stateless
 @LocalBean
@@ -18,27 +20,24 @@ public class AgentDirectory
 	private AgentManager agentManager;
 	
 	@Inject
+	private AidManager aidManager;
+	
+	@Inject
 	private RemotePlatformServices remoteService;
 	
 	/*
 	 * Find agent
 	 */
 	
-	public AgentIdentifier find(String name)
+	public AgentIdentifier findAid(String name)
 	{
-		// TODO find(String name) local or global
-		return null;
+		return aidManager.find(name);
 	}
 	
-	public List<AgentIdentifier> find(Map<String, String> publicData)
+	public List<AgentIdentifier> findAid(Map<String, String> publicData)
 	{
-		// TODO find(Map<String, String> publicData) local or global
-		return null;
+		return aidManager.find(publicData);
 	}
-	
-	/*
-	 * Local platform
-	 */
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
 	{
@@ -48,6 +47,26 @@ public class AgentDirectory
 	public boolean localPlatformContains(String name)
 	{
 		return agentManager.contains(name);
+	}
+	
+	public boolean remotePlatformContains(AgentIdentifier aid, String platformName)
+	{
+		return remoteService.containsAid(aid.getName(), platformName);
+	}
+	
+	public boolean remotePlatformContains(String name, String platformName)
+	{
+		return remoteService.containsAid(name, platformName);
+	}
+	
+	public AgentPlatform locationOf(AgentIdentifier aid)
+	{
+		return remoteService.locationOf(aid.getName());
+	}
+	
+	public AgentPlatform locationOf(String agentName)
+	{
+		return remoteService.locationOf(agentName);
 	}
 	
 	/*

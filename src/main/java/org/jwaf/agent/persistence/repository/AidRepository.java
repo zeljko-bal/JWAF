@@ -1,6 +1,7 @@
 package org.jwaf.agent.persistence.repository;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -67,6 +68,12 @@ public class AidRepository
 		{
 			throw new NullPointerException("[AgentRepository#manageAID] Agent name cannot be null.");
 		}
+	}
+	
+	public List<AgentIdentifier> find(Map<String, String> publicData)
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	public AgentIdentifier find(String name)

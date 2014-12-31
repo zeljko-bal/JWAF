@@ -20,8 +20,7 @@ public class ServiceDirectory
 	
 	public List<String> find(Map<String, String> attributes)
 	{
-		// TODO find service by attributes
-		return null;
+		return serviceManager.find(attributes);
 	}
 	
 	public boolean exists(String name)

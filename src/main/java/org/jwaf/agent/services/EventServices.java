@@ -1,16 +1,13 @@
 package org.jwaf.agent.services;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.ejb.LocalBean;
-import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.management.EventManager;
-import org.jwaf.event.management.TimerManager;
 
 @Stateless
 @LocalBean
@@ -19,14 +16,7 @@ public class EventServices
 	@Inject
 	private EventManager eventManager;
 	
-	@Inject
-	private TimerManager timerManager;
-	
 	private AgentIdentifier aid;
-	
-	/*
-	 * event
-	 */
 	
 	public void setAid(AgentIdentifier aid)
 	{
@@ -71,39 +61,5 @@ public class EventServices
 	public void fire(String eventName, Serializable content)
 	{
 		eventManager.fire(eventName, content);
-	}
-	
-	/*
-	 * timer
-	 */
-	
-	public void registerTimer(String timerName, String eventName, Date initialExpiration, long intervalDuration)
-	{
-		timerManager.registerTimer(timerName, eventName, initialExpiration, intervalDuration);
-	}
-	
-	public void registerTimer(String timerName, String eventName, long initialDuration, long intervalDuration)
-	{
-		timerManager.registerTimer(timerName, eventName, initialDuration, intervalDuration);
-	}
-	
-	public void registerTimer(String timerName, String eventName, Date expiration)
-	{
-		timerManager.registerTimer(timerName, eventName, expiration);
-	}
-	
-	public void registerTimer(String timerName, String eventName, ScheduleExpression schedule)
-	{
-		timerManager.registerTimer(timerName, eventName, schedule);
-	}
-	
-	public void registerTimer(String timerName, String eventName, long duration)
-	{
-		timerManager.registerTimer(timerName, eventName, duration);
-	}
-	
-	public void unregisterTimer(String timerName)
-	{
-		timerManager.unregisterTimer(timerName);
 	}
 }
