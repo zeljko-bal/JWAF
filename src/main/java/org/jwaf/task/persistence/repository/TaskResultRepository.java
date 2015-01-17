@@ -29,7 +29,7 @@ public class TaskResultRepository
 	{
 		List<TaskResult> ret = null;
 		
-		ret = em.createQuery("SELECT r FROM TaskResult r WHERE r.employer like :employer", TaskResult.class).setParameter("employer", employer).getResultList();
+		ret = em.createQuery("SELECT r FROM TaskResult r WHERE r.employer = :employer", TaskResult.class).setParameter("employer", employer).getResultList();
 		
 		ret.forEach((TaskResult res) -> em.remove(res));
 		

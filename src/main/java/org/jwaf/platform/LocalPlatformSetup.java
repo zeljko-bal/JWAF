@@ -126,7 +126,7 @@ public class LocalPlatformSetup
 //		AgentType type = new AgentType("type1");
 //		em.persist(type);
 //
-//		AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name LIKE :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
+//		AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name = :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
 //
 //		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
 //		em.persist(aid1);
