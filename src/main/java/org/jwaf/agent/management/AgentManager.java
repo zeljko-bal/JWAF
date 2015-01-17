@@ -3,7 +3,6 @@ package org.jwaf.agent.management;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -28,7 +27,7 @@ import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.util.AgentNameUtil;
 
 /**
  * Session Bean implementation class AgentManager
@@ -52,8 +51,8 @@ public class AgentManager
 	@Inject
 	private MessageSender messageSender;
 	
-	@Inject @LocalPlatformName
-	private String localPlatformName;
+	@Inject
+	private AgentNameUtil agentName;
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
@@ -84,8 +83,8 @@ public class AgentManager
 			// TODO throw type doesnt exist
 		}
 		
-		// new aid with name : random-uuid@local-platform-name
-		AgentIdentifier aid = new AgentIdentifier(UUID.randomUUID().toString()+"@"+localPlatformName);
+		// new aid with name : <random-uuid>:<agent-type>@<local-platform-name>
+		AgentIdentifier aid = new AgentIdentifier(agentName.createRandom(type.getName()));
 		aid.getAddresses().add(localPlatformAddress);
 		aid.getUserDefinedParameters().putAll(request.getParams());
 		aid = aidManager.createAid(aid);
