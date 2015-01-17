@@ -110,6 +110,14 @@ public class RemotePlatformRepository
 
 	public AgentPlatform locationOf(String agentName)
 	{
-		return em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class).setParameter("agentName", agentName).getResultList().get(0);
+		List<AgentPlatform> result = em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class).setParameter("agentName", agentName).getResultList();
+		if(result.isEmpty())
+		{
+			return null;
+		}
+		else
+		{
+			return result.get(0);
+		}
 	}
 }

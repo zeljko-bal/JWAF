@@ -11,6 +11,7 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 @Stateless
 @LocalBean
@@ -75,7 +76,16 @@ public class AgentDirectory
 		}
 		else
 		{
-			return remoteService.locationOf(agentName).getName();
+			AgentPlatform location = remoteService.locationOf(agentName);
+			
+			if(location != null)
+			{
+				return location.getName();
+			}
+			else
+			{
+				return null;
+			}
 		}
 	}
 	

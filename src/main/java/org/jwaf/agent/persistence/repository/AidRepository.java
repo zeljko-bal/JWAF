@@ -1,7 +1,9 @@
 package org.jwaf.agent.persistence.repository;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -10,6 +12,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.validation.ConstraintViolationException;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -70,10 +73,33 @@ public class AidRepository
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<AgentIdentifier> find(Map<String, String> publicData)
 	{
-		// TODO List<AgentIdentifier> find(Map<String, String> publicData)
-		return null;
+		StringBuilder queryString = new StringBuilder("SELECT a FROM AgentIdentifier a WHERE");
+		
+		// create query string
+		for(int i=0;i<publicData.entrySet().size();i++)
+		{
+			if(i>0)
+			{
+				queryString.append(" AND");
+			}
+			
+			queryString.append(" :ent_").append(i).append(" MEMBER OF a.publicData");
+		}
+		
+		// create query
+		Query query = em.createQuery(queryString.toString(), AgentIdentifier.class);
+		
+		// set query parameters
+		Iterator<Entry<String,String>> iter = publicData.entrySet().iterator();
+		for(int i=0;i<publicData.entrySet().size();i++)
+		{
+			query.setParameter("ent_"+i, iter.next());
+		}
+		
+		return query.getResultList();
 	}
 	
 	public AgentIdentifier find(String name)
