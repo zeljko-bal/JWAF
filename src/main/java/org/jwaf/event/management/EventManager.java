@@ -5,11 +5,13 @@ import java.io.Serializable;
 import javax.ejb.Asynchronous;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.jwaf.agent.annotation.LocalPlatformAid;
+import org.jwaf.agent.annotation.event.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.jwaf.event.persistence.repository.EventRepository;
@@ -120,5 +122,8 @@ public class EventManager
 		}
 	}
 	
-	// TODO unsubscribe agent on destroy
+	public void unregisterDestroyedAgent(@Observes @AgentRemovedEvent AgentIdentifier aid)
+	{
+		eventRepo.findAll().forEach(event -> unsubscribe(aid.getName(), event.getName()));
+	}
 }

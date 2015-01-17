@@ -17,6 +17,11 @@ public class RemotePlatformServices
 	@Inject
 	private RemotePlatformManager remoteManager;
 	
+	public AgentPlatform find(String name)
+	{
+		return remoteManager.findPlatform(name);
+	}
+	
 	public boolean containsPlatform(String name)
 	{
 		return remoteManager.containsPlatform(name);

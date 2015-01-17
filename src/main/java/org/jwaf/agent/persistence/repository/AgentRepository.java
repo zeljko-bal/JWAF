@@ -8,19 +8,14 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.AgentState;
-import org.jwaf.agent.annotation.event.AgentCreatedEvent;
-import org.jwaf.agent.annotation.event.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 /**
@@ -32,15 +27,6 @@ public class AgentRepository
 {
 	@PersistenceContext
 	private EntityManager em;
-	
-	@Inject @MessageRetrievedEvent
-	private Event<ACLMessage> messageRetrievedEvent;
-	
-	@Inject @AgentCreatedEvent
-	private Event<AgentIdentifier> agentCreatedEvent;
-	
-	@Inject @AgentRemovedEvent
-	private Event<AgentIdentifier> agentRemovedEvent;
 
 	protected AgentEntity findAgent(String name)
 	{
@@ -59,31 +45,17 @@ public class AgentRepository
 		em.merge(agent);
 	}
 	
-	public void create(AgentEntity agent)
-	{
-		createTransactional(agent);
-		
-		agentCreatedEvent.fire(agent.getAid());
-	}
-	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void createTransactional(AgentEntity agent)
+	public void create(AgentEntity agent)
 	{
 		em.persist(agent);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void remove(String name)
 	{
 		AgentEntity agent = findAgent(name);
 		
-		removeTransactional(agent);
-		
-		agentRemovedEvent.fire(agent.getAid());
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private void removeTransactional(AgentEntity agent)
-	{
 		em.remove(agent);
 	}
 
@@ -144,18 +116,8 @@ public class AgentRepository
 		}
 	}
 
-	public List<ACLMessage> getMessages(String name)
-	{
-		List<ACLMessage> messages = getMessagesTransactional(name);
-		
-		// notify that messages have ben retrieved
-		messages.forEach((ACLMessage message) -> messageRetrievedEvent.fire(message));
-
-		return messages;
-	}
-	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private List<ACLMessage> getMessagesTransactional(String name)
+	public List<ACLMessage> getMessages(String name)
 	{
 		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 

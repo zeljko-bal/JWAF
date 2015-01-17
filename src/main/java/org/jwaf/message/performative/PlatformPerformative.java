@@ -1,4 +1,4 @@
-package org.jwaf.performative;
+package org.jwaf.message.performative;
 
 public class PlatformPerformative
 {

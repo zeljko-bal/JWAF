@@ -33,14 +33,14 @@ public class RemotePlatformRepository
 	private List<AgentIdentifier> getAidResultList(String name)
 	{
 		return em.createQuery(
-				"SELECT a FROM AgentIdentifier a WHERE a.name like :name AND a MEMBER OF SELECT pl.agentAids FROM AgentPlatform AS pl", 
+				"SELECT a FROM AgentIdentifier a WHERE a.name = :name JOIN AgentPlatform pl WHERE a MEMBER OF pl.agentAids", 
 				AgentIdentifier.class).setParameter("name", name).getResultList();
 	}
 	
 	private List<AgentIdentifier> getAidResultList(String name, String platformName)
 	{
 		return em.createQuery(
-				"SELECT a FROM AgentIdentifier a WHERE a.name like :name AND a MEMBER OF SELECT pl.agentAids FROM AgentPlatform AS pl WHERE pl.name like :platformName", 
+				"SELECT a FROM AgentIdentifier a WHERE a.name = :name JOIN AgentPlatform pl WHERE a MEMBER OF pl.agentAids AND pl.name = :platformName", 
 				AgentIdentifier.class).setParameter("name", name).setParameter("platformName", platformName).getResultList();
 	}
 	
@@ -106,5 +106,10 @@ public class RemotePlatformRepository
 		platform.getAgentIds().removeIf((AgentIdentifier aid)-> aid.getName().equals(agentName));
 		
 		em.merge(platform);
+	}
+
+	public AgentPlatform locationOf(String agentName)
+	{
+		return em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class).setParameter("agentName", agentName).getResultList().get(0);
 	}
 }

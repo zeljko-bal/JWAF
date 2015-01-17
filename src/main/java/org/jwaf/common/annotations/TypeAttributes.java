@@ -1,4 +1,4 @@
-package org.jwaf.agent.annotation;
+package org.jwaf.common.annotations;
 
 import static java.lang.annotation.ElementType.TYPE;
 

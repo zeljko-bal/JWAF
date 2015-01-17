@@ -8,7 +8,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.service.management.ServiceManager;
 
 @Stateless
@@ -33,13 +32,13 @@ public class ServiceDirectory
 		return serviceManager.getAttributes(name);
 	}
 	
-	public Object callSynch(AgentIdentifier aid, String serviceName, Object param)
+	public Object callSynch(String serviceName, Object... params)
 	{
-		return serviceManager.callSynch(aid, serviceName, param);
+		return serviceManager.callSynch(serviceName, params);
 	}
 	
-	public Future<Object> callAsynch(AgentIdentifier aid, String serviceName, Object param)
+	public Future<Object> callAsynch(String serviceName, Object... params)
 	{
-		return serviceManager.callAsynch(aid, serviceName, param);
+		return serviceManager.callAsynch(serviceName, params);
 	}
 }

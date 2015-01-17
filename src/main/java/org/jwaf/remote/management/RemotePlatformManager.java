@@ -38,8 +38,7 @@ public class RemotePlatformManager
 	
 	public AgentPlatform locationOf(String agentName)
 	{
-		// TODO AgentPlatform locationOf
-		return null;
+		return repo.locationOf(agentName);
 	}
 	
 	public AgentPlatform findPlatform(String name)
@@ -144,7 +143,4 @@ public class RemotePlatformManager
 	{
 		agentManager.arrived(agentName);
 	}
-	
-	// TODO manage aids
-	// TODO rest service calling
 }

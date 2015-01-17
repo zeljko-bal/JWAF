@@ -1,4 +1,4 @@
-package org.jwaf.agent.annotation;
+package org.jwaf.common.annotations;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

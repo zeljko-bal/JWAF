@@ -24,8 +24,7 @@ public class AgentTypeManager
 	
 	public List<AgentType> find(Map<String, String> attributes)
 	{
-		// TODO find(Map<String, String> attributes)
-		return null;
+		return typeRepo.find(attributes);
 	}
 	
 	public void create(AgentType type)

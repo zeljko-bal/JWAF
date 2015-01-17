@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.remote.persistence.entity.AgentPlatform;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 @Stateless
 @LocalBean
@@ -24,6 +24,9 @@ public class AgentDirectory
 	
 	@Inject
 	private RemotePlatformServices remoteService;
+	
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 	
 	/*
 	 * Find agent
@@ -59,14 +62,21 @@ public class AgentDirectory
 		return remoteService.containsAid(name, platformName);
 	}
 	
-	public AgentPlatform locationOf(AgentIdentifier aid)
+	public String locationOf(AgentIdentifier aid)
 	{
-		return remoteService.locationOf(aid.getName());
+		return locationOf(aid.getName());
 	}
 	
-	public AgentPlatform locationOf(String agentName)
+	public String locationOf(String agentName)
 	{
-		return remoteService.locationOf(agentName);
+		if(localPlatformContains(agentName))
+		{
+			return localPlatformName;
+		}
+		else
+		{
+			return remoteService.locationOf(agentName).getName();
+		}
 	}
 	
 	/*

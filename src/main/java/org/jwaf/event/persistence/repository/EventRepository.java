@@ -1,5 +1,7 @@
 package org.jwaf.event.persistence.repository;
 
+import java.util.List;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -26,6 +28,11 @@ public class EventRepository
 	public EventEntity find(String name)
 	{
 		return em.find(EventEntity.class, name, LockModeType.READ);
+	}
+	
+	public List<EventEntity> findAll()
+	{
+		return em.createQuery("SELECT e FROM EventEntity e", EventEntity.class).getResultList();
 	}
 	
 	public boolean exists(String name)

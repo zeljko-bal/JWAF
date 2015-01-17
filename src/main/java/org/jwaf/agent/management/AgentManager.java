@@ -7,11 +7,14 @@ import java.util.UUID;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotation.LocalPlatformAid;
+import org.jwaf.agent.annotation.event.AgentCreatedEvent;
+import org.jwaf.agent.annotation.event.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -20,9 +23,10 @@ import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.persistence.repository.DataStore;
+import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.management.MessageSender;
+import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.performative.PlatformPerformative;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
@@ -57,6 +61,15 @@ public class AgentManager
 	@Inject @LocalPlatformAid
 	private AgentIdentifier localPlatformAid;
 	
+	@Inject @AgentCreatedEvent
+	private Event<AgentIdentifier> agentCreatedEvent;
+	
+	@Inject @AgentRemovedEvent
+	private Event<AgentIdentifier> agentRemovedEvent;
+	
+	@Inject @MessageRetrievedEvent
+	private Event<ACLMessage> messageRetrievedEvent;
+	
 	public AgentIdentifier initialize(CreateAgentRequest request)
 	{
 		AgentType type = null;
@@ -85,6 +98,8 @@ public class AgentManager
 		// invoke custom setup method
 		activator.setup(aid, request.getType());
 		
+		agentCreatedEvent.fire(aid);
+		
 		return aid;
 	}
 	
@@ -107,12 +122,21 @@ public class AgentManager
 	
 	public void remove(String name)
 	{
+		AgentIdentifier removedAid = agentRepo.findView(name).getAid();
+		
 		agentRepo.remove(name);
+		
+		agentRemovedEvent.fire(removedAid);
 	}
 
 	public List<ACLMessage> getMessages(String name)
 	{
-		return agentRepo.getMessages(name);
+		List<ACLMessage> messages = agentRepo.getMessages(name);
+		
+		// notify that messages have ben retrieved
+		messages.forEach((ACLMessage message) -> messageRetrievedEvent.fire(message));
+		
+		return messages;
 	}
 	
 	public void ignoreNewMessages(String name)

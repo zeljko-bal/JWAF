@@ -59,7 +59,6 @@ public class AgentServices
 	 * state
 	 */
 	
-	// TODO remove if unused/unnecessery
 	public String getState()
 	{
 		return agentManager.findView(aid.getName()).getState();
