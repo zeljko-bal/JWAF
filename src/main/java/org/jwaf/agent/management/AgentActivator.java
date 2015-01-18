@@ -48,7 +48,6 @@ public class AgentActivator
 		{
 			String agentTypeName = agentRepo.findView(aid.getName()).getType().getName();
 
-			// execute asynchronously
 			try
 			{
 				execute(aid, agentTypeName);
@@ -69,7 +68,7 @@ public class AgentActivator
 	
 	private void execute(AgentIdentifier aid, String type)
 	{
-		System.out.println("executing agent activation of agent: "+aid.getName() + ", of type: " + type);
+		System.out.println("executing activation of agent: "+aid.getName() + ", of type: " + type);
 
 		try
 		{

@@ -32,6 +32,7 @@ public class TransportMessage
 
 	public TransportMessage()
     {
+		intendedReceivers = new ArrayList<>();
 		stamps = new ArrayList<>();
     }
 	

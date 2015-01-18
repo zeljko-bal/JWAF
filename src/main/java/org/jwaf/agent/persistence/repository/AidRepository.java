@@ -24,12 +24,7 @@ public class AidRepository
 	@PersistenceContext
 	private EntityManager em;
 	
-	public AgentIdentifier manageAID(AgentIdentifier aid)
-	{
-		return manageAID(aid, false);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRED)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier manageAID(AgentIdentifier aid, boolean update)
 	{
 		// if aid is null
@@ -41,6 +36,8 @@ public class AidRepository
 
 		if(aid.getName() != null)
 		{
+			//System.out.println("em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);  "+aid.getName());
+			
 			AgentIdentifier existentAid = em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 			
 			// if aid with same name already is persistant return
@@ -64,6 +61,7 @@ public class AidRepository
 				
 				em.persist(aid);
 				em.flush();
+				
 				return aid;
 			}
 		}
@@ -107,6 +105,7 @@ public class AidRepository
 		return em.find(AgentIdentifier.class, name);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void cleanUp()
 	{
 		List<AgentIdentifier> agentIdentifiers = em.createQuery("SELECT a FROM AgentIdentifier a", AgentIdentifier.class).getResultList();
@@ -114,7 +113,6 @@ public class AidRepository
 		agentIdentifiers.forEach(aid -> removeIfUnused(aid));
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void removeIfUnused(AgentIdentifier aid)
 	{
 		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);

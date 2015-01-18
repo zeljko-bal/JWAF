@@ -8,8 +8,6 @@ import javax.ejb.DependsOn;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
@@ -25,6 +23,8 @@ import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
+import org.jwaf.message.management.MessageSender;
+import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
@@ -41,11 +41,8 @@ public class LocalPlatformSetup
 	@Inject
 	private AgentTypeManager typeManager;
 
-	/*@Inject
-	private MessageManager messageManager;
-	
 	@Inject
-	private AgentRepository agentRepo;*/
+	private MessageSender messageSender;
 	
 	@Inject
 	private AidManager aidManager;
@@ -83,7 +80,7 @@ public class LocalPlatformSetup
 			createCleanupRequest.getParams().put("X-cleanup-agent", "true");
 			agentManager.initialize(createCleanupRequest);
 			
-			//doInitialTests();
+			doInitialTests();
 		}
 		catch(Exception e)
 		{
@@ -91,7 +88,6 @@ public class LocalPlatformSetup
 		}
 	}
 
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private void registerAgentTypes()
 	{
 		@SuppressWarnings("serial")
@@ -117,105 +113,112 @@ public class LocalPlatformSetup
 		});
 	}
 	
-//	private void doInitialTests() throws NotSupportedException, SystemException
-//	{
-//		//////////
-//
-//		System.out.println( "\n\nHello World!\n\n" );
-//
-//		AgentType type = new AgentType("type1");
-//		em.persist(type);
-//
-//		AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name = :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
-//
-//		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
-//		em.persist(aid1);
-//		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
-//		em.persist(aid2);
-//		AgentIdentifier aid3 = new AgentIdentifier("agent3@platform1");
-//		em.persist(aid3);
-//
-//		AgentIdentifier testAid = new AgentIdentifier("test1@platform1");
-//		em.persist(testAid);
-//
-//
-//		AgentEntity agent1 = new AgentEntity(type, aid1);
-//		em.persist(agent1);
-//
-//		AgentEntity agent2 = new AgentEntity(type, aid2);
-//		em.persist(agent2);
-//
-//		AgentEntity testAgent = new AgentEntity(testType, testAid);
-//		em.persist(testAgent);
-//
-//		//////////////////////////
-//		/////////////////////////
-//		/*
-//		ACLMessage message1 = new ACLMessage();
-//		message1.getReceiverList().add(aid1);
-//		message1.getReceiverList().add(aid2);
-//		message1.getReceiverList().add(new AgentIdentifier(aid3.getName()));
-//		message1.getReceiverList().add(new AgentIdentifier("agent4@platform2"));
-//
-//		//em.persist(message1);
-//		messageManager.handleMessage(message1);
-//		 */
-//		
-//
-//
-//		/*
-//		utx.begin();
-//
-//		AgentType type = new AgentType("type1");
-//		em.persist(type);
-//
-//
-//		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
-//		em.persist(aid1);
-//
-//		utx.commit();
-//		utx.begin();
-//
-//		AgentEntity agent = new AgentEntity(type, aid1);
-//
-//		agent.setState(AgentState.PASSIVE);
-//
-//		em.persist(agent);
-//
-//		utx.commit();
-//		utx.begin();
-//
-//		ACLMessage message = new ACLMessage();
-//
-//		message.getReceiverList().add(aid1);
-//
-//		messageManager.handleMessage(message);
-//
-//		em.flush();
-//
-//		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
-//		em.persist(aid2);
-//
-//		utx.commit();
-//		utx.begin();
-//
-//		agent = new AgentEntity(type, aid2);
-//
-//		em.persist(agent);
-//
-//		utx.commit();
-//		utx.begin();
-//
-//		message = new ACLMessage();
-//
-//		message.getReceiverList().add(aid1);
-//		message.getReceiverList().add(new AgentIdentifier("agent3@platform2"));
-//		//message.getReceiverList().add(new AgentIdentifier("agent1@platform1"));
-//
-//		messageManager.handleMessage(message);
-//
-//		utx.commit();
-//		 */
-//		System.out.println( "\n\nTest end!\n\n" );
-//	}
+	private void doInitialTests()
+	{
+		AgentIdentifier testAid = agentManager.initialize(new CreateAgentRequest("IntegrationTestAgent"));
+		
+		ACLMessage testMessage = new ACLMessage("test", testAid);
+		testMessage.getReceiverList().add(testAid);
+		
+		messageSender.send(testMessage);
+		
+		//////////
+/*
+		System.out.println( "\n\nHello World!\n\n" );
+
+		AgentType type = new AgentType("type1");
+		em.persist(type);
+
+		AgentType testType = em.createQuery("SELECT a FROM AgentType a WHERE a.name = :name", AgentType.class).setParameter("name", "IntegrationTestAgent").getSingleResult();
+
+		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
+		em.persist(aid1);
+		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
+		em.persist(aid2);
+		AgentIdentifier aid3 = new AgentIdentifier("agent3@platform1");
+		em.persist(aid3);
+
+		AgentIdentifier testAid = new AgentIdentifier("test1@platform1");
+		em.persist(testAid);
+
+
+		AgentEntity agent1 = new AgentEntity(type, aid1);
+		em.persist(agent1);
+
+		AgentEntity agent2 = new AgentEntity(type, aid2);
+		em.persist(agent2);
+
+		AgentEntity testAgent = new AgentEntity(testType, testAid);
+		em.persist(testAgent);
+*/
+		//////////////////////////
+		/////////////////////////
+		/*
+		ACLMessage message1 = new ACLMessage();
+		message1.getReceiverList().add(aid1);
+		message1.getReceiverList().add(aid2);
+		message1.getReceiverList().add(new AgentIdentifier(aid3.getName()));
+		message1.getReceiverList().add(new AgentIdentifier("agent4@platform2"));
+
+		//em.persist(message1);
+		messageManager.handleMessage(message1);
+		 */
+		
+
+
+		/*
+		utx.begin();
+
+		AgentType type = new AgentType("type1");
+		em.persist(type);
+
+
+		AgentIdentifier aid1 = new AgentIdentifier("agent1@platform1");
+		em.persist(aid1);
+
+		utx.commit();
+		utx.begin();
+
+		AgentEntity agent = new AgentEntity(type, aid1);
+
+		agent.setState(AgentState.PASSIVE);
+
+		em.persist(agent);
+
+		utx.commit();
+		utx.begin();
+
+		ACLMessage message = new ACLMessage();
+
+		message.getReceiverList().add(aid1);
+
+		messageManager.handleMessage(message);
+
+		em.flush();
+
+		AgentIdentifier aid2 = new AgentIdentifier("agent2@platform1");
+		em.persist(aid2);
+
+		utx.commit();
+		utx.begin();
+
+		agent = new AgentEntity(type, aid2);
+
+		em.persist(agent);
+
+		utx.commit();
+		utx.begin();
+
+		message = new ACLMessage();
+
+		message.getReceiverList().add(aid1);
+		message.getReceiverList().add(new AgentIdentifier("agent3@platform2"));
+		//message.getReceiverList().add(new AgentIdentifier("agent1@platform1"));
+
+		messageManager.handleMessage(message);
+
+		utx.commit();
+		 */
+		System.out.println( "\n\nTest end!\n\n" );
+	}
 }

@@ -31,9 +31,6 @@ public class MessageRepository
 	@Inject
 	private AidManager aidManager;
 	
-	@Inject @MessageRetrievedEvent
-	private Event<ACLMessage> messageRetrievedEvent;
-	
 	// TODO remove if unused
 	@Inject @MessageRemovedEvent
 	private Event<ACLMessage> messageRemovedEvent;
@@ -57,20 +54,20 @@ public class MessageRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private boolean removeUnusedMessage(ACLMessage message)
 	{
-		em.refresh(message, LockModeType.PESSIMISTIC_WRITE);
+		ACLMessage toRemove = em.find(ACLMessage.class, message.getId(), LockModeType.PESSIMISTIC_WRITE);
 		
 		// decrement unread count
-		message.setUnreadCount(message.getUnreadCount()-1);
+		toRemove.setUnreadCount(toRemove.getUnreadCount()-1);
 				
-		if(message.getUnreadCount() <= 0)
+		if(toRemove.getUnreadCount() <= 0)
 		{
-			em.remove(message);
+			em.remove(toRemove);
 			
 			return true;
 		}
 		else 
 		{
-			em.merge(message);
+			em.merge(toRemove);
 			
 			return false;
 		}
@@ -82,18 +79,9 @@ public class MessageRepository
 		em.persist(new OutboxEntry(receiverName, message));
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public ACLMessage retrieveOutboxMessage(String receiverName)
 	{		
-		ACLMessage message = retrieveOutboxMessageTransactional(receiverName);
-		
-		messageRetrievedEvent.fire(message);
-		
-		return message;
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	private ACLMessage retrieveOutboxMessageTransactional(String receiverName)
-	{
 		OutboxEntry entry = em.find(OutboxEntry.class, receiverName);
 		
 		em.remove(entry);

@@ -126,6 +126,11 @@ public class ACLMessage
 		this.protocol = protocol;
 		this.conversation_id = conversation_id;
 	}
+	
+	public Integer getId()
+	{
+		return id;
+	}
 
 	public String getPerformative()
 	{

@@ -77,6 +77,8 @@ public class TimerManager
 	@Timeout
 	public void timeout(Timer timer)
 	{
+		System.out.println("timer tick");
+		
 		Serializable serializableInfo = timer.getInfo();
 		
 		if(serializableInfo instanceof TimerEventInfo)

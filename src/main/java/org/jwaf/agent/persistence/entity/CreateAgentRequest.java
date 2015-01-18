@@ -1,5 +1,6 @@
 package org.jwaf.agent.persistence.entity;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -21,6 +22,7 @@ public class CreateAgentRequest
 	
 	public CreateAgentRequest(String type)
 	{
+		params = new HashMap<>();
 		this.type = type;
 	}
 

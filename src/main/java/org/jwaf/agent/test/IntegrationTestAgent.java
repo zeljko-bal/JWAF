@@ -12,10 +12,13 @@ public class IntegrationTestAgent extends AbstractAgent
 	@Override
 	public void execute()
 	{
+		System.out.println("Test agent activated: name="+aid.getName());
+		
 		try
 		{
 			Thread.sleep(6000);
-		} catch (InterruptedException e)
+		} 
+		catch (InterruptedException e)
 		{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -26,6 +29,6 @@ public class IntegrationTestAgent extends AbstractAgent
 		System.out.println("localPlatformContains agent1@platform1: "+(agent.localPlatformContains("agent1@platform1")));
 		System.out.println("test end");
 		
-		message.getAll();
+		message.ignoreAndForgetNewMessages();
 	}
 }

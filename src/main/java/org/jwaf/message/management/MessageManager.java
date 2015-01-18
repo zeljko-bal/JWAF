@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.client.Client;
@@ -16,6 +17,7 @@ import javax.ws.rs.client.Entity;
 import org.jwaf.agent.management.AgentActivator;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.message.annotation.event.MessageRetrievedEvent;
 import org.jwaf.message.annotation.event.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
@@ -46,6 +48,9 @@ public class MessageManager
 	
 	@Inject
 	private PlatformMessageManager platformMsgManager;
+	
+	@Inject @MessageRetrievedEvent
+	private Event<ACLMessage> messageRetrievedEvent;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
@@ -157,6 +162,10 @@ public class MessageManager
 	
 	public ACLMessage retrieveOutboxMessage(String receiverName)
 	{
-		return messageRepo.retrieveOutboxMessage(receiverName);
+		ACLMessage message = messageRepo.retrieveOutboxMessage(receiverName);
+		
+		messageRetrievedEvent.fire(message);
+		
+		return message;
 	}
 }

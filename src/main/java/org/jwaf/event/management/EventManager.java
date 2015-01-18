@@ -43,7 +43,7 @@ public class EventManager
 	
 	public void register(String name)
 	{
-		eventRepo.register(name);
+		eventRepo.register(name, null);
 	}
 
 	public void register(String name, String type)

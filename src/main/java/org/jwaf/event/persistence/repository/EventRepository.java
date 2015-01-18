@@ -40,11 +40,6 @@ public class EventRepository
 		return find(name) != null;
 	}
 	
-	public void register(String name)
-	{
-		register(name, null);
-	}
-	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void register(String name, String type)
 	{
@@ -66,7 +61,7 @@ public class EventRepository
 	{
 		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
 		
-		AgentIdentifier aid = aidManager.manageAID(new AgentIdentifier(agentName));
+		AgentIdentifier aid = aidManager.find(agentName);
 		
 		event.getRegisteredAgents().add(aid);
 		

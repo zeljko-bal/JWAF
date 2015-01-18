@@ -41,11 +41,11 @@ public class AidManager
 	
 	public AgentIdentifier manageAID(AgentIdentifier aid)
 	{
-		return aidRepository.manageAID(aid);
+		return aidRepository.manageAID(aid, false);
 	}
 	
 	public AgentIdentifier createAid(AgentIdentifier aid)
 	{
-		return aidRepository.manageAID(aid);
+		return aidRepository.manageAID(aid, false);
 	}
 }

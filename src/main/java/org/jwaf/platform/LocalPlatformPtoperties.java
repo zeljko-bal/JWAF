@@ -58,6 +58,6 @@ public class LocalPlatformPtoperties
 	@Produces @EJBJNDIPrefix
 	public String getEJBJNDIPrefix()
 	{
-		return ejbJNDIPrefix;
+		return "java:global/jwaf/";//ejbJNDIPrefix;
 	}
 }
