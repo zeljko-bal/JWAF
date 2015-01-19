@@ -4,19 +4,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.service.management.ServiceManager;
 
-@Stateless
-@LocalBean
 public class ServiceDirectory
 {
-	@Inject
 	private ServiceManager serviceManager;
 	
+	public ServiceDirectory(ServiceManager serviceManager)
+	{
+		this.serviceManager = serviceManager;
+	}
+
 	public List<String> find(Map<String, String> attributes)
 	{
 		return serviceManager.find(attributes);

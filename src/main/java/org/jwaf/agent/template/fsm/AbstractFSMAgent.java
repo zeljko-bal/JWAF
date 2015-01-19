@@ -9,8 +9,9 @@ public class AbstractFSMAgent extends AbstractAgent
 	protected StateHandlingService stateHandling;
 	
 	@PostConstruct
-	protected void initializeMessageHandlingBlock()
+	protected void postConstruct()
 	{
+		super.postConstruct();
 		stateHandling = new StateHandlingService(this, message, self);
 	}
 	

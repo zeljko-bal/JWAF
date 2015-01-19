@@ -1,8 +1,12 @@
 package org.jwaf.agent;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jwaf.agent.annotation.AgentQualifier;
+import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AgentTypeManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.services.AgentDirectory;
 import org.jwaf.agent.services.AgentServices;
@@ -13,38 +17,79 @@ import org.jwaf.agent.services.ServiceDirectory;
 import org.jwaf.agent.services.TaskServices;
 import org.jwaf.agent.services.TimerServices;
 import org.jwaf.agent.services.TypeServices;
+import org.jwaf.event.management.EventManager;
+import org.jwaf.event.management.TimerManager;
+import org.jwaf.message.management.MessageSender;
+import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.remote.management.RemotePlatformManager;
+import org.jwaf.service.management.ServiceManager;
+import org.jwaf.task.manager.TaskManager;
 
 @AgentQualifier
 public abstract class AbstractAgent
 {
+	/*
+	 * Injected resources
+	 */
+	
+	@Inject
+	private AgentManager agentManager;
+	
+	@Inject
+	private AidManager aidManager;
+	
+	@Inject
+	private EventManager eventManager;
+	
+	@Inject
+	private MessageSender messageSender;
+	
+	@Inject
+	private RemotePlatformManager remoteManager;
+	
+	@Inject
+	private ServiceManager serviceManager;
+	
+	@Inject
+	private TaskManager taskManager;
+	
+	@Inject
+	private TimerManager timerManager;
+	
+	@Inject
+	private AgentTypeManager typeManager;
+	
+	@Inject @LocalPlatformName
+	private String localPlatformName;
+	
+	/*
+	 * Agent services
+	 */
+	
 	protected AgentIdentifier aid;
-	
-	@Inject
 	protected AgentDirectory agent;
-	
-	@Inject
 	protected MessageServices message;
-	
-	@Inject
 	protected AgentServices self;
-	
-	@Inject
 	protected TaskServices task;
-	
-	@Inject
 	protected EventServices event;
-	
-	@Inject
 	protected TimerServices timer;
-	
-	@Inject
 	protected RemotePlatformServices remotePlatforms;
-	
-	@Inject
 	protected ServiceDirectory service;
-	
-	@Inject
 	protected TypeServices type;
+	
+	@PostConstruct
+	protected void postConstruct()
+	{
+		remotePlatforms = new RemotePlatformServices(remoteManager);
+		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
+		message = new MessageServices(messageSender, agentManager, aid);
+		self = new AgentServices(agentManager);
+		task = new TaskServices(taskManager);
+		event = new EventServices(eventManager);
+		timer = new TimerServices(timerManager);
+		service = new ServiceDirectory(serviceManager);
+		type = new TypeServices(agentManager, typeManager);
+	}
 	
 	public void setAid(AgentIdentifier aid)
 	{

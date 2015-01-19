@@ -2,20 +2,19 @@ package org.jwaf.agent.services;
 
 import java.util.Date;
 
-import javax.ejb.LocalBean;
 import javax.ejb.ScheduleExpression;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import org.jwaf.event.management.TimerManager;
 
-@Stateless
-@LocalBean
 public class TimerServices
 {
-	@Inject
 	private TimerManager timerManager;
 	
+	public TimerServices(TimerManager timerManager)
+	{
+		this.timerManager = timerManager;
+	}
+
 	public void register(String timerName, String eventName, Date initialExpiration, long intervalDuration)
 	{
 		timerManager.register(timerName, eventName, initialExpiration, intervalDuration);
