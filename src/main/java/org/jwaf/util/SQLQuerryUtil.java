@@ -13,7 +13,19 @@ public class SQLQuerryUtil
 {
 	public static Query createParameterMapQuery(Map<String, String> parameters, String tableName, String mapName, EntityManager em)
 	{
-		StringBuilder queryString = new StringBuilder("SELECT a FROM ").append(tableName).append(" a");
+		return createParameterMapQuery(parameters, tableName, null, mapName, em);
+	}
+	
+	public static Query createParameterMapQuery(Map<String, String> parameters, String tableName, String attribute, String mapName, EntityManager em)
+	{
+		StringBuilder queryString = new StringBuilder("SELECT a");
+		
+		if(attribute != null)
+		{
+			queryString.append(".").append(attribute);
+		}
+		
+		queryString.append(" FROM ").append(tableName).append(" a");
 		
 		// add joins
 		for(int i=0;i<parameters.size();i++)

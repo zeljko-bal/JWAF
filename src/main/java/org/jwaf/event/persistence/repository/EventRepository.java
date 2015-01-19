@@ -35,6 +35,7 @@ public class EventRepository
 		return em.createQuery("SELECT e FROM EventEntity e", EventEntity.class).getResultList();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean exists(String name)
 	{
 		return find(name) != null;

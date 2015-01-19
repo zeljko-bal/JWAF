@@ -17,7 +17,7 @@ public class TestPongAgent extends AbstractReactiveAgent
 	@MessageHandler("test-ping")
 	public void handlePing(ACLMessage newMessage)
 	{
-		System.out.println("TestPongAgent: Got ping from: <"+newMessage.getSender().getName()+">.");
+		System.out.println("[TestPongAgent] Got ping from: <"+newMessage.getSender().getName()+">.");
 		
 		message.send(new ACLMessage().setPerformative("test-pong").addReceivers(newMessage.getSender()));
 	}

@@ -1,6 +1,9 @@
 package org.jwaf.service;
 
-public interface AgentService
+import org.jwaf.service.annotations.ServiceQualifier;
+
+@ServiceQualifier
+public abstract class AgentService
 {
-	public Object call(Object... params);
+	public abstract Object call(Object... params);
 }

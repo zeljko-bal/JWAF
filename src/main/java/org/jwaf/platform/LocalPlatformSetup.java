@@ -28,6 +28,10 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.service.AgentService;
+import org.jwaf.service.annotations.ServiceQualifier;
+import org.jwaf.service.management.ServiceManager;
+import org.jwaf.service.persistence.entity.AgentServiceType;
 
 
 @Singleton
@@ -36,10 +40,11 @@ import org.jwaf.platform.annotation.resource.LocalPlatformName;
 @DependsOn("LocalPlatformPtoperties")
 public class LocalPlatformSetup 
 {
-	//@PersistenceContext
-	//EntityManager em;
 	@Inject
-	private AgentTypeManager typeManager;
+	private AgentTypeManager agentTypeManager;
+	
+	@Inject
+	private ServiceManager serviceManager;
 
 	@Inject
 	private MessageSender messageSender;
@@ -68,6 +73,8 @@ public class LocalPlatformSetup
 		try
 		{
 			registerAgentTypes();
+			
+			registerServiceTypes();
 			
 			createLocalPlatformAid();
 			
@@ -115,9 +122,34 @@ public class LocalPlatformSetup
 				}
 			}
 
-			typeManager.create(type);
+			agentTypeManager.create(type);
 			
 			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
+		});
+	}
+	
+	private void registerServiceTypes()
+	{
+		@SuppressWarnings("serial")
+		Set<Bean<?>> beans = beanManager.getBeans(AgentService.class, new AnnotationLiteral<ServiceQualifier>() {});
+		
+		beans.forEach(serviceBean ->
+		{
+			Class<?> serviceClass = serviceBean.getBeanClass();
+			
+			AgentServiceType type = new AgentServiceType(serviceClass.getSimpleName());
+
+			if(serviceClass.isAnnotationPresent(TypeAttributes.class))
+			{
+				for(TypeAttribute attribute : serviceClass.getAnnotation(TypeAttributes.class).value())
+				{
+					type.getAttributes().put(attribute.key(), attribute.value());
+				}
+			}
+
+			serviceManager.register(type);
+			
+			System.out.println("[LocalPlatformSetup] registered service type: "+type.getName());
 		});
 	}
 	
