@@ -28,6 +28,7 @@ public class AgentRepository
 	@PersistenceContext
 	private EntityManager em;
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	protected AgentEntity findAgent(String name)
 	{
 		return em.find(AgentEntity.class, name);

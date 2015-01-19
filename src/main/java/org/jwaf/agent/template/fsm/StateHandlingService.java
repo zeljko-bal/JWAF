@@ -23,10 +23,11 @@ public class StateHandlingService
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingService(AbstractAgent owner, MessageServices messageServices)
+	public StateHandlingService(AbstractAgent owner, MessageServices messageServices, AgentServices agentServices)
 	{
 		this.owner = owner;
 		this.messageServices = messageServices;
+		this.agentServices = agentServices;
 
 		initializeStateHandlers();
 	}
@@ -62,7 +63,7 @@ public class StateHandlingService
 						// TODO log multiple initial states defined. 
 						System.out.println("WARNING: StateHandlingService: Multiple initial states defined.");
 					}
-
+					
 					initialState = callback.state();
 				}
 			}
@@ -87,7 +88,12 @@ public class StateHandlingService
 		// for each new message
 		messageServices.getAll().forEach((ACLMessage message) -> 
 		{
-			String currentState = agentServices.getData(AgentDataType.PRIVATE).get(CURRENT_FSM_STATE);
+			String currentState = getCurrentState();
+			
+			if(currentState == null)
+			{
+				currentState = initialState;
+			}
 			
 			AgentMessageHandler handler = stateHandlers.get(currentState);
 
@@ -115,6 +121,11 @@ public class StateHandlingService
 		}
 		
 		agentServices.getData(AgentDataType.PRIVATE).put(CURRENT_FSM_STATE, newState);
+	}
+	
+	public String getCurrentState()
+	{	
+		return agentServices.getData(AgentDataType.PRIVATE).get(CURRENT_FSM_STATE);
 	}
 	
 	public String getInitialState()

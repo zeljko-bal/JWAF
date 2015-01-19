@@ -11,7 +11,7 @@ public class AbstractFSMAgent extends AbstractAgent
 	@PostConstruct
 	protected void initializeMessageHandlingBlock()
 	{
-		stateHandling = new StateHandlingService(this, message);
+		stateHandling = new StateHandlingService(this, message, self);
 	}
 	
 	@Override
