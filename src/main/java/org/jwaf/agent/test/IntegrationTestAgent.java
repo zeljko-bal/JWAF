@@ -48,14 +48,25 @@ public class IntegrationTestAgent extends AbstractAgent
 		
 		HashMap<String, String> userParams = new HashMap<>();
 		userParams.put("test_param_key_1", "test_param_value_1");
-		assertEquals(aid.getName(), agent.findAid(userParams).get(0).getName(), "agent.findAid(userParams)");
+		assertEquals(aid.getName(), agent.findAid(userParams).get(0).getName(), "agent.findAid(userParams) 1");
 		
+		userParams.put("nonexistent_parameter", "nonexistent_parameter");
+		assertTrue(agent.findAid(userParams).isEmpty(), "agent.findAid(userParams) nonexistent");
 		
+		userParams = new HashMap<>();
+		userParams.put("test_param_key_1", "test_param_value_1");
+		userParams.put("test_param_key_2", "test_param_value_2");
+		assertEquals(aid.getName(), agent.findAid(userParams).get(0).getName(), "agent.findAid(userParams) 1 and 2");
 		
+		userParams = new HashMap<>();
+		userParams.put("test_param_key_1", "test_param_value_1");
+		userParams.put("test_param_key_2", "wrong_value");
+		assertTrue(agent.findAid(userParams).isEmpty(), "agent.findAid(userParams) wrong value");
 		
-		
-		
-		
+		userParams = new HashMap<>();
+		userParams.put("test_param_key_1", "test_param_value_1");
+		userParams.put("wrong_key", "test_param_value_2");
+		assertTrue(agent.findAid(userParams).isEmpty(), "agent.findAid(userParams) wrong key");
 		
 		
 		

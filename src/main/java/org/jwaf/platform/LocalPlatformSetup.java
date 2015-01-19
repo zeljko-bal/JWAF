@@ -125,6 +125,7 @@ public class LocalPlatformSetup
 	{
 		CreateAgentRequest testCreateReq = new CreateAgentRequest("IntegrationTestAgent");
 		testCreateReq.getParams().put("test_param_key_1", "test_param_value_1");
+		testCreateReq.getParams().put("test_param_key_2", "test_param_value_2");
 		AgentIdentifier testAid = agentManager.initialize(testCreateReq);
 		
 		ACLMessage testMessage = new ACLMessage("test", testAid);
