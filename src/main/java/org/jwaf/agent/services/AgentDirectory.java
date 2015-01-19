@@ -38,9 +38,9 @@ public class AgentDirectory
 		return aidManager.find(name);
 	}
 	
-	public List<AgentIdentifier> findAid(Map<String, String> publicData)
+	public List<AgentIdentifier> findAid(Map<String, String> userDefinedParameters)
 	{
-		return aidManager.find(publicData);
+		return aidManager.find(userDefinedParameters);
 	}
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
@@ -99,7 +99,7 @@ public class AgentDirectory
 	}
 	
 	/*
-	 * State
+	 * StateCallback
 	 */
 	
 	public String getState(AgentIdentifier aid)

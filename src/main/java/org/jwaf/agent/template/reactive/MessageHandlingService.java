@@ -8,8 +8,10 @@ import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.services.MessageServices;
-import org.jwaf.agent.template.reactive.annotation.HandleDefaultMessage;
-import org.jwaf.agent.template.reactive.annotation.HandleMessage;
+import org.jwaf.agent.template.common.AgentMessageHandler;
+import org.jwaf.agent.template.common.MessageCallbackUtil;
+import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.agent.template.reactive.annotation.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class MessageHandlingService
@@ -24,15 +26,9 @@ public class MessageHandlingService
 	{
 		unhandledMessages = new ArrayList<>();
 		this.owner = owner;
-		this.messageServices = messageServices;	
+		this.messageServices = messageServices;
 		
 		initializeMessageHandlers();
-	}
-	
-	public MessageHandlingService(AbstractAgent owner, MessageServices messageServices, AgentMessageHandler defaultMessageHandler)
-	{
-		this(owner, messageServices);
-		this.defaultMessageHandler = defaultMessageHandler;
 	}
 	
 	private void initializeMessageHandlers()
@@ -45,7 +41,7 @@ public class MessageHandlingService
 			if(isMessageCallback(method))
 			{
 				// map method to annotated performative
-				messageHandlers.put(method.getAnnotation(HandleMessage.class).value(), (ACLMessage m) -> 
+				messageHandlers.put(method.getAnnotation(MessageHandler.class).value(), (ACLMessage m) -> 
 				{
 					try
 					{
@@ -76,10 +72,10 @@ public class MessageHandlingService
 	
 	private boolean isMessageCallback(Method method)
 	{
-		// has to be annotated with @HandleMessage
-		if(method.isAnnotationPresent(HandleMessage.class))
+		// has to be annotated with @MessageHandler
+		if(method.isAnnotationPresent(MessageHandler.class))
 		{
-			return isValidMessageCallback(method);
+			return MessageCallbackUtil.isValidMessageCallback(method);
 		}
 		else
 		{
@@ -89,29 +85,15 @@ public class MessageHandlingService
 	
 	private boolean isDefaultMessageCallback(Method method)
 	{
-		// has to be annotated with @HandleMessage
-		if(method.isAnnotationPresent(HandleDefaultMessage.class))
+		// has to be annotated with @DefaultMessageHandler
+		if(method.isAnnotationPresent(DefaultMessageHandler.class))
 		{
-			return isValidMessageCallback(method);
+			return MessageCallbackUtil.isValidMessageCallback(method);
 		}
 		else
 		{
 			return false;
 		}
-	}
-	
-	private boolean isValidMessageCallback(Method method)
-	{
-		// has one parameter of type ACLMessage
-		if(method.getParameterCount() == 1)
-		{
-			if(ACLMessage.class.isAssignableFrom(method.getParameterTypes()[0])) 
-			{
-				return true;
-			}
-		}
-		
-		return false;
 	}
 	
 	public void invokeMessageHandlers()

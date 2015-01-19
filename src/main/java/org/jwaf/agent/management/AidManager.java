@@ -29,9 +29,9 @@ public class AidManager
 		return aidRepository.find(localPlatformName);
 	}
 	
-	public List<AgentIdentifier> find(Map<String, String> publicData)
+	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
 	{
-		return aidRepository.find(publicData);
+		return aidRepository.find(userDefinedParameters);
 	}
 	
 	public AgentIdentifier find(String name)

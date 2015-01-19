@@ -1,4 +1,4 @@
-package org.jwaf.agent.template.reactive;
+package org.jwaf.agent.template.common;
 
 import org.jwaf.message.persistence.entity.ACLMessage;
 

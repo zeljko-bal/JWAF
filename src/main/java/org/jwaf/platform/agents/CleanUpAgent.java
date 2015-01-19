@@ -7,7 +7,8 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.agent.template.reactive.AbstractReactiveAgent;
-import org.jwaf.agent.template.reactive.annotation.HandleMessage;
+import org.jwaf.agent.template.reactive.annotation.MessageHandler;
+import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
 @LocalBean
@@ -20,13 +21,13 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	{
 		event.register("aid-cleanup"); // TODO check if exists event, timer
 		event.subscribe("aid-cleanup");
-		timer.register("cleanup-timer", "aid-cleanup", (new ScheduleExpression()).second(30));
+		timer.register("cleanup-timer", "aid-cleanup", (new ScheduleExpression()).dayOfMonth(15));
 	}
 	
-	@HandleMessage("aid-cleanup")
-	public void cleanUp()
+	@MessageHandler("aid-cleanup")
+	public void cleanUp(ACLMessage message)
 	{
-		System.out.println("CleanUpAgent cleaning up");
+		System.out.println("CleanUpAgent cleaning uppp");
 		aidRepo.cleanUp();
 	}
 }

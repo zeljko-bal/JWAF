@@ -13,7 +13,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.validation.ConstraintViolationException;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
@@ -72,27 +71,27 @@ public class AidRepository
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<AgentIdentifier> find(Map<String, String> publicData)
+	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
 	{
 		StringBuilder queryString = new StringBuilder("SELECT a FROM AgentIdentifier a WHERE");
 		
 		// create query string
-		for(int i=0;i<publicData.entrySet().size();i++)
+		for(int i=0;i<userDefinedParameters.entrySet().size();i++)
 		{
 			if(i>0)
 			{
 				queryString.append(" AND");
 			}
 			
-			queryString.append(" :ent_").append(i).append(" MEMBER OF a.publicData");
+			queryString.append(" :ent_").append(i).append(" MEMBER OF ENTRY(a.userDefinedParameters)");
 		}
 		
 		// create query
 		Query query = em.createQuery(queryString.toString(), AgentIdentifier.class);
 		
 		// set query parameters
-		Iterator<Entry<String,String>> iter = publicData.entrySet().iterator();
-		for(int i=0;i<publicData.entrySet().size();i++)
+		Iterator<Entry<String,String>> iter = userDefinedParameters.entrySet().iterator();
+		for(int i=0;i<userDefinedParameters.entrySet().size();i++)
 		{
 			query.setParameter("ent_"+i, iter.next());
 		}
@@ -123,7 +122,7 @@ public class AidRepository
 			em.remove(aid);
 			em.flush();
 		}
-		catch(ConstraintViolationException e)
+		catch(Exception e)
 		{/*no-op, still in use*/}
 	}
 }

@@ -27,7 +27,7 @@ public class EventRepository
 	
 	public EventEntity find(String name)
 	{
-		return em.find(EventEntity.class, name, LockModeType.READ);
+		return em.find(EventEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 	}
 	
 	public List<EventEntity> findAll()
