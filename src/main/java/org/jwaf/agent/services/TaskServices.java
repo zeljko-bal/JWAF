@@ -2,22 +2,20 @@ package org.jwaf.agent.services;
 
 import java.util.List;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.task.manager.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 
-@Stateless
-@LocalBean
 public class TaskServices
 {
-	@Inject
 	private TaskManager taskManager;
 	
+	public TaskServices(TaskManager taskManager)
+	{
+		this.taskManager = taskManager;
+	}
+
 	private AgentIdentifier aid;
 	
 	public void setAid(AgentIdentifier aid)

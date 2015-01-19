@@ -2,22 +2,19 @@ package org.jwaf.agent.services;
 
 import java.io.Serializable;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.management.EventManager;
 
-@Stateless
-@LocalBean
 public class EventServices
 {
-	@Inject
 	private EventManager eventManager;
-	
 	private AgentIdentifier aid;
 	
+	public EventServices(EventManager eventManager)
+	{
+		this.eventManager = eventManager;
+	}
+
 	public void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;

@@ -1,9 +1,5 @@
 package org.jwaf.agent.services;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.exception.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -11,15 +7,16 @@ import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.DataStore;
 
-@Stateless
-@LocalBean
 public class AgentServices
 {
-	@Inject
 	private AgentManager agentManager;
-	
 	private AgentIdentifier aid;
 	
+	public AgentServices(AgentManager agentManager)
+	{
+		this.agentManager = agentManager;
+	}
+
 	public void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;

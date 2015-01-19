@@ -2,21 +2,19 @@ package org.jwaf.agent.services;
 
 import java.util.List;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
-@Stateless
-@LocalBean
 public class RemotePlatformServices
 {
-	@Inject
 	private RemotePlatformManager remoteManager;
 	
+	public RemotePlatformServices(RemotePlatformManager remoteManager)
+	{
+		this.remoteManager = remoteManager;
+	}
+
 	public AgentPlatform find(String name)
 	{
 		return remoteManager.findPlatform(name);

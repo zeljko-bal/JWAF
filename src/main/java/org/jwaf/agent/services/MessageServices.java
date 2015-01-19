@@ -2,25 +2,23 @@ package org.jwaf.agent.services;
 
 import java.util.List;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
-@Stateless
-@LocalBean
 public class MessageServices
 {
-	@Inject
 	private MessageSender messageSender;
-	
-	@Inject
 	private AgentManager agentManager;
 	
+	public MessageServices(MessageSender messageSender, AgentManager agentManager, AgentIdentifier aid)
+	{
+		this.messageSender = messageSender;
+		this.agentManager = agentManager;
+		this.aid = aid;
+	}
+
 	private AgentIdentifier aid;
 	
 	public void setAid(AgentIdentifier aid)

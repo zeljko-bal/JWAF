@@ -3,33 +3,27 @@ package org.jwaf.agent.services;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
-@Stateless
-@LocalBean
 public class AgentDirectory
 {
-	@Inject
-	private AgentManager agentManager;
-	
-	@Inject
 	private AidManager aidManager;
-	
-	@Inject
+	private AgentManager agentManager;
 	private RemotePlatformServices remoteService;
-	
-	@Inject @LocalPlatformName
 	private String localPlatformName;
 	
+	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformServices remoteService, String localPlatformName)
+	{
+		this.aidManager = aidManager;
+		this.agentManager = agentManager;
+		this.remoteService = remoteService;
+		this.localPlatformName = localPlatformName;
+	}
+
 	/*
 	 * Find agent
 	 */

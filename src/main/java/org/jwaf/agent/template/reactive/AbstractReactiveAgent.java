@@ -9,8 +9,9 @@ public abstract class AbstractReactiveAgent extends AbstractAgent
 	protected MessageHandlingService messageHandling;
 
 	@PostConstruct
-	protected void initializeMessageHandlingService()
+	protected void postConstruct()
 	{
+		super.postConstruct();
 		messageHandling = new MessageHandlingService(this, message);
 	}
 	
