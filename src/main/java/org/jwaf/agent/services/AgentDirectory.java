@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
@@ -110,5 +111,19 @@ public class AgentDirectory
 	public String getState(String name)
 	{
 		return agentManager.findView(name).getState();
+	}
+	
+	/*
+	 * Admin
+	 */
+	
+	public AgentIdentifier createAgent(CreateAgentRequest request)
+	{
+		return agentManager.initialize(request);
+	}
+	
+	public void requestAgentTermination(String name)
+	{
+		agentManager.requestTermination(name);
 	}
 }

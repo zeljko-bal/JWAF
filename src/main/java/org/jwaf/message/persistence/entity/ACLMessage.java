@@ -158,6 +158,15 @@ public class ACLMessage
 	{
 		return receiver;
 	}
+	
+	public ACLMessage addReceivers(AgentIdentifier... receivers)
+	{
+		for(AgentIdentifier aid : receivers)
+		{
+			receiver.add(aid);
+		}
+		return this;
+	}
 
 	public String getContent()
 	{

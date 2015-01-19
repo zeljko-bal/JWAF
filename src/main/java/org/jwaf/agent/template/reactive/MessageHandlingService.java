@@ -110,7 +110,7 @@ public class MessageHandlingService
 			}
 			else
 			{
-				// save messages with no specified handler
+				// save message with no specified handler
 				unhandledMessages.add(message);
 			}
 		});
@@ -118,7 +118,7 @@ public class MessageHandlingService
 		// if defaultMessageHandler is specified
 		if(defaultMessageHandler != null)
 		{
-			// handle all unhandled messages with defauld handler
+			// handle all unhandled message with defauld handler
 			unhandledMessages.forEach((ACLMessage message) -> defaultMessageHandler.handle(message));
 		}
 	}

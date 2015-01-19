@@ -25,12 +25,15 @@ public class MessageServices
 	
 	public void setAid(AgentIdentifier aid)
 	{
+		System.out.println("MessageServices "+toString()+" setting aid to "+aid.getName());
 		this.aid = aid;
 	}
 	
 	public void send(ACLMessage message)
 	{
+		System.out.println("message send aid: " + aid.getName());
 		message.setSender(aid);
+		System.out.println("sending message: " + message.getPerformative() + " from "+ message.getSender().getName());
 		messageSender.send(message);
 	}
 	

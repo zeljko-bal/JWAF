@@ -1,9 +1,14 @@
 package org.jwaf.agent.test;
 
+import java.util.HashMap;
+
 import javax.ejb.LocalBean;
-import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 
+import org.jwaf.agent.AgentState;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.CreateAgentRequest;
+import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.template.fsm.AbstractFSMAgent;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.TypeAttribute;
@@ -15,39 +20,10 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 @TypeAttributes(@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1"))
 public class IntegrationTestAgent extends AbstractFSMAgent
 {
-	public void setup()
+	@StateCallback(state="initial-tests", initial=true)
+	public void initialState(ACLMessage newMessage)
 	{
-		event.register("state-test-evt"); // TODO check if exists event, timer
-		event.subscribe("state-test-evt");
-		timer.register("state-test-timer", "state-test-evt", (new ScheduleExpression()).hour("*").minute("*").second("*/10"));
-	}
-	
-	@StateCallback(state="initial", initial=true)
-	public void initialState(ACLMessage message)
-	{
-		System.out.println("initial state: "+message.getPerformative());
-		stateHandling.changeState("state1");
-	}
-	
-	@StateCallback(state="state1")
-	public void state1(ACLMessage message)
-	{
-		System.out.println("state1: "+message.getPerformative());
-		stateHandling.changeState("state2");
-	}
-	
-	@StateCallback(state="state2")
-	public void state2(ACLMessage message)
-	{
-		System.out.println("state2: "+message.getPerformative());
-		stateHandling.changeState("initial");
-	}
-	
-	/*
-	@Override
-	public void execute()
-	{
-		System.out.println("IntegrationTestAgent: activated, name="+aid.getName()+", running tests..");
+		System.out.println("IntegrationTestAgent: activated, name="+aid.getName()+", running initial tests..");
 		
 		// self
 		assertEquals(AgentState.ACTIVE, self.getState(), "self.getState()");
@@ -95,9 +71,27 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		userParams.put("wrong_key", "test_param_value_2");
 		assertTrue(agent.findAid(userParams).isEmpty(), "agent.findAid(userParams) wrong key");
 		
+		// create pong agent
+		
+		System.out.println("createing pong agent");
+		CreateAgentRequest createPongReq = new CreateAgentRequest("TestPongAgent");
+		AgentIdentifier pongAid = agent.createAgent(createPongReq);
+		System.out.println("pong agent created");
+		
+		// send ping
+		message.send(new ACLMessage().setPerformative("test-ping").addReceivers(pongAid));
+		
+		// await reply
+		stateHandling.changeState("expecting-pong");
+	}
+	
+	@StateCallback(state="expecting-pong")
+	public void expectingPong(ACLMessage newMessage)
+	{
+		System.out.println("IntegrationTestAgent: Got pong. Proceeding with tests..");
+		assertEquals("test-pong", newMessage.getPerformative(), "newMessage.getPerformative() = pong");
 		
 		
-		message.ignoreAndForgetNewMessages();
 		
 		System.out.println("IntegrationTestAgent: tests complete.");
 	}
@@ -121,6 +115,4 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 			System.out.println(message);
 		}
 	}
-	
-	*/
 }

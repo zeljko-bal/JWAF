@@ -25,7 +25,7 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	}
 	
 	@MessageHandler("aid-cleanup")
-	public void cleanUp(ACLMessage message)
+	public void cleanUp(ACLMessage newMessage)
 	{
 		System.out.println("CleanUpAgent cleaning uppp");
 		aidRepo.cleanUp();
