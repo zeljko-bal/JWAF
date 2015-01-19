@@ -72,13 +72,11 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertTrue(agent.findAid(userParams).isEmpty(), "agent.findAid(userParams) wrong key");
 		
 		// create pong agent
-		
-		System.out.println("createing pong agent");
 		CreateAgentRequest createPongReq = new CreateAgentRequest("TestPongAgent");
 		AgentIdentifier pongAid = agent.createAgent(createPongReq);
-		System.out.println("pong agent created");
 		
 		// send ping
+		System.out.println("IntegrationTestAgent: pinging pong agent <"+pongAid.getName()+">.");
 		message.send(new ACLMessage().setPerformative("test-ping").addReceivers(pongAid));
 		
 		// await reply
@@ -88,7 +86,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@StateCallback(state="expecting-pong")
 	public void expectingPong(ACLMessage newMessage)
 	{
-		System.out.println("IntegrationTestAgent: Got pong. Proceeding with tests..");
+		System.out.println("IntegrationTestAgent: Got pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
 		assertEquals("test-pong", newMessage.getPerformative(), "newMessage.getPerformative() = pong");
 		
 		

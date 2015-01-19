@@ -68,7 +68,7 @@ public class AgentActivator
 	
 	private void execute(AgentIdentifier aid, String type)
 	{
-		System.out.println("executing activation of agent: "+aid.getName());
+		System.out.println("Executing activation of agent: <"+aid.getName()+">");
 
 		try
 		{
