@@ -128,7 +128,7 @@ public class MessageManager
 
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)
 	{
-		// link messages to agents and notify them
+		// link message to agent and notify them
 		activator.activate(aid, message);
 	}
 
