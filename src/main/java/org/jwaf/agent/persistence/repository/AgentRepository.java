@@ -29,7 +29,7 @@ public class AgentRepository
 	private EntityManager em;
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	protected AgentEntity findAgent(String name)
+	public AgentEntity findAgent(String name)
 	{
 		return em.find(AgentEntity.class, name);
 	}
@@ -41,7 +41,7 @@ public class AgentRepository
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	protected void merge(AgentEntity agent)
+	public void merge(AgentEntity agent)
 	{
 		em.merge(agent);
 	}
@@ -145,11 +145,6 @@ public class AgentRepository
 		agent.setHasNewMessages(false);
 		
 		em.merge(agent);
-	}
-
-	public DataStore getDataStore(String agentName, AgentDataType type)
-	{
-		return new DataStore(this, type, agentName);
 	}
 	
 	public Map<String, String> getPublicData(String agentName)

@@ -5,11 +5,13 @@ import java.util.concurrent.ExecutionException;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
+import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.template.fsm.AbstractFSMAgent;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.TypeAttribute;
@@ -21,14 +23,17 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 @TypeAttributes(@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1"))
 public class IntegrationTestAgent extends AbstractFSMAgent
 {
-	private int errorCount = 0;
+	@Inject
+	AgentRepository agentRepo;
 	
-	@StateCallback(state="initial-tests", initial=true)
+	@StateCallback(state="initial_tests", initial=true)
 	public void initialState(ACLMessage newMessage)
 	{
 		System.out.println("[IntegrationTestAgent] activated, name="+aid.getName()+", running initial tests..");
 		
 		HashMap<String, String> params;
+		
+		self.getData(AgentDataType.PRIVATE).put("error_count", "0");
 		
 		// aid
 		assertTrue(aid != null, "aid not null");
@@ -98,21 +103,25 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		// send ping
 		System.out.println("[IntegrationTestAgent] pinging pong agent <"+pongAid.getName()+">.");
-		message.send(new ACLMessage().setPerformative("test-ping").addReceivers(pongAid));
+		message.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
 		
 		// await reply
-		stateHandling.changeState("expecting-pong");
+		stateHandling.changeState("expecting_pong");
 	}
 	
-	@StateCallback(state="expecting-pong")
+	@StateCallback(state="expecting_pong")
 	public void expectingPong(ACLMessage newMessage) throws InterruptedException, ExecutionException
 	{
 		HashMap<String, String> params;
 		
 		System.out.println("[IntegrationTestAgent] Got pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
 		
+		// data between calls
+		assertEquals("test_private_data_val", self.getData(AgentDataType.PRIVATE).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE) second time");
+		assertEquals("test_public_data_val", self.getData(AgentDataType.PUBLIC).get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC) second time");
+		
 		// newMessage tests
-		assertEquals("test-pong", newMessage.getPerformative(), "newMessage.getPerformative() = pong");
+		assertEquals("test_pong", newMessage.getPerformative(), "newMessage.getPerformative() = test_pong");
 		
 		assertTrue(agent.localPlatformContains(newMessage.getSender()), "agent.localPlatformContains(newMessage.getSender())");
 		
@@ -125,16 +134,53 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		// service
 		assertTrue(service.exists("TestAgentService"), "service.exists('TestAgentService')");
-		assertEquals("test-service-attr-val-1", service.getAttributes("TestAgentService").get("test-service-attr-key-1"), "service.getAttributes('TestAgentService')");
+		assertEquals("test_service_attr_val_1", service.getAttributes("TestAgentService").get("test_service_attr_key_1"), "service.getAttributes('TestAgentService')");
 		assertEquals("params=123", service.callSynch("TestAgentService", "1", "2", "3"), "service.callSynch('TestAgentService', '1', '2', '3')");
 		assertEquals("params=123", service.callAsynch("TestAgentService", "1", "2", "3").get(), "service.callAsynch('TestAgentService', '1', '2', '3')");
 		params = new HashMap<>();
-		params.put("test-service-attr-key-1", "test-service-attr-val-1");
+		params.put("test_service_attr_key_1", "test_service_attr_val_1");
 		assertEquals("TestAgentService", service.find(params).get(0), "service.find(params).get(0)");
 		
-		// 
+		// event
+		event.register("integration_test_evt");
+		assertTrue(event.exists("integration_test_evt"), "event.exists");
 		
-		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+errorCount);
+		// request of pong agent to subscribe to integration_test_evt
+		message.send(new ACLMessage().setPerformative("subscribe_request").addReceivers(newMessage.getSender()).setContent("integration_test_evt"));
+		
+		stateHandling.changeState("expecting_subscribed_pong");
+	}
+	
+	@StateCallback(state="expecting_subscribed_pong")
+	public void expectingSubscribedPong(ACLMessage newMessage)
+	{
+		System.out.println("[IntegrationTestAgent] Got subscribed pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		
+		// newMessage tests
+		assertEquals("subscribed_pong", newMessage.getPerformative(), "newMessage.getPerformative() = subscribed_pong");
+		
+		// fire event
+		event.fire("integration_test_evt", "event_ping");
+		
+		stateHandling.changeState("expecting_event_pong");
+	}
+	
+	@StateCallback(state="expecting_event_pong")
+	public void expectingEventPong(ACLMessage newMessage)
+	{
+		System.out.println("[IntegrationTestAgent] Got event pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		
+		// newMessage tests
+		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong");
+		assertEquals("event_ping", newMessage.getContent(), "newMessage.getContent() = event_ping");
+		
+
+		
+		
+		
+		
+		
+		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+self.getData(AgentDataType.PRIVATE).get("error_count"));
 	}
 	
 	private void assertEquals(Object o1, Object o2, String message)
@@ -142,19 +188,26 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		if(o1 == null)
 		{
 			System.out.println(message +" ; First parameter is null.");
-			errorCount++;
+			incrementErrorCount();
 			return;
 		}
 		
 		assertTrue(o1.equals(o2), message+" ; " + "<"+o1+"> and <"+o2+"> should be equal.");
 	}
-	
+
 	private void assertTrue(boolean exp, String message)
 	{
 		if(!exp)
 		{
-			errorCount++;
 			System.out.println(message);
+			incrementErrorCount();
 		}
+	}
+	
+	private void incrementErrorCount()
+	{
+		Integer errCount = Integer.parseInt(self.getData(AgentDataType.PRIVATE).get("error_count"));
+		errCount = errCount + 1;
+		self.getData(AgentDataType.PRIVATE).put("error_count", errCount.toString());
 	}
 }

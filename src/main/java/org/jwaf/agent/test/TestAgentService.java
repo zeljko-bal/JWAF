@@ -9,7 +9,7 @@ import org.jwaf.service.AgentService;
 
 @Stateless
 @LocalBean
-@TypeAttributes(@TypeAttribute(key="test-service-attr-key-1",value="test-service-attr-val-1"))
+@TypeAttributes(@TypeAttribute(key="test_service_attr_key_1",value="test_service_attr_val_1"))
 public class TestAgentService extends AgentService
 {
 	@Override

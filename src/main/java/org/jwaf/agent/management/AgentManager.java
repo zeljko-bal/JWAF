@@ -145,7 +145,7 @@ public class AgentManager
 
 	public DataStore getDataStore(String agentName, AgentDataType type)
 	{
-		return agentRepo.getDataStore(agentName, type);
+		return new DataStore(agentRepo, type, agentName);
 	}
 	
 	public Map<String, String> getPublicData(String agentName)
