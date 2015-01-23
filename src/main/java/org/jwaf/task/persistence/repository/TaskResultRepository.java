@@ -31,7 +31,7 @@ public class TaskResultRepository
 		
 		ret = em.createQuery("SELECT r FROM TaskResult r WHERE r.employer = :employer", TaskResult.class).setParameter("employer", employer).getResultList();
 		
-		ret.forEach((TaskResult res) -> em.remove(res));
+		ret.forEach(res -> em.remove(res));
 		
 		return ret;
 	}

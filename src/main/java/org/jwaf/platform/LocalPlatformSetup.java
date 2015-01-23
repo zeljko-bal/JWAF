@@ -99,6 +99,7 @@ public class LocalPlatformSetup
 		aidManager.createAid(platformAid);
 	}
 
+	// TODO da se preskoce koji vec postoje
 	private void registerAgentTypes()
 	{
 		@SuppressWarnings("serial")

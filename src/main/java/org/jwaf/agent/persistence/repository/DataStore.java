@@ -70,6 +70,37 @@ public class DataStore implements Map<String, String>
 	{
 		return SerializationUtils.deSerialize(get(key));
 	}
+	
+	public Object getObjectOrDefault(String key, Object defaultValue)
+	{
+		Object value = getObject(key);
+		
+		if(value != null)
+		{
+			return value;
+		}
+		else
+		{
+			return defaultValue;
+		}
+	}
+	
+	public int getInt(String key)
+	{
+		return Integer.parseInt(get(key));
+	}
+	
+	public int getIntOrDefault(String key, int defaultValue)
+	{
+		try
+		{
+			return Integer.parseInt(get(key));
+		}
+		catch(NumberFormatException e)
+		{
+			return defaultValue;
+		}
+	}
 
 	@Override
 	public String put(String key, String value)
@@ -131,5 +162,31 @@ public class DataStore implements Map<String, String>
 	public Set<java.util.Map.Entry<String, String>> entrySet()
 	{
 		return getData().entrySet();
+	}
+	
+	public String append(String key, String content)
+	{
+		return put(key, getOrDefault(key, "")+content);
+	}
+	
+	public String prepend(String key, String content)
+	{
+		return put(key, content+getOrDefault(key, ""));
+	}
+	
+	public int increment(String key)
+	{
+		int value = getIntOrDefault(key, 0);
+		Integer newValue = value + 1;
+		put(key, newValue.toString());
+		return value;
+	}
+	
+	public int decrement(String key)
+	{
+		int value = getIntOrDefault(key, 0);
+		Integer newValue = value - 1;
+		put(key, newValue.toString());
+		return value;
 	}
 }

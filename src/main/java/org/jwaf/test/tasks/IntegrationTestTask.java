@@ -1,4 +1,4 @@
-package org.jwaf.test.deployers;
+package org.jwaf.test.tasks;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;

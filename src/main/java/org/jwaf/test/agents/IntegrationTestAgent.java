@@ -232,12 +232,13 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		String errorCount = self.getData(AgentDataType.PRIVATE).get("error_count");
 		
-		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+errorCount);
+		self.getData(AgentDataType.PRIVATE).append("report", "[IntegrationTestAgent] tests complete. errorCount = "+errorCount+"\n");
 		
 		if(self.getData(AgentDataType.PRIVATE).containsKey("task_employer"))
 		{
 			String employer = self.getData(AgentDataType.PRIVATE).get("task_employer");
-			task.submitResult(new TaskResult(employer, "IntegrationTestTask", "errorCount = "+errorCount));
+			String report = self.getData(AgentDataType.PRIVATE).get("report");
+			task.submitResult(new TaskResult(employer, "IntegrationTestTask", report));
 		}
 		
 		self.terminate();
@@ -247,7 +248,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(o1 == null)
 		{
-			System.out.println("[Test Failed] "+ message +" ; First parameter is null.");
+			self.getData(AgentDataType.PRIVATE).append("report", "[Test Failed] "+ message +" ; First parameter is null.\n");
 			incrementErrorCount();
 			return;
 		}
@@ -259,15 +260,13 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(!exp)
 		{
-			System.out.println("[Test Failed] "+message);
+			self.getData(AgentDataType.PRIVATE).append("report", "[Test Failed] "+message+"\n")	;
 			incrementErrorCount();
 		}
 	}
 	
 	private void incrementErrorCount()
 	{
-		Integer errCount = Integer.parseInt(self.getData(AgentDataType.PRIVATE).get("error_count"));
-		errCount = errCount + 1;
-		self.getData(AgentDataType.PRIVATE).put("error_count", errCount.toString());
+		self.getData(AgentDataType.PRIVATE).increment("error_count");
 	}
 }
