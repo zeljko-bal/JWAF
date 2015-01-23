@@ -1,4 +1,4 @@
-package org.jwaf.agent.exception;
+package org.jwaf.agent.exceptions;
 
 import javax.ejb.ApplicationException;
 

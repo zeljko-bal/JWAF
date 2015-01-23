@@ -1,4 +1,4 @@
-package org.jwaf.remote.exception;
+package org.jwaf.remote.exceptions;
 
 public class AgentTransportFailed extends Exception
 {

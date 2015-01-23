@@ -10,8 +10,8 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.agent.annotation.LocalPlatformAid;
-import org.jwaf.agent.annotation.event.AgentRemovedEvent;
+import org.jwaf.agent.annotations.LocalPlatformAid;
+import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.jwaf.event.persistence.repository.EventRepository;

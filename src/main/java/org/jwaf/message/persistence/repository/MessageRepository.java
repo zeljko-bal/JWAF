@@ -13,8 +13,8 @@ import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.message.annotation.event.MessageRemovedEvent;
-import org.jwaf.message.annotation.event.MessageRetrievedEvent;
+import org.jwaf.message.annotations.events.MessageRemovedEvent;
+import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.OutboxEntry;
 

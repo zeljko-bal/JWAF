@@ -1,6 +1,6 @@
 package org.jwaf.agent.services;
 
-import org.jwaf.agent.exception.AgentSelfTerminatedException;
+import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;

@@ -3,7 +3,7 @@ package org.jwaf.agent;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.jwaf.agent.annotation.AgentQualifier;
+import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;

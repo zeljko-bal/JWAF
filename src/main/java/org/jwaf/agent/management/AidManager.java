@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.jwaf.agent.annotation.LocalPlatformAid;
+import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;

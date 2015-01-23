@@ -8,7 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jwaf.agent.annotation.LocalPlatformAid;
+import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
 @Path("platform")

@@ -1,4 +1,4 @@
-package org.jwaf.agent.test;
+package org.jwaf.test.services;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;

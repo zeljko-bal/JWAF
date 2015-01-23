@@ -10,8 +10,8 @@ import javax.naming.NamingException;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.AgentState;
-import org.jwaf.agent.annotation.event.AgentInitializedEvent;
-import org.jwaf.agent.exception.AgentSelfTerminatedException;
+import org.jwaf.agent.annotations.events.AgentInitializedEvent;
+import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;

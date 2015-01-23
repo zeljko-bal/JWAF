@@ -1,4 +1,4 @@
-package org.jwaf.message.annotation.event;
+package org.jwaf.agent.annotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -14,5 +14,5 @@ import javax.inject.Qualifier;
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface MessageRemovedEvent
+public @interface LocalPlatformAid
 {}

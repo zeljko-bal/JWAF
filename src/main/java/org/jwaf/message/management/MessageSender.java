@@ -5,7 +5,7 @@ import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
-import org.jwaf.message.annotation.event.MessageSentEvent;
+import org.jwaf.message.annotations.events.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless

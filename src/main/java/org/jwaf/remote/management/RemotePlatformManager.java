@@ -11,14 +11,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 
-import org.jwaf.agent.annotation.event.AgentInitializedEvent;
-import org.jwaf.agent.annotation.event.AgentRemovedEvent;
+import org.jwaf.agent.annotations.events.AgentInitializedEvent;
+import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
-import org.jwaf.remote.exception.AgentTransportFailed;
-import org.jwaf.remote.exception.AgentTransportSuccessful;
+import org.jwaf.remote.exceptions.AgentTransportFailed;
+import org.jwaf.remote.exceptions.AgentTransportSuccessful;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 import org.jwaf.remote.persistence.repository.RemotePlatformRepository;
 

@@ -1,4 +1,4 @@
-package org.jwaf.agent.annotation.event;
+package org.jwaf.agent.annotations.events;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

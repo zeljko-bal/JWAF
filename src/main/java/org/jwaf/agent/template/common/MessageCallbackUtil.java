@@ -2,7 +2,7 @@ package org.jwaf.agent.template.common;
 
 import java.lang.reflect.Method;
 
-import org.jwaf.agent.exception.AgentSelfTerminatedException;
+import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class MessageCallbackUtil

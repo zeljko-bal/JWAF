@@ -1,4 +1,4 @@
-package org.jwaf.agent.annotation.event;
+package org.jwaf.agent.annotations.events;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -14,5 +14,6 @@ import javax.inject.Qualifier;
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface AgentRemovedEvent
+public @interface AgentInitializedEvent
+
 {}
