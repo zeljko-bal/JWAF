@@ -16,7 +16,7 @@ public class AbstractFSMAgent extends AbstractAgent
 	}
 	
 	@Override
-	public void execute()
+	public void execute() throws Exception
 	{
 		stateHandling.invokeStateHandlers();
 	}

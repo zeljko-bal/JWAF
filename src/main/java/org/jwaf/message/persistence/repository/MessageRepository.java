@@ -51,7 +51,6 @@ public class MessageRepository
 		}
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	private boolean removeUnusedMessage(ACLMessage message)
 	{
 		ACLMessage toRemove = em.find(ACLMessage.class, message.getId(), LockModeType.PESSIMISTIC_WRITE);

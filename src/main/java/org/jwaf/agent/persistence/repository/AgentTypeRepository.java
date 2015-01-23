@@ -23,12 +23,14 @@ public class AgentTypeRepository
 	@PersistenceContext
 	private EntityManager em;
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentType find(String name) throws NoResultException
 	{
 		return em.find(AgentType.class, name);
 	}
 	
 	@SuppressWarnings("unchecked")
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentType> find(Map<String, String> attributes)
 	{
 		return SQLQuerryUtil.createParameterMapQuery(attributes, "AgentType", "attributes", em).getResultList();

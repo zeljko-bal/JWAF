@@ -57,7 +57,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		// agent
 		assertEquals(AgentState.ACTIVE, agent.getState(aid.getName()), "agent.getState(aid.getName())");
 		assertTrue(agent.localPlatformContains(aid), "agent.localPlatformContains(aid)");
-		assertEquals(agent.locationOf(aid), "jwaf1", "agent.locationOf(aid)"); // TODO get local platform aid
+		assertEquals(agent.locationOf(aid), localPlatformName, "agent.locationOf(aid)");
 		
 		AgentIdentifier aidResult =  agent.findAid(aid.getName());
 		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
@@ -193,7 +193,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertTrue(eventParam!=null, "eventParam!=null");
 		assertEquals("integration_test_timer", eventParam.getTimerName(), "eventParam.getTimerName()");
 		
-		// wait for 7s
+		// wait for 3s
 		Thread.sleep(3000);
 		
 		// message
@@ -203,9 +203,24 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		// unregister timer
 		timer.unregister("integration_test_timer");
 		
+		// wait for messages to arrive
+		Thread.sleep(1000);
+		
 		// message
 		message.ignoreAndForgetNewMessages();
 		assertTrue(!message.newMessagesAvailable(), "ignoreAndForgetNewMessages");
+		
+		// event unregister
+		event.unregister("integration_test_evt");
+		assertTrue(!event.exists("integration_test_evt"), "event.unregister");
+		
+		// send termination request
+		agent.requestAgentTermination(newMessage.getSender().getName());
+		
+		// wait for agent to terminate
+		Thread.sleep(5000);
+		
+		assertTrue(!agent.localPlatformContains(newMessage.getSender()), "agent deleted");
 		
 		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+self.getData(AgentDataType.PRIVATE).get("error_count"));
 	}
@@ -214,7 +229,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(o1 == null)
 		{
-			System.out.println(message +" ; First parameter is null.");
+			System.out.println("[Test Failed] "+ message +" ; First parameter is null.");
 			incrementErrorCount();
 			return;
 		}
@@ -226,7 +241,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(!exp)
 		{
-			System.out.println(message);
+			System.out.println("[Test Failed] "+message);
 			incrementErrorCount();
 		}
 	}

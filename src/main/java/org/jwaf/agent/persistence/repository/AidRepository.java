@@ -69,11 +69,13 @@ public class AidRepository
 	}
 	
 	@SuppressWarnings("unchecked")
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
 	{
 		return SQLQuerryUtil.createParameterMapQuery(userDefinedParameters, "AgentIdentifier", "userDefinedParameters", em).getResultList();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier find(String name)
 	{
 		return em.find(AgentIdentifier.class, name);

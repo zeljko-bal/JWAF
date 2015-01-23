@@ -155,12 +155,12 @@ public class AgentManager
 
 	public boolean contains(AgentIdentifier aid)
 	{
-		return agentRepo.contains(aid);
+		return agentRepo.containsAgent(aid);
 	}
 
 	public boolean contains(String name)
 	{
-		return agentRepo.contains(name);
+		return agentRepo.containsAgent(name);
 	}
 	
 	/*

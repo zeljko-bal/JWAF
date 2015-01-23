@@ -25,11 +25,13 @@ public class EventRepository
 	@Inject
 	private AidManager aidManager;
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public EventEntity find(String name)
 	{
 		return em.find(EventEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<EventEntity> findAll()
 	{
 		return em.createQuery("SELECT e FROM EventEntity e", EventEntity.class).getResultList();

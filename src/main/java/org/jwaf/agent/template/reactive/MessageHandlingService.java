@@ -9,6 +9,7 @@ import java.util.Map;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.services.MessageServices;
 import org.jwaf.agent.template.common.AgentMessageHandler;
+import org.jwaf.agent.template.common.InvocationExceptionWrapper;
 import org.jwaf.agent.template.common.MessageCallbackUtil;
 import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.agent.template.reactive.annotation.MessageHandler;
@@ -49,7 +50,7 @@ public class MessageHandlingService
 					} 
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						throw new InvocationExceptionWrapper(e);
 					}
 				});
 			}
@@ -63,7 +64,7 @@ public class MessageHandlingService
 					} 
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						throw new InvocationExceptionWrapper(e);
 					}
 				};
 			}
@@ -96,30 +97,33 @@ public class MessageHandlingService
 		}
 	}
 	
-	public void invokeMessageHandlers()
+	public void invokeMessageHandlers() throws Exception
 	{
 		// for each new message
-		messageServices.getAll().forEach(message -> 
+		for(ACLMessage message : messageServices.getAll())
 		{
 			AgentMessageHandler handler = messageHandlers.get(message.getPerformative());
 			
 			if(handler != null)
 			{
 				// handle with predefined handler
-				handler.handle(message);
+				MessageCallbackUtil.handleMessage(handler, message);
 			}
 			else
 			{
 				// save message with no specified handler
 				unhandledMessages.add(message);
 			}
-		});
+		}
 		
 		// if defaultMessageHandler is specified
 		if(defaultMessageHandler != null)
 		{
 			// handle all unhandled message with defauld handler
-			unhandledMessages.forEach(message -> defaultMessageHandler.handle(message));
+			for(ACLMessage message : unhandledMessages)
+			{
+				MessageCallbackUtil.handleMessage(defaultMessageHandler, message);
+			}
 			unhandledMessages.clear();
 		}
 	}

@@ -31,14 +31,14 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentEntity findAgent(String name)
 	{
-		return em.find(AgentEntity.class, name);
+		return find(name);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
-		return findAgent(name);
+		return find(name);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -56,7 +56,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void remove(String name)
 	{
-		AgentEntity agent = findAgent(name);
+		AgentEntity agent = find(name);
 		
 		em.remove(agent);
 	}
@@ -148,21 +148,24 @@ public class AgentRepository
 		em.merge(agent);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public Map<String, String> getPublicData(String agentName)
 	{
-		AgentEntity agent = findAgent(agentName);
+		AgentEntity agent = find(agentName);
 		em.detach(agent);
 		return agent.getData(AgentDataType.PUBLIC);
 	}
 
-	public boolean contains(AgentIdentifier aid)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean containsAgent(AgentIdentifier aid)
 	{
 		return contains(aid.getName());
 	}
 
-	public boolean contains(String name)
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean containsAgent(String name)
 	{
-		return findAgent(name) != null;
+		return contains(name);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -172,5 +175,15 @@ public class AgentRepository
 		agent.setState(AgentState.IN_TRANSIT);
 		em.merge(agent);
 		return agent;
+	}
+	
+	private AgentEntity find(String name)
+	{
+		return em.find(AgentEntity.class, name);
+	}
+	
+	private boolean contains(String name)
+	{
+		return find(name) != null;
 	}
 }

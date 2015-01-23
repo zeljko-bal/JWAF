@@ -9,6 +9,7 @@ import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.services.AgentServices;
 import org.jwaf.agent.services.MessageServices;
 import org.jwaf.agent.template.common.AgentMessageHandler;
+import org.jwaf.agent.template.common.InvocationExceptionWrapper;
 import org.jwaf.agent.template.common.MessageCallbackUtil;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -52,7 +53,7 @@ public class StateHandlingService
 					} 
 					catch (Exception e)
 					{
-						e.printStackTrace();
+						throw new InvocationExceptionWrapper(e);
 					}
 				});
 
@@ -83,10 +84,10 @@ public class StateHandlingService
 		}
 	}
 
-	public void invokeStateHandlers()
+	public void invokeStateHandlers() throws Exception
 	{
 		// for each new message
-		messageServices.getAll().forEach((ACLMessage message) -> 
+		for(ACLMessage message : messageServices.getAll())
 		{
 			String currentState = getCurrentState();
 			
@@ -100,7 +101,7 @@ public class StateHandlingService
 			if(handler != null)
 			{
 				// handle state
-				handler.handle(message);
+				MessageCallbackUtil.handleMessage(handler, message);
 			}
 			else
 			{
@@ -108,7 +109,7 @@ public class StateHandlingService
 				System.out.println("ERROR: StateHandlingService: Undefined current state. <"+currentState+">");
 				return;
 			}
-		});
+		}
 	}
 	
 	public void changeState(String newState)

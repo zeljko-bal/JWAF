@@ -60,7 +60,7 @@ public abstract class AbstractAgent
 	private AgentTypeManager typeManager;
 	
 	@Inject @LocalPlatformName
-	private String localPlatformName;
+	protected String localPlatformName;
 	
 	/*
 	 * Agent services
@@ -100,7 +100,7 @@ public abstract class AbstractAgent
 		event.setAid(aid);
 	}
 
-	public abstract void execute();
+	public abstract void execute() throws Exception;
 	
 	public void setup()
 	{/* no-op */}

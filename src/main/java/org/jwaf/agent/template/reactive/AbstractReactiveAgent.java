@@ -16,7 +16,7 @@ public abstract class AbstractReactiveAgent extends AbstractAgent
 	}
 	
 	@Override
-	public void execute()
+	public void execute() throws Exception
 	{
 		messageHandling.invokeMessageHandlers();
 	}

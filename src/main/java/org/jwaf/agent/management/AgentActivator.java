@@ -47,22 +47,8 @@ public class AgentActivator
 		if(AgentState.PASSIVE.equals(prevState))
 		{
 			String agentTypeName = agentRepo.findView(aid.getName()).getType().getName();
-
-			try
-			{
-				execute(aid, agentTypeName);
-			}
-			catch(AgentSelfTerminatedException ex)
-			{
-				// TODO logger AgentSelfTerminatedException
-				System.out.println(ex.getMessage());
-			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-				// if service submit failed force agent to passivate
-				agentRepo.passivate(aid, true);
-			}
+			
+			execute(aid, agentTypeName);
 		}
 	}
 	
@@ -93,17 +79,25 @@ public class AgentActivator
 		catch (NamingException e) 
 		{
 			// TODO agent not found
-			// agent not found
+			// agent bean not found
 			e.printStackTrace();
 			// force agent to passivate
 			agentRepo.passivate(aid, true);
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
-			// force agent to passivate
-			agentRepo.passivate(aid, true);
-			throw e;
+			Throwable cause = e.getCause();
+			
+			if(cause instanceof AgentSelfTerminatedException)
+			{
+				System.out.println("[AgentActivator] "+cause.getMessage());
+			}
+			else
+			{
+				e.printStackTrace();
+				// if service submit failed force agent to passivate
+				agentRepo.passivate(aid, true);
+			}
 		}
 	}
 	

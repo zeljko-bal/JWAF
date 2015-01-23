@@ -25,6 +25,7 @@ public class RemotePlatformRepository
 	@Inject
 	private AidManager aidManager;
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentPlatform findPlatform(String name)
 	{
 		return em.find(AgentPlatform.class, name);
@@ -44,21 +45,25 @@ public class RemotePlatformRepository
 				AgentIdentifier.class).setParameter("name", name).setParameter("platformName", platformName).getResultList();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier findAid(String name)
 	{
 		return getAidResultList(name).get(0);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean containsPlatform(String name)
 	{
 		return findPlatform(name) != null;
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean containsAid(String name)
 	{
 		return !getAidResultList(name).isEmpty();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean containsAid(String name, String platformName)
 	{
 		return !getAidResultList(name, platformName).isEmpty();
@@ -80,11 +85,13 @@ public class RemotePlatformRepository
 		em.merge(platform);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentIdentifier> retrieveAgentIds(String platformName)
 	{
 		return findPlatform(platformName).getAgentIds();
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentPlatform> retrievePlatforms()
 	{
 		return em.createQuery("SELECT pl FROM AgentPlatform AS pl", AgentPlatform.class).getResultList();
@@ -108,6 +115,7 @@ public class RemotePlatformRepository
 		em.merge(platform);
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentPlatform locationOf(String agentName)
 	{
 		List<AgentPlatform> result = em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class).setParameter("agentName", agentName).getResultList();

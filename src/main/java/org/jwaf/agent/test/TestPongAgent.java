@@ -10,6 +10,7 @@ import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.agent.template.reactive.annotation.MessageHandler;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
+import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
@@ -47,5 +48,11 @@ public class TestPongAgent extends AbstractReactiveAgent
 		{
 			System.out.println("[TestPongAgent] Got message with unknown performative: <"+newMessage.getPerformative()+">");
 		}
+	}
+	
+	@MessageHandler(PlatformPerformative.SELF_TERMINATE)
+	public void terminate(ACLMessage newMessage)
+	{
+		self.terminate();
 	}
 }
