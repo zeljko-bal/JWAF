@@ -48,4 +48,9 @@ public class AidManager
 	{
 		return aidRepository.manageAID(aid, false);
 	}
+
+	public void cleanUp()
+	{
+		aidRepository.cleanUp();
+	}
 }

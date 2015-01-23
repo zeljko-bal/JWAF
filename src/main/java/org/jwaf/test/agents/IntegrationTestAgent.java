@@ -1,6 +1,7 @@
 package org.jwaf.test.agents;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.ejb.LocalBean;
@@ -30,12 +31,10 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@Inject
 	AgentRepository agentRepo;
 	
-	@StateCallback(state="initial_tests", initial=true)
+	@StateCallback(state="initial_state", initial=true)
 	public void initialState(ACLMessage newMessage)
 	{
 		System.out.println("[IntegrationTestAgent] activated, name="+aid.getName()+", running initial tests..");
-		
-		HashMap<String, String> params;
 		
 		self.getData(AgentDataType.PRIVATE).put("error_count", "0");
 		
@@ -44,6 +43,20 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 			TaskRequest taskRequest = (TaskRequest) newMessage.getContentAsObject();
 			self.getData(AgentDataType.PRIVATE).put("task_employer", taskRequest.getEmployer());
 		}
+		
+		HashMap<String, String> params = new HashMap<>();
+		params.put("X-cleanup-agent", "true");
+		List<AgentIdentifier> cleanUpAgents = agent.findAid(params);
+		assertTrue(!cleanUpAgents.isEmpty(), "there are cleanup agents");
+		message.send(new ACLMessage().setPerformative("aid_cleanup_request").addReceivers(cleanUpAgents.get(0)));
+		
+		stateHandling.changeState("initial_tests");
+	}
+	
+	@StateCallback(state="initial_tests")
+	public void initialTests(ACLMessage newMessage)
+	{
+		HashMap<String, String> params;
 		
 		// aid
 		assertTrue(aid != null, "aid not null");

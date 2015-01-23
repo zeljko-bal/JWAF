@@ -37,6 +37,16 @@ public class AgentServiceRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void register(AgentServiceType service)
 	{
-		em.persist(service);
+		AgentServiceType existingType = find(service.getName());
+		if(existingType == null)
+		{
+			em.persist(service);
+		}
+		else
+		{
+			existingType.getAttributes().clear();
+			existingType.getAttributes().putAll(service.getAttributes());
+			em.merge(existingType);
+		}
 	}
 }

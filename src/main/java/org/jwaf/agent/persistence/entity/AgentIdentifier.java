@@ -1,21 +1,16 @@
 package org.jwaf.agent.persistence.entity;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
@@ -27,25 +22,12 @@ public class AgentIdentifier
 	@XmlElement(required=true)
 	private String name;
 	
-	@ElementCollection
-	@XmlElementWrapper
-	@XmlElement(name="address")
-	private List<String> addresses;
-	
-	@ManyToMany(cascade=CascadeType.REFRESH)
-	@XmlElementWrapper
-	@XmlElement(name="resolver")
-	private List<AgentIdentifier> resolvers;
-	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@XmlElementWrapper
-	private Map<String, String> userDefinedParameters;
+	@OneToOne(cascade=CascadeType.ALL)
+	private AidData data;
 	
 	public AgentIdentifier()
 	{
-		addresses = new ArrayList<>();
-		resolvers = new ArrayList<>();
-		userDefinedParameters = new HashMap<>();
+		data = new AidData();
 	}
 	
 	public AgentIdentifier(String name)
@@ -66,16 +48,16 @@ public class AgentIdentifier
 	
 	public List<URL> getAddresses()
 	{
-		return new URLListWrapper(addresses);
+		return data.getAddresses();
 	}
 	
 	public List<AgentIdentifier> getResolvers()
 	{
-		return resolvers;
+		return data.getResolvers();
 	}
 	
 	public Map<String, String> getUserDefinedParameters()
 	{
-		return userDefinedParameters;
+		return data.getUserDefinedParameters();
 	}
 }

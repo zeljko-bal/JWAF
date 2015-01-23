@@ -88,18 +88,29 @@ public class LocalPlatformSetup
 	{
 		CreateAgentRequest createCleanupRequest = new CreateAgentRequest("CleanUpAgent");
 		createCleanupRequest.getParams().put("X-cleanup-agent", "true");
+		
+		if(!aidManager.find(createCleanupRequest.getParams()).isEmpty())
+		{
+			System.out.println("cleanup already exists");
+			return;
+		}
+		
 		agentManager.initialize(createCleanupRequest);
 	}
 
 	private void createLocalPlatformAid()
 	{
+		if(agentManager.contains(localPlatformName))
+		{
+			return;
+		}
+		
 		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 		platformAid.getAddresses().add(localPlatformAddress);
 		platformAid.getUserDefinedParameters().put("X-agent-platform", "true");
 		aidManager.createAid(platformAid);
 	}
 
-	// TODO da se preskoce koji vec postoje
 	private void registerAgentTypes()
 	{
 		@SuppressWarnings("serial")
@@ -109,7 +120,15 @@ public class LocalPlatformSetup
 		{
 			Class<?> agentClass = agentBean.getBeanClass();
 			
-			AgentType type = new AgentType(agentClass.getSimpleName());
+			String typeName = agentClass.getSimpleName();
+			
+			if(agentTypeManager.find(typeName) != null)
+			{
+				System.out.println("[LocalPlatformSetup] agent type: <"+typeName+"> already registered.");
+				return;
+			}
+			
+			AgentType type = new AgentType(typeName);
 
 			if(agentClass.isAnnotationPresent(TypeAttributes.class))
 			{
@@ -118,10 +137,10 @@ public class LocalPlatformSetup
 					type.getAttributes().put(attribute.key(), attribute.value());
 				}
 			}
-
+			
 			agentTypeManager.create(type);
 			
-			System.out.println("[LocalPlatformSetup] registered agent type: "+type.getName());
+			System.out.println("[LocalPlatformSetup] registered agent type: <"+type.getName()+">.");
 		});
 	}
 	
@@ -134,7 +153,9 @@ public class LocalPlatformSetup
 		{
 			Class<?> serviceClass = serviceBean.getBeanClass();
 			
-			AgentServiceType type = new AgentServiceType(serviceClass.getSimpleName());
+			String serviceName = serviceClass.getSimpleName();
+			
+			AgentServiceType type = new AgentServiceType(serviceName);
 
 			if(serviceClass.isAnnotationPresent(TypeAttributes.class))
 			{
@@ -146,7 +167,7 @@ public class LocalPlatformSetup
 
 			serviceManager.register(type);
 			
-			System.out.println("[LocalPlatformSetup] registered service type: "+type.getName());
+			System.out.println("[LocalPlatformSetup] registered service type: <"+type.getName()+">.");
 		});
 	}
 	

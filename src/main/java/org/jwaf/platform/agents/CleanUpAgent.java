@@ -5,7 +5,7 @@ import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jwaf.agent.persistence.repository.AidRepository;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.template.reactive.AbstractReactiveAgent;
 import org.jwaf.agent.template.reactive.annotation.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -15,7 +15,7 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 public class CleanUpAgent extends AbstractReactiveAgent
 {
 	@Inject
-	private AidRepository aidRepo;
+	private AidManager aidManager;
 	
 	public void setup()
 	{
@@ -27,7 +27,15 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	@MessageHandler("aid_cleanup_evt")
 	public void cleanUp(ACLMessage newMessage)
 	{
-		System.out.println("CleanUpAgent cleaning uppp");
-		aidRepo.cleanUp();
+		System.out.println("[CleanUpAgent] cleaning uppp");
+		aidManager.cleanUp();
+	}
+	
+	@MessageHandler("aid_cleanup_request")
+	public void cleanUpRequest(ACLMessage newMessage)
+	{
+		System.out.println("[CleanUpAgent] cleaning uppp");
+		aidManager.cleanUp();
+		message.send(new ACLMessage().setPerformative("cleanup_done").addReceivers(newMessage.getSender()));
 	}
 }

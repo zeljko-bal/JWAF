@@ -7,6 +7,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
@@ -21,6 +22,9 @@ public class AidRepository
 	@PersistenceContext
 	private EntityManager em;
 	
+	@Inject
+	private AidRemoveHelper remover;
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier manageAID(AgentIdentifier aid, boolean update)
 	{
@@ -34,9 +38,9 @@ public class AidRepository
 		if(aid.getName() != null)
 		{
 			//System.out.println("em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);  "+aid.getName());
-			
+
 			AgentIdentifier existentAid = em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
-			
+
 			// if aid with same name already is persistant return
 			if(existentAid != null)
 			{
@@ -48,17 +52,17 @@ public class AidRepository
 					em.merge(existentAid);
 					em.flush();
 				}
-				
+
 				return existentAid;
 			}
 			else // persist aid
 			{
 				// manage resolvers recursively
 				aid.getResolvers().replaceAll((AgentIdentifier res) -> manageAID(res, update));
-				
+
 				em.persist(aid);
 				em.flush();
-				
+
 				return aid;
 			}
 		}
@@ -67,39 +71,30 @@ public class AidRepository
 			throw new NullPointerException("[AgentRepository#manageAID] Agent name cannot be null.");
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
 	{
-		return SQLQuerryUtil.createParameterMapQuery(userDefinedParameters, "AgentIdentifier", "userDefinedParameters", em).getResultList();
+		return SQLQuerryUtil.createParameterMapQuery(userDefinedParameters, "AgentIdentifier", "data.userDefinedParameters", em).getResultList();
 	}
-	
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentIdentifier find(String name)
 	{
 		return em.find(AgentIdentifier.class, name);
 	}
-	
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void cleanUp()
+	public List<AgentIdentifier> findAll()
 	{
-		List<AgentIdentifier> agentIdentifiers = em.createQuery("SELECT a FROM AgentIdentifier a", AgentIdentifier.class).getResultList();
-		
-		agentIdentifiers.forEach(aid -> removeIfUnused(aid));
+		return em.createQuery("SELECT a FROM AgentIdentifier a", AgentIdentifier.class).getResultList();
 	}
 	
-	private void removeIfUnused(AgentIdentifier aid)
+	public void cleanUp()
 	{
-		em.lock(aid, LockModeType.PESSIMISTIC_WRITE);
-		
-		// try to remove aid, if there is a reference to it do nothing
-		try
-		{
-			em.remove(aid);
-			em.flush();
-		}
-		catch(Exception e)
-		{/*no-op, still in use*/}
+		List<AgentIdentifier> agentIdentifiers = findAll();
+
+		agentIdentifiers.forEach(aid -> remover.removeIfUnused(aid) );
 	}
 }
