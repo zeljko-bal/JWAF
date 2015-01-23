@@ -32,6 +32,22 @@ public class TaskResult
 	@XmlElement
 	private String content;
 
+	public TaskResult()
+	{}
+	
+	public TaskResult(String taskType, String content)
+	{
+		this.taskType = taskType;
+		this.content = content;
+	}
+
+	public TaskResult(String employer, String taskType, String content)
+	{
+		this.employer = employer;
+		this.taskType = taskType;
+		this.content = content;
+	}
+	
 	public String getEmployee()
 	{
 		return employee;

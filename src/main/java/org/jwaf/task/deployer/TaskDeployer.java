@@ -6,5 +6,8 @@ import org.jwaf.task.persistence.entity.TaskResult;
 public interface TaskDeployer
 {
 	void deploy(TaskRequest request);
-	TaskResult processResult(TaskResult result);
+	default TaskResult processResult(TaskResult result)
+	{
+		return result;
+	}
 }

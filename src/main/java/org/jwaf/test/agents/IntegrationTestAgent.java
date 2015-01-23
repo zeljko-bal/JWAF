@@ -19,6 +19,8 @@ import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.task.persistence.entity.TaskRequest;
+import org.jwaf.task.persistence.entity.TaskResult;
 
 @Stateless
 @LocalBean
@@ -36,6 +38,12 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		HashMap<String, String> params;
 		
 		self.getData(AgentDataType.PRIVATE).put("error_count", "0");
+		
+		if(newMessage.getContentAsObject() instanceof TaskRequest)
+		{
+			TaskRequest taskRequest = (TaskRequest) newMessage.getContentAsObject();
+			self.getData(AgentDataType.PRIVATE).put("task_employer", taskRequest.getEmployer());
+		}
 		
 		// aid
 		assertTrue(aid != null, "aid not null");
@@ -222,7 +230,17 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		assertTrue(!agent.localPlatformContains(newMessage.getSender()), "agent deleted");
 		
-		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+self.getData(AgentDataType.PRIVATE).get("error_count"));
+		String errorCount = self.getData(AgentDataType.PRIVATE).get("error_count");
+		
+		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+errorCount);
+		
+		if(self.getData(AgentDataType.PRIVATE).containsKey("task_employer"))
+		{
+			String employer = self.getData(AgentDataType.PRIVATE).get("task_employer");
+			task.submitResult(new TaskResult(employer, "IntegrationTestTask", "errorCount = "+errorCount));
+		}
+		
+		self.terminate();
 	}
 	
 	private void assertEquals(Object o1, Object o2, String message)

@@ -23,15 +23,14 @@ import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
-import org.jwaf.message.management.MessageSender;
-import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.service.AgentService;
 import org.jwaf.service.annotations.ServiceQualifier;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
+import org.jwaf.task.manager.TaskManager;
+import org.jwaf.task.persistence.entity.TaskRequest;
 
 
 @Singleton
@@ -45,15 +44,15 @@ public class LocalPlatformSetup
 	
 	@Inject
 	private ServiceManager serviceManager;
-
-	@Inject
-	private MessageSender messageSender;
 	
 	@Inject
 	private AidManager aidManager;
 	
 	@Inject
 	private AgentManager agentManager;
+	
+	@Inject
+	TaskManager taskManager;
 
 	@Inject
 	private BeanManager beanManager;
@@ -63,9 +62,6 @@ public class LocalPlatformSetup
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
-	
-	@Inject @EJBJNDIPrefix
-	private String ejbJNDIPrefix;
 
 	@PostConstruct
 	private void setup()
@@ -155,14 +151,6 @@ public class LocalPlatformSetup
 	
 	private void doInitialTests()
 	{
-		CreateAgentRequest testCreateReq = new CreateAgentRequest("IntegrationTestAgent");
-		testCreateReq.getParams().put("test_param_key_1", "test_param_value_1");
-		testCreateReq.getParams().put("test_param_key_2", "test_param_value_2");
-		AgentIdentifier testAid = agentManager.initialize(testCreateReq);
-		
-		ACLMessage testMessage = new ACLMessage("test", testAid);
-		testMessage.getReceiverList().add(testAid);
-		
-		messageSender.send(testMessage);
+		taskManager.deploy(new TaskRequest(localPlatformName, "IntegrationTestTask", null));
 	}
 }

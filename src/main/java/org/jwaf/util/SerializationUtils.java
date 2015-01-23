@@ -12,6 +12,11 @@ public class SerializationUtils
 {
 	public static Serializable deSerialize(String string)
 	{
+		if(string == null)
+		{
+			return null;
+		}
+		
 		byte[] bytes = Base64.decode(string.getBytes());
 		Serializable object = null;
 		
@@ -35,6 +40,11 @@ public class SerializationUtils
 
 	public static String serialize(Serializable object)
 	{
+		if(object == null)
+		{
+			return null;
+		}
+		
 		String encoded = null;
 
 		try
