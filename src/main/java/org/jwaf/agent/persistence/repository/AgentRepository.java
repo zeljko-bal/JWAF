@@ -34,6 +34,7 @@ public class AgentRepository
 		return em.find(AgentEntity.class, name);
 	}
 
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
@@ -123,7 +124,7 @@ public class AgentRepository
 		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 
 		// get all messages
-		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());		
+		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());
 
 		// clear dependecies to message entities
 		agent.getMessages().clear();

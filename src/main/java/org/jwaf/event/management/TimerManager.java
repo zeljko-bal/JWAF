@@ -64,14 +64,17 @@ public class TimerManager
 	
 	public void unregister(String timerName)
 	{
-		timerService.getTimers().removeIf((Timer t) -> 
+		for(Timer t : timerService.getAllTimers())
 		{
 			if(t.getInfo() instanceof TimerEventInfo)
 			{
-				return ((TimerEventInfo)t.getInfo()).getTimerName().equals(timerName);
+				if(((TimerEventInfo)t.getInfo()).getTimerName().equals(timerName))
+				{
+					t.cancel();
+					break;
+				}
 			}
-			return false;
-		});
+		}
 	}
 	
 	@Timeout

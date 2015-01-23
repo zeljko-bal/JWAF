@@ -99,7 +99,7 @@ public class MessageHandlingService
 	public void invokeMessageHandlers()
 	{
 		// for each new message
-		messageServices.getAll().forEach((ACLMessage message) -> 
+		messageServices.getAll().forEach(message -> 
 		{
 			AgentMessageHandler handler = messageHandlers.get(message.getPerformative());
 			
@@ -119,7 +119,8 @@ public class MessageHandlingService
 		if(defaultMessageHandler != null)
 		{
 			// handle all unhandled message with defauld handler
-			unhandledMessages.forEach((ACLMessage message) -> defaultMessageHandler.handle(message));
+			unhandledMessages.forEach(message -> defaultMessageHandler.handle(message));
+			unhandledMessages.clear();
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.ejb.LocalBean;
+import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
@@ -16,6 +17,7 @@ import org.jwaf.agent.template.fsm.AbstractFSMAgent;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
+import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
@@ -174,11 +176,36 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong");
 		assertEquals("event_ping", newMessage.getContent(), "newMessage.getContent() = event_ping");
 		
-
+		// register timer
+		timer.register("integration_test_timer", "integration_test_evt", (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
 		
+		stateHandling.changeState("expecting_timer_pong");
+	}
+	
+	@StateCallback(state="expecting_timer_pong")
+	public void expectingTimerPong(ACLMessage newMessage) throws InterruptedException
+	{
+		System.out.println("[IntegrationTestAgent] Got timer pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
 		
+		// newMessage tests
+		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
+		TimerEventParam eventParam = (TimerEventParam) newMessage.getContentAsObject();
+		assertTrue(eventParam!=null, "eventParam!=null");
+		assertEquals("integration_test_timer", eventParam.getTimerName(), "eventParam.getTimerName()");
 		
+		// wait for 7s
+		Thread.sleep(3000);
 		
+		// message
+		assertTrue(message.newMessagesAvailable(), "message.newMessagesAvailable()");
+		assertEquals("event_pong", message.getAll().get(0).getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
+		
+		// unregister timer
+		timer.unregister("integration_test_timer");
+		
+		// message
+		message.ignoreAndForgetNewMessages();
+		assertTrue(!message.newMessagesAvailable(), "ignoreAndForgetNewMessages");
 		
 		System.out.println("[IntegrationTestAgent] tests complete. errorCount = "+self.getData(AgentDataType.PRIVATE).get("error_count"));
 	}

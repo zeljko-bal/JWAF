@@ -58,14 +58,14 @@ public class MessageRepository
 		
 		// decrement unread count
 		toRemove.setUnreadCount(toRemove.getUnreadCount()-1);
-				
+		
 		if(toRemove.getUnreadCount() <= 0)
 		{
 			em.remove(toRemove);
 			
 			return true;
 		}
-		else 
+		else
 		{
 			em.merge(toRemove);
 			
