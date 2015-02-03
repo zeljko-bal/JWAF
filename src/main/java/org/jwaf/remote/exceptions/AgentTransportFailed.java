@@ -1,6 +1,9 @@
 package org.jwaf.remote.exceptions;
 
-public class AgentTransportFailed extends Exception
+import javax.ejb.ApplicationException;
+
+@ApplicationException
+public class AgentTransportFailed extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
 }

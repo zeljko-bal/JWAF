@@ -14,6 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.remote.management.RemotePlatformManager;
 
@@ -103,5 +104,29 @@ public class RemotePlatformResource
 	public Response retrieveAgentIds(@PathParam("platformName") String platformName)
 	{
 		return Response.ok(remoteManager.retrieveAgentIds(platformName)).build();
+	}
+	
+	@POST
+	@Path("receive")
+	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+	public Response receiveRemoteAgent(AgentEntity agent)
+	{
+		if(remoteManager.receiveRemoteAgent(agent))
+		{
+			return Response.ok().build();
+		}
+		else
+		{
+			return Response.notModified().build();
+		}
+	}
+	
+	@POST
+	@Path("arrived")
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response agentArrived(String agentName)
+	{
+		remoteManager.arrived(agentName);
+		return Response.ok().build();
 	}
 }

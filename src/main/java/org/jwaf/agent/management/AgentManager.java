@@ -190,9 +190,23 @@ public class AgentManager
 
 	public boolean receiveAgent(AgentEntity agent)
 	{
-		agent.setHasNewMessages(!agent.getMessages().isEmpty());
-		agent.setState(AgentState.IN_TRANSIT);
-		agentRepo.create(agent);
+		AgentIdentifier remoteAid = agent.getAid();
+		AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
+		aid.getAddresses().addAll(remoteAid.getAddresses());
+		aid.getUserDefinedParameters().putAll(remoteAid.getUserDefinedParameters());
+		aid.getResolvers().addAll(remoteAid.getResolvers());
+		aid = aidManager.createAid(aid);
+		
+		AgentEntity newAgent = new AgentEntity();
+		newAgent.setHasNewMessages(!agent.getMessages().isEmpty());
+		newAgent.setState(AgentState.IN_TRANSIT);
+		newAgent.setType(typeManager.find(agent.getType().getName()));
+		
+		agentRepo.create(newAgent);
+		
+		newAgent.getData(AgentDataType.PUBLIC).putAll(agent.getData(AgentDataType.PUBLIC));
+		newAgent.getData(AgentDataType.PRIVATE).putAll(agent.getData(AgentDataType.PRIVATE));
+		
 		return true; // TODO implement acceptance check
 	}
 }

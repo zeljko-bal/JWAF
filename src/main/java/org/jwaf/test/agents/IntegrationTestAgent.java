@@ -7,13 +7,11 @@ import java.util.concurrent.ExecutionException;
 import javax.ejb.LocalBean;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.agent.template.fsm.AbstractFSMAgent;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.TypeAttribute;
@@ -28,9 +26,6 @@ import org.jwaf.task.persistence.entity.TaskResult;
 @TypeAttributes(@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1"))
 public class IntegrationTestAgent extends AbstractFSMAgent
 {
-	@Inject
-	AgentRepository agentRepo;
-	
 	@StateCallback(state="initial_state", initial=true)
 	public void initialState(ACLMessage newMessage)
 	{

@@ -3,16 +3,24 @@ package org.jwaf.agent.services;
 import java.util.List;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.remote.exceptions.AgentTransportFailed;
+import org.jwaf.remote.exceptions.AgentTransportSuccessful;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 public class RemotePlatformServices
 {
 	private RemotePlatformManager remoteManager;
+	private AgentIdentifier aid;
 	
 	public RemotePlatformServices(RemotePlatformManager remoteManager)
 	{
 		this.remoteManager = remoteManager;
+	}
+	
+	public void setAid(AgentIdentifier aid)
+	{
+		this.aid = aid;
 	}
 
 	public AgentPlatform find(String name)
@@ -48,5 +56,10 @@ public class RemotePlatformServices
 	public AgentPlatform locationOf(String agentName)
 	{
 		return remoteManager.locationOf(agentName);
+	}
+	
+	public void travelTo(String platformName) throws AgentTransportSuccessful, AgentTransportFailed
+	{
+		remoteManager.sendAgent(aid.getName(), platformName);
 	}
 }

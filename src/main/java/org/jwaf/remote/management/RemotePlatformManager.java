@@ -118,25 +118,43 @@ public class RemotePlatformManager
 	{
 		AgentEntity agent = agentManager.depart(agentName);
 		
-		URL address = findPlatform(platformName).getAddress();
-		
-		// if response is http ok (200)
-		if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
+		try
 		{
-			agentManager.departed(agentName);
-			ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.xml(agentName));
-			throw new AgentTransportSuccessful();
+			URL address = findPlatform(platformName).getAddress();
+			
+			// if response is http ok (200)
+			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
+			{
+				agentManager.departed(agentName);
+				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.xml(agentName));
+				throw new AgentTransportSuccessful();
+			}
+			else
+			{
+				throw new AgentTransportFailed();
+			}
 		}
-		else
+		catch(AgentTransportSuccessful e)
+		{
+			throw e;
+		}
+		catch(Exception e)
 		{
 			agentManager.cancelDeparture(agentName);
-			throw new AgentTransportFailed();
+			throw e;
 		}
 	}
 	
 	public boolean receiveRemoteAgent(AgentEntity agent)
 	{
-		return agentManager.receiveAgent(agent);
+		try
+		{
+			return agentManager.receiveAgent(agent);
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
 	}
 	
 	public void arrived(String agentName)

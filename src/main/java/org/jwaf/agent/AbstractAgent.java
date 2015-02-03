@@ -82,7 +82,7 @@ public abstract class AbstractAgent
 	{
 		remotePlatforms = new RemotePlatformServices(remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
-		message = new MessageServices(messageSender, agentManager, aid);
+		message = new MessageServices(messageSender, agentManager);
 		self = new AgentServices(agentManager);
 		task = new TaskServices(taskManager);
 		event = new EventServices(eventManager);
@@ -98,6 +98,7 @@ public abstract class AbstractAgent
 		self.setAid(aid);
 		task.setAid(aid);
 		event.setAid(aid);
+		remotePlatforms.setAid(aid);
 	}
 
 	public abstract void execute() throws Exception;

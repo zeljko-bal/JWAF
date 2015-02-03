@@ -1,26 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ejb-jar xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/ejb-jar_3_1.xsd" version="3.1">
   <display-name>jwaf</display-name>
-  <enterprise-beans>
-    <session>
-      <ejb-name>LocalPlatform</ejb-name>
-      <ejb-class>org.jwaf.platform.LocalPlatform</ejb-class>
-      <session-type>Singleton</session-type>
-      <env-entry>
-        <env-entry-name>platform_name</env-entry-name>
-        <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>jwaf</env-entry-value>
-      </env-entry>
-      <env-entry>
-        <env-entry-name>platform_address</env-entry-name>
-        <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>http://localhost:8080/jwaf/</env-entry-value>
-      </env-entry>
-      <env-entry>
-        <env-entry-name>agent_jndi_prefix</env-entry-name>
-        <env-entry-type>java.lang.String</env-entry-type>
-        <env-entry-value>java:global/jwaf/</env-entry-value>
-      </env-entry>
-    </session>
-  </enterprise-beans>
 </ejb-jar>

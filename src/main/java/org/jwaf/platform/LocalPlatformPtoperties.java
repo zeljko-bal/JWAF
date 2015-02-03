@@ -1,10 +1,11 @@
 package org.jwaf.platform;
 
-import java.net.MalformedURLException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -19,34 +20,35 @@ import org.jwaf.platform.annotation.resource.LocalPlatformName;
 @Startup
 public class LocalPlatformPtoperties
 {
-    @Resource(name = "platform_name")
 	private String name;
-
-    @Resource(name = "platform_address")
-    private String addressString;
-    
 	private URL address;
-	
-	@Resource(name = "agent_jndi_prefix")
 	private String ejbJNDIPrefix;
 	
 	@PostConstruct
 	public void setup()
 	{
+		Properties properties;
+		InputStream inputStream  = getClass().getClassLoader().getResourceAsStream("/resources/platform.properties");
+		properties = new Properties();
 		try
 		{
-			address = new URL("http://localhost:8080/jwaf/"/* TODO addressString*/);
-		} 
-		catch (MalformedURLException e)
+			properties.load(inputStream);
+			
+			name = properties.getProperty("platform_name");
+			address = new URL(properties.getProperty("platform_address"));
+			ejbJNDIPrefix = properties.getProperty("agent_jndi_prefix");
+		}
+		catch (IOException e1)
 		{
-			e.printStackTrace();
+			// TODO properties.load catch block
+			e1.printStackTrace();
 		}
 	}
 	
 	@Produces @LocalPlatformName
 	public String getName()
 	{
-		return "jwaf1";//name;/* TODO @LocalPlatformName*/
+		return name;
 	}
 	
 	@Produces @LocalPlatformAddress
@@ -58,6 +60,6 @@ public class LocalPlatformPtoperties
 	@Produces @EJBJNDIPrefix
 	public String getEJBJNDIPrefix()
 	{
-		return "java:global/jwaf/";//ejbJNDIPrefix;
+		return ejbJNDIPrefix;
 	}
 }

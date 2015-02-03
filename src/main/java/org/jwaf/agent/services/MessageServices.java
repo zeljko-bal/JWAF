@@ -11,15 +11,13 @@ public class MessageServices
 {
 	private MessageSender messageSender;
 	private AgentManager agentManager;
+	private AgentIdentifier aid;
 	
-	public MessageServices(MessageSender messageSender, AgentManager agentManager, AgentIdentifier aid)
+	public MessageServices(MessageSender messageSender, AgentManager agentManager)
 	{
 		this.messageSender = messageSender;
 		this.agentManager = agentManager;
-		this.aid = aid;
 	}
-
-	private AgentIdentifier aid;
 	
 	public void setAid(AgentIdentifier aid)
 	{
