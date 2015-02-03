@@ -28,7 +28,7 @@ public class LocalPlatformPtoperties
 	public void setup()
 	{
 		Properties properties;
-		InputStream inputStream  = getClass().getClassLoader().getResourceAsStream("/resources/platform.properties");
+		InputStream inputStream  = getClass().getClassLoader().getResourceAsStream("platform.properties");
 		properties = new Properties();
 		try
 		{
