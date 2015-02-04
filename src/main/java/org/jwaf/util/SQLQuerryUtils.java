@@ -9,7 +9,7 @@ import javax.persistence.Query;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 
-public class SQLQuerryUtil
+public class SQLQuerryUtils
 {
 	public static Query createParameterMapQuery(Map<String, String> parameters, String tableName, String mapName, EntityManager em)
 	{

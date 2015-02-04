@@ -27,7 +27,7 @@ import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
-import org.jwaf.util.AgentNameUtil;
+import org.jwaf.util.AgentNameUtils;
 
 /**
  * Session Bean implementation class AgentManager
@@ -52,7 +52,7 @@ public class AgentManager
 	private MessageSender messageSender;
 	
 	@Inject
-	private AgentNameUtil agentName;
+	private AgentNameUtils agentName;
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;

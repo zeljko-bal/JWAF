@@ -10,7 +10,7 @@ import org.jwaf.platform.annotation.resource.LocalPlatformName;
 
 @Stateless
 @LocalBean
-public class AgentNameUtil
+public class AgentNameUtils
 {
 	@Inject @LocalPlatformName
 	private String localPlatformName;

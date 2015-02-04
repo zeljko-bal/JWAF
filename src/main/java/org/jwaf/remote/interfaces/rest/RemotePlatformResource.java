@@ -1,6 +1,8 @@
 package org.jwaf.remote.interfaces.rest;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -17,6 +19,9 @@ import javax.ws.rs.core.Response;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.remote.management.RemotePlatformManager;
+import org.jwaf.remote.persistence.entity.AgentPlatform;
+
+import com.sun.jersey.api.JResponse;
 
 @Path("remote")
 @Stateless
@@ -58,10 +63,11 @@ public class RemotePlatformResource
 	}
 	
 	@POST
-	@Path("platform/register/{name}/{url}")
-	public Response registerPlatform(@PathParam("name") String name, @PathParam("url") URL url)
+	@Path("platform/register/{name}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response registerPlatform(@PathParam("name") String name, String url) throws MalformedURLException
 	{
-		remoteManager.registerPlatform(name, url);
+		remoteManager.registerPlatform(name, new URL(url));
 		return Response.ok().build();
 	}
 	
@@ -93,9 +99,9 @@ public class RemotePlatformResource
 	@GET
 	@Path("platform/find_all")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response retrievePlatforms()
+	public JResponse<List<AgentPlatform>> retrievePlatforms()
 	{
-		return Response.ok(remoteManager.retrievePlatforms()).build();
+		return JResponse.ok(remoteManager.retrievePlatforms()).build();
 	}
 	
 	@GET

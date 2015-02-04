@@ -12,7 +12,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.service.persistence.entity.AgentServiceType;
-import org.jwaf.util.SQLQuerryUtil;
+import org.jwaf.util.SQLQuerryUtils;
 
 @Stateless
 @LocalBean
@@ -31,7 +31,7 @@ public class AgentServiceRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<String> find(Map<String, String> attributes)
 	{
-		return SQLQuerryUtil.createParameterMapQuery(attributes, "AgentServiceType", "name", "attributes", em).getResultList();
+		return SQLQuerryUtils.createParameterMapQuery(attributes, "AgentServiceType", "name", "attributes", em).getResultList();
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

@@ -12,7 +12,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.util.SQLQuerryUtil;
+import org.jwaf.util.SQLQuerryUtils;
 
 
 
@@ -33,7 +33,7 @@ public class AgentTypeRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentType> find(Map<String, String> attributes)
 	{
-		return SQLQuerryUtil.createParameterMapQuery(attributes, "AgentType", "attributes", em).getResultList();
+		return SQLQuerryUtils.createParameterMapQuery(attributes, "AgentType", "attributes", em).getResultList();
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

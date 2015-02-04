@@ -13,7 +13,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.util.SQLQuerryUtil;
+import org.jwaf.util.SQLQuerryUtils;
 
 @Stateless
 @LocalBean
@@ -76,7 +76,7 @@ public class AidRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
 	{
-		return SQLQuerryUtil.createParameterMapQuery(userDefinedParameters, "AgentIdentifier", "data.userDefinedParameters", em).getResultList();
+		return SQLQuerryUtils.createParameterMapQuery(userDefinedParameters, "AgentIdentifier", "data.userDefinedParameters", em).getResultList();
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

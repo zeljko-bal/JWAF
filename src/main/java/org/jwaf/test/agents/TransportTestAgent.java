@@ -3,18 +3,18 @@ package org.jwaf.test.agents;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jwaf.agent.template.fsm.AbstractFSMAgent;
-import org.jwaf.agent.template.fsm.annotation.StateCallback;
+import org.jwaf.agent.template.reactive.AbstractReactiveAgent;
+import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
 @LocalBean
-public class TransportTestAgent extends AbstractFSMAgent
+public class TransportTestAgent extends AbstractReactiveAgent
 {
-	@StateCallback(state="initial_state", initial=true)
-	public void initialState(ACLMessage newMessage)
+	@DefaultMessageHandler
+	public void travel(ACLMessage newMessage)
 	{
-		remotePlatforms.travelTo(localPlatformName);
+		remotePlatforms.travelTo(newMessage.getContent());
 	}
 	
 	@Override
