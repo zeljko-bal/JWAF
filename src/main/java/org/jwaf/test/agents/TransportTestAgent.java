@@ -20,6 +20,6 @@ public class TransportTestAgent extends AbstractReactiveAgent
 	@Override
 	public void onArrival()
 	{
-		System.out.println("!@!!!!!!!!!!!!!!!!!!!!!arrived!!!!!!!!!!!!!!!!");
+		System.out.println("[TransportTestAgent] agent <"+aid.getName()+"> arrived at destination platform.");
 	}
 }

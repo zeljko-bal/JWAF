@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
@@ -98,11 +99,13 @@ public class RemotePlatformManager
 	
 	public void agentInitializedEventHandler(@Observes @AgentInitializedEvent AgentIdentifier aid)
 	{
+		// automatic registering not workimg, disbled for now
+		/*
 		retrievePlatforms().forEach((AgentPlatform platform) -> 
 		{
 			Client client = ClientBuilder.newClient();
 			client.target(platform.getAddress().toString()).path("remote").path("aid").path("register").path(localPlatformName).request().post(Entity.xml(aid));
-		});
+		});*/
 	}
 	
 	public void agentRemovedEventHandler(@Observes @AgentRemovedEvent AgentIdentifier aid)
@@ -123,15 +126,15 @@ public class RemotePlatformManager
 			URL address = findPlatform(platformName).getAddress();
 			
 			// if response is http ok (200)
-			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
+			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request(MediaType.TEXT_PLAIN).post(Entity.xml(agent)).getStatus() == 200)
 			{
 				agentManager.departed(agentName);
-				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.xml(agentName));
-				throw new AgentTransportSuccessful();
+				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request(MediaType.TEXT_PLAIN).post(Entity.text(agentName));
+				throw new AgentTransportSuccessful("agent <" + agentName + "> transported successfully to <"+platformName+">.");
 			}
 			else
 			{
-				throw new AgentTransportFailed();
+				throw new AgentTransportFailed("agent <" + agentName + "> transport to <"+platformName+"> failed.");
 			}
 		}
 		catch(AgentTransportSuccessful e)

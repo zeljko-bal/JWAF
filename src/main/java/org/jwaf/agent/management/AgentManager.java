@@ -198,6 +198,7 @@ public class AgentManager
 		aid = aidManager.createAid(aid);
 		
 		AgentEntity newAgent = new AgentEntity();
+		newAgent.setAid(aid);
 		newAgent.setHasNewMessages(!agent.getMessages().isEmpty());
 		newAgent.setState(AgentState.IN_TRANSIT);
 		newAgent.setType(typeManager.find(agent.getType().getName()));

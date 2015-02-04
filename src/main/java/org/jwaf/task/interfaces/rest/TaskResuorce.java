@@ -1,5 +1,6 @@
 package org.jwaf.task.interfaces.rest;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.ejb.Stateless;
@@ -12,10 +13,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBException;
 
 import org.jwaf.task.manager.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
+import org.jwaf.util.XMLSchemaUtils;
 
 import com.sun.jersey.api.JResponse;
 
@@ -41,5 +44,13 @@ public class TaskResuorce
 	public JResponse<List<TaskResult>> getResultSet(@PathParam("employer") String employer)
 	{
 		return JResponse.ok(taskManager.retrieveResultSet(employer)).build();
+	}
+	
+	@GET
+	@Path("/request/schema")
+	@Produces(MediaType.APPLICATION_XML)
+	public Response getTaskRequestSchema() throws IOException, JAXBException
+	{
+		return Response.ok(XMLSchemaUtils.generate(TaskRequest.class)).build();
 	}
 }

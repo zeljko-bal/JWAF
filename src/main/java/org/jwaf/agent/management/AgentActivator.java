@@ -16,6 +16,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
+import org.jwaf.remote.exceptions.AgentTransportSuccessful;
 
 @Stateless
 @LocalBean
@@ -54,7 +55,7 @@ public class AgentActivator
 	
 	private void execute(AgentIdentifier aid, String type)
 	{
-		System.out.println("Executing activation of agent: <"+aid.getName()+">");
+		System.out.println("[AgentActivator] activating agent: <"+aid.getName()+">");
 
 		try
 		{
@@ -88,7 +89,7 @@ public class AgentActivator
 		{
 			Throwable cause = e.getCause();
 			
-			if(cause instanceof AgentSelfTerminatedException)
+			if(cause instanceof AgentSelfTerminatedException || cause instanceof AgentTransportSuccessful)
 			{
 				System.out.println("[AgentActivator] "+cause.getMessage());
 			}

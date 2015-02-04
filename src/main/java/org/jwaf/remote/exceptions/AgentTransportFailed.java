@@ -6,4 +6,9 @@ import javax.ejb.ApplicationException;
 public class AgentTransportFailed extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
+	
+	public AgentTransportFailed(String string)
+	{
+		super(string);
+	}
 }

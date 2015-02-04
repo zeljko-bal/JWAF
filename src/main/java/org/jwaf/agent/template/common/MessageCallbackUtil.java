@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 
 import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.remote.exceptions.AgentTransportFailed;
+import org.jwaf.remote.exceptions.AgentTransportSuccessful;
 
 public class MessageCallbackUtil
 {
@@ -34,7 +36,7 @@ public class MessageCallbackUtil
 		{
 			Exception wrapped = e.getWrapped();
 			
-			if(wrapped.getCause() instanceof AgentSelfTerminatedException)
+			if(wrapped.getCause() instanceof AgentSelfTerminatedException || wrapped.getCause() instanceof AgentTransportSuccessful || wrapped.getCause() instanceof AgentTransportFailed)
 			{
 				throw wrapped;
 			}

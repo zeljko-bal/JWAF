@@ -22,6 +22,9 @@ public class TaskRequest implements Serializable
 	@XmlElement
 	private String content;
 	
+	public TaskRequest()
+	{}
+	
 	public TaskRequest(String employer, String taskType, String content)
 	{
 		this.employer = employer;
