@@ -78,20 +78,20 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		AgentIdentifier aidResult =  agent.findAid(aid.getName());
 		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
 		assertEquals("test_param_value_1", aidResult.getUserDefinedParameters().get("test_param_key_1"), "agent.findAid(aid.getName().getUserDefinedParameters()");
+		
 		assertEquals("test_public_data_val", agent.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
 		
 		params = new HashMap<>();
 		params.put("test_param_key_1", "test_param_value_1");
-		assertEquals(aid.getName(), agent.findAid(params).get(0).getName(), "agent.findAid(params) 1");
-		
+		assertTrue(containsAid(agent.findAid(params), aid), "agent.findAid(params) 1");
 		params.put("nonexistent_parameter", "nonexistent_parameter");
 		assertTrue(agent.findAid(params).isEmpty(), "agent.findAid(params) nonexistent");
 		
 		params = new HashMap<>();
 		params.put("test_param_key_1", "test_param_value_1");
 		params.put("test_param_key_2", "test_param_value_2");
-		assertEquals(aid.getName(), agent.findAid(params).get(0).getName(), "agent.findAid(params) 1 and 2");
-		
+		assertTrue(containsAid(agent.findAid(params), aid), "agent.findAid(params) 1 and 2");
+
 		params = new HashMap<>();
 		params.put("test_param_key_1", "test_param_value_1");
 		params.put("test_param_key_2", "wrong_value");
@@ -145,7 +145,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		params = new HashMap<>();
 		params.put("test_pong_param_key_1", "test_pong_param_val_1");
-		assertEquals(newMessage.getSender().getName(), agent.findAid(params).get(0).getName(), "agent.findAid(params) pong = sender");
+		assertTrue(containsAid(agent.findAid(params), newMessage.getSender()), "agent.findAid(params) pong = sender");
 		
 		assertEquals("TestPongAgent", type.getTypeOf(newMessage.getSender()).getName(), "type.getTypeOf(newMessage.getSender())");
 		assertEquals(AgentState.PASSIVE, agent.getState(newMessage.getSender()), "agent.getState(newMessage.getSender())");
@@ -276,5 +276,18 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	private void incrementErrorCount()
 	{
 		self.getData(AgentDataType.PRIVATE).increment("error_count");
+	}
+	
+	private boolean containsAid(List<AgentIdentifier> list, AgentIdentifier aid)
+	{
+		for(AgentIdentifier listAid : list)
+		{
+			if(listAid.getName().equals(aid.getName()))
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
