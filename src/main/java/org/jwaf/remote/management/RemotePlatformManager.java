@@ -10,7 +10,6 @@ import javax.inject.Inject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
 
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
@@ -126,10 +125,10 @@ public class RemotePlatformManager
 			URL address = findPlatform(platformName).getAddress();
 			
 			// if response is http ok (200)
-			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request(MediaType.TEXT_PLAIN).post(Entity.xml(agent)).getStatus() == 200)
+			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
 			{
 				agentManager.departed(agentName);
-				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request(MediaType.TEXT_PLAIN).post(Entity.text(agentName));
+				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.text(agentName));
 				throw new AgentTransportSuccessful("agent <" + agentName + "> transported successfully to <"+platformName+">.");
 			}
 			else
