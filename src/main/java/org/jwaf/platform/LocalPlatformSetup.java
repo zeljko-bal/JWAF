@@ -30,7 +30,6 @@ import org.jwaf.service.annotations.ServiceQualifier;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 import org.jwaf.task.manager.TaskManager;
-import org.jwaf.task.persistence.entity.TaskRequest;
 
 
 @Singleton
@@ -75,8 +74,6 @@ public class LocalPlatformSetup
 			createLocalPlatformAid();
 			
 			createCleanupAgent();
-			
-			doInitialTests();
 		}
 		catch(Exception e)
 		{
@@ -169,10 +166,5 @@ public class LocalPlatformSetup
 			
 			System.out.println("[LocalPlatformSetup] registered service type: <"+type.getName()+">.");
 		});
-	}
-	
-	private void doInitialTests()
-	{
-		taskManager.deploy(new TaskRequest(localPlatformName, "IntegrationTestTask", null));
 	}
 }
