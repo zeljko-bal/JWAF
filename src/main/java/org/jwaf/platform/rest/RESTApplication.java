@@ -1,14 +1,11 @@
 package org.jwaf.platform.rest;
 
 import javax.ws.rs.ApplicationPath;
-
-import org.glassfish.jersey.server.ResourceConfig;
+import javax.ws.rs.core.Application;
 
 @ApplicationPath("/")
-public class RESTApplication extends ResourceConfig
+public class RESTApplication extends Application
 {
 	public RESTApplication()
-	{
-		packages("org.jwaf");
-	}
+	{}
 }

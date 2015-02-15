@@ -13,6 +13,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,8 +21,6 @@ import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
-
-import com.sun.jersey.api.JResponse;
 
 @Path("remote")
 @Stateless
@@ -99,9 +98,10 @@ public class RemotePlatformResource
 	@GET
 	@Path("platform/find_all")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public JResponse<List<AgentPlatform>> retrievePlatforms()
+	public Response retrievePlatforms()
 	{
-		return JResponse.ok(remoteManager.retrievePlatforms()).build();
+		GenericEntity<List<AgentPlatform>> entity = new GenericEntity<List<AgentPlatform>>(remoteManager.retrievePlatforms()) {};
+		return Response.ok(entity).build();
 	}
 	
 	@GET
@@ -109,7 +109,8 @@ public class RemotePlatformResource
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response retrieveAgentIds(@PathParam("platformName") String platformName)
 	{
-		return Response.ok(remoteManager.retrieveAgentIds(platformName)).build();
+		GenericEntity<List<AgentIdentifier>> entity = new GenericEntity<List<AgentIdentifier>>(remoteManager.retrieveAgentIds(platformName)) {};
+		return Response.ok(entity).build();
 	}
 	
 	@POST

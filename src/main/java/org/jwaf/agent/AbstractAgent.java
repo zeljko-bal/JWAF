@@ -91,7 +91,7 @@ public abstract class AbstractAgent
 		type = new TypeServices(agentManager, typeManager);
 	}
 	
-	public void setAid(AgentIdentifier aid)
+	private void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;
 		message.setAid(aid);
@@ -99,6 +99,24 @@ public abstract class AbstractAgent
 		task.setAid(aid);
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
+	}
+	
+	public void _execute(AgentIdentifier aid) throws Exception
+	{
+		setAid(aid);
+		execute();
+	}
+	
+	public void _setup(AgentIdentifier aid)
+	{
+		setAid(aid);
+		setup();
+	}
+	
+	public void _onArrival(AgentIdentifier aid)
+	{
+		setAid(aid);
+		onArrival();
 	}
 
 	public abstract void execute() throws Exception;
