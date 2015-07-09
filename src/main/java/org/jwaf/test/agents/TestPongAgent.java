@@ -21,7 +21,7 @@ public class TestPongAgent extends AbstractReactiveAgent
 	@MessageHandler("test_ping")
 	public void handlePing(ACLMessage newMessage)
 	{
-		System.out.println("[TestPongAgent] Got ping from: <"+newMessage.getSender().getName()+">.");
+		log.info("Got ping from: <{}>.", newMessage.getSender().getName());
 		
 		message.send(new ACLMessage().setPerformative("test_pong").addReceivers(newMessage.getSender()));
 	}
@@ -29,7 +29,7 @@ public class TestPongAgent extends AbstractReactiveAgent
 	@MessageHandler("subscribe_request")
 	public void handleSubscribeRequest(ACLMessage newMessage)
 	{
-		System.out.println("[TestPongAgent] Got subscribe request for event: <"+newMessage.getContent()+">");
+		log.info("Got subscribe request for event: <{}>.", newMessage.getContent());
 		event.subscribe(newMessage.getContent());
 		self.getData(AgentDataType.PRIVATE).put("ping_aid", newMessage.getSender().getName());
 		message.send(new ACLMessage().setPerformative("subscribed_pong").addReceivers(newMessage.getSender()));
@@ -40,13 +40,13 @@ public class TestPongAgent extends AbstractReactiveAgent
 	{
 		if("integration_test_evt".equals(newMessage.getPerformative()))
 		{
-			System.out.println("[TestPongAgent] Got integration_test_evt event notification.");
+			log.info("Got integration_test_evt event notification.");
 			AgentIdentifier pingAid = agent.findAid(self.getData(AgentDataType.PRIVATE).get("ping_aid"));
 			message.send(new ACLMessage().setPerformative("event_pong").addReceivers(pingAid).setContent(newMessage.getContent()));
 		}
 		else
 		{
-			System.out.println("[TestPongAgent] Got message with unknown performative: <"+newMessage.getPerformative()+">");
+			log.info("Got message with unknown performative: <{}>.", newMessage.getPerformative());
 		}
 	}
 	

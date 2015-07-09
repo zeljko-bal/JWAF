@@ -9,6 +9,7 @@ import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.services.AgentDirectory;
+import org.jwaf.agent.services.AgentLogger;
 import org.jwaf.agent.services.AgentServices;
 import org.jwaf.agent.services.EventServices;
 import org.jwaf.agent.services.MessageServices;
@@ -76,6 +77,7 @@ public abstract class AbstractAgent
 	protected RemotePlatformServices remotePlatforms;
 	protected ServiceDirectory service;
 	protected TypeServices type;
+	protected AgentLogger log;
 	
 	@PostConstruct
 	protected void postConstruct()
@@ -89,6 +91,7 @@ public abstract class AbstractAgent
 		timer = new TimerServices(timerManager);
 		service = new ServiceDirectory(serviceManager);
 		type = new TypeServices(agentManager, typeManager);
+		log = new AgentLogger("AGENT");
 	}
 	
 	private void setAid(AgentIdentifier aid)
@@ -99,6 +102,7 @@ public abstract class AbstractAgent
 		task.setAid(aid);
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
+		log.setAid(aid);
 	}
 	
 	public void _execute(AgentIdentifier aid) throws Exception

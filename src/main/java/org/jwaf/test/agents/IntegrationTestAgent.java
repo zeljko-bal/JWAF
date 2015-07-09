@@ -29,7 +29,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@StateCallback(state="initial_state", initial=true)
 	public void initialState(ACLMessage newMessage)
 	{
-		System.out.println("[IntegrationTestAgent] activated, name="+aid.getName()+", running initial tests..");
+		log.info("activated, running initial tests..");
 		
 		self.getData(AgentDataType.PRIVATE).put("error_count", "0");
 		
@@ -108,7 +108,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertEquals("TestPongAgent", type.getTypeOf(pongAid).getName(), "type.getTypeOf(pongAid)");
 		
 		// send ping
-		System.out.println("[IntegrationTestAgent] pinging pong agent <"+pongAid.getName()+">.");
+		log.info("pinging pong agent <{}>.", pongAid.getName());
 		message.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
 		
 		// await reply
@@ -120,7 +120,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		HashMap<String, String> params;
 		
-		System.out.println("[IntegrationTestAgent] Got pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		log.info("Got pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
 		// data between calls
 		assertEquals("test_private_data_val", self.getData(AgentDataType.PRIVATE).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE) second time");
@@ -160,7 +160,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@StateCallback(state="expecting_subscribed_pong")
 	public void expectingSubscribedPong(ACLMessage newMessage)
 	{
-		System.out.println("[IntegrationTestAgent] Got subscribed pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		log.info("Got subscribed pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
 		// newMessage tests
 		assertEquals("subscribed_pong", newMessage.getPerformative(), "newMessage.getPerformative() = subscribed_pong");
@@ -174,7 +174,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@StateCallback(state="expecting_event_pong")
 	public void expectingEventPong(ACLMessage newMessage)
 	{
-		System.out.println("[IntegrationTestAgent] Got event pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		log.info("Got event pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
 		// newMessage tests
 		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong");
@@ -189,7 +189,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	@StateCallback(state="expecting_timer_pong")
 	public void expectingTimerPong(ACLMessage newMessage) throws InterruptedException
 	{
-		System.out.println("[IntegrationTestAgent] Got timer pong from <"+newMessage.getSender().getName()+">. Proceeding with tests..");
+		log.info("Got timer pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
 		// newMessage tests
 		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
