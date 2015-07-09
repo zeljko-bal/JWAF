@@ -5,6 +5,7 @@ import java.util.Date;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
+import javax.ejb.NoSuchObjectLocalException;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.ejb.Timeout;
@@ -80,14 +81,22 @@ public class TimerManager
 	@Timeout
 	public void timeout(Timer timer)
 	{
-		Serializable serializableInfo = timer.getInfo();
-		
-		if(serializableInfo instanceof TimerEventInfo)
+		try
 		{
-			TimerEventInfo info = (TimerEventInfo)serializableInfo;
-			TimerEventParam param = new TimerEventParam(info.getTimerName(), new Date());
+			Serializable serializableInfo = timer.getInfo();
 			
-			eventManager.fire(info.getEventName(), param);
+			if(serializableInfo instanceof TimerEventInfo)
+			{
+				TimerEventInfo info = (TimerEventInfo)serializableInfo;
+				TimerEventParam param = new TimerEventParam(info.getTimerName(), new Date());
+				
+				eventManager.fire(info.getEventName(), param);
+			}
+		}
+		catch(NoSuchObjectLocalException ex)
+		{
+			// TODO log warning??
+			System.out.println("warning NoSuchObjectLocalException in timer timeout, timer was canceled");
 		}
 	}
 }
