@@ -11,6 +11,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
@@ -19,8 +20,6 @@ import org.jwaf.task.manager.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 import org.jwaf.util.XMLSchemaUtils;
-
-import com.sun.jersey.api.JResponse;
 
 @Path("task")
 @Stateless
@@ -41,9 +40,10 @@ public class TaskResuorce
 	@GET
 	@Path("result/{employer}")
 	@Produces(MediaType.APPLICATION_XML)
-	public JResponse<List<TaskResult>> getResultSet(@PathParam("employer") String employer)
+	public Response getResultSet(@PathParam("employer") String employer)
 	{
-		return JResponse.ok(taskManager.retrieveResultSet(employer)).build();
+		GenericEntity<List<TaskResult>> entity = new GenericEntity<List<TaskResult>>(taskManager.retrieveResultSet(employer)) {};
+		return Response.ok(entity).build();
 	}
 	
 	@GET

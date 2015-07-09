@@ -62,16 +62,13 @@ public class AgentActivator
 			// find agent by type
 			AbstractAgent agentBean = findAgent(type);
 
-			// set agents identity
-			agentBean.setAid(aid);
-
 			boolean done = false;
 
 			// while execution is not done (agent not passivated)
 			while(!done)
 			{
 				// execute
-				agentBean.execute();
+				agentBean._execute(aid);
 
 				// try to passivate
 				done = agentRepo.passivate(aid, false);
@@ -108,12 +105,9 @@ public class AgentActivator
 		{
 			// find agent by type
 			AbstractAgent agentBean = findAgent(type);
-
-			// set agents identity
-			agentBean.setAid(aid);
 			
 			// invoke initial setup
-			agentBean.setup();
+			agentBean._setup(aid);
 		}
 		catch (NamingException e) 
 		{
@@ -138,12 +132,9 @@ public class AgentActivator
 		{
 			// find agent by type
 			AbstractAgent agentBean = findAgent(type);
-
-			// set agents identity
-			agentBean.setAid(aid);
 			
 			// invoke onArrival
-			agentBean.onArrival();
+			agentBean._onArrival(aid);
 		}
 		catch (NamingException e) 
 		{

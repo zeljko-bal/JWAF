@@ -28,7 +28,23 @@
 			<name>OSS Sonatype Staging</name>
 			<url>https://oss.sonatype.org/content/groups/staging</url>
 		</repository>
+		<repository>
+			<id>JBoss Repository</id>
+			<url>https://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
 	</repositories>
+	
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.spec</groupId>
+				<artifactId>jboss-javaee-7.0</artifactId>
+				<version>1.0.0.Final</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
@@ -38,48 +54,127 @@
 			<scope>test</scope>
 		</dependency>
 
+
 		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>7.0</version>
 		</dependency>
-
+ 
+ 
 		<dependency>
 			<groupId>org.eclipse.persistence</groupId>
 			<artifactId>eclipselink</artifactId>
 			<version>2.6.0-M3</version>
 		</dependency>
-
-
-		<!--<dependency> <groupId>javax.ws.rs</groupId> <artifactId>javax.ws.rs-api</artifactId> 
-			<version>${jaxrs.api.version}</version> <scope>provided</scope> </dependency> -->
-
-		<dependency>
-			<groupId>com.sun.jersey</groupId>
-			<artifactId>jersey-servlet</artifactId>
-			<version>1.13</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
-			<version>2.13</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- if you are using Jersey client specific features without the server 
-			side -->
-		<dependency>
-			<groupId>org.glassfish.jersey.core</groupId>
-			<artifactId>jersey-client</artifactId>
-			<version>2.13</version>
-			<scope>provided</scope>
-		</dependency>
 		
+		<!-- jboss -->
+		<dependency>
+			<groupId>org.jboss.spec.javax.annotation</groupId>
+			<artifactId>jboss-annotations-api_1.2_spec</artifactId>
+			</dependency>
+		<!-- Import the CDI API -->
+		<dependency>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			</dependency>
+		<!-- Import the Servlet API -->
+		<dependency>
+			<groupId>org.jboss.spec.javax.servlet</groupId>
+			<artifactId>jboss-servlet-api_3.1_spec</artifactId>
+			</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxrs</artifactId>
+			<version>3.0.6.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-client</artifactId>
+			<version>3.0.6.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jaxb-provider</artifactId>
+			<version>3.0.6.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>jaxrs-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-multipart-provider</artifactId>
+			<version>3.0.6.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+		 
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>3.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.8</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>
-		<defaultGoal>clean install</defaultGoal>
+		<finalName>jwaf</finalName>
+		
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</testResource>
+		</testResources>
 		<plugins>
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
+				<version>1.0.0.Final</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugin</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+			
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
@@ -88,48 +183,6 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<!-- <webXml>src\main\webapp\WEB-INF\glassfish-web.xml</webXml> -->
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
-			
-			<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-ejb-plugin</artifactId> 
-				<version>${version.ejb.plugin}</version> <configuration> <ejbVersion>3.1</ejbVersion> 
-				<generateClient>true</generateClient> <debug>true</debug> </configuration> 
-				</plugin> -->
-			<plugin>
-				<groupId>org.glassfish.maven.plugin</groupId>
-				<artifactId>maven-glassfish-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<glassfishDirectory>C:\\glassfish4\\glassfish</glassfishDirectory>
-					<user>admin</user>
-					<passwordFile>C:\\glassfish4\\glassfish\\domains\\domain1\\config\\domain-passwords</passwordFile>
-					<domain>
-						<name>domain1</name>
-						<httpPort>8080</httpPort>
-						<adminPort>4848</adminPort>
-					</domain>
-					<components>
-						<component>
-							<name>${project.artifactId}</name>
-							<artifact>target/${project.build.finalName}.war</artifact>
-						</component>
-					</components>
-					<debug>true</debug>
-					<terse>false</terse>
-					<echo>true</echo>
-				</configuration>
-			</plugin>
 		</plugins>
-
-		<finalName>jwaf</finalName>
-
 	</build>
 </project>

@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import com.sun.jersey.core.util.Base64;
+import java.util.Base64;
 
 public class SerializationUtils
 {
@@ -17,7 +17,7 @@ public class SerializationUtils
 			return null;
 		}
 		
-		byte[] bytes = Base64.decode(string.getBytes());
+		byte[] bytes = Base64.getDecoder().decode(string.getBytes());
 		Serializable object = null;
 		
 		try 
@@ -53,7 +53,7 @@ public class SerializationUtils
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
 			objectOutputStream.writeObject(object);
 			objectOutputStream.close();
-			encoded = new String(Base64.encode(byteArrayOutputStream.toByteArray()));
+			encoded = new String(Base64.getEncoder().encode(byteArrayOutputStream.toByteArray()));
 		} 
 		catch (IOException e)
 		{
