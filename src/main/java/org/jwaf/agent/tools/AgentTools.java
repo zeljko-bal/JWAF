@@ -1,4 +1,4 @@
-package org.jwaf.agent.services;
+package org.jwaf.agent.tools;
 
 import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.agent.management.AgentManager;

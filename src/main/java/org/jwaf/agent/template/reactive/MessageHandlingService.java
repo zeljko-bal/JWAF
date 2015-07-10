@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
-import org.jwaf.agent.services.MessageTools;
 import org.jwaf.agent.template.common.AgentMessageHandler;
 import org.jwaf.agent.template.common.InvocationExceptionWrapper;
 import org.jwaf.agent.template.common.MessageCallbackUtil;
 import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.agent.template.reactive.annotation.MessageHandler;
+import org.jwaf.agent.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class MessageHandlingService

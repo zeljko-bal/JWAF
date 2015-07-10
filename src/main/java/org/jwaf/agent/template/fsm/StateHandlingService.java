@@ -6,13 +6,13 @@ import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.agent.services.AgentLogger;
-import org.jwaf.agent.services.AgentTools;
-import org.jwaf.agent.services.MessageTools;
 import org.jwaf.agent.template.common.AgentMessageHandler;
 import org.jwaf.agent.template.common.InvocationExceptionWrapper;
 import org.jwaf.agent.template.common.MessageCallbackUtil;
 import org.jwaf.agent.template.fsm.annotation.StateCallback;
+import org.jwaf.agent.tools.AgentLogger;
+import org.jwaf.agent.tools.AgentTools;
+import org.jwaf.agent.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class StateHandlingService
