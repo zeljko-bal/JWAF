@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.persistence.repository.AgentDataType;
+import org.jwaf.agent.services.AgentLogger;
 import org.jwaf.agent.services.AgentServices;
 import org.jwaf.agent.services.MessageServices;
 import org.jwaf.agent.template.common.AgentMessageHandler;
@@ -21,14 +22,16 @@ public class StateHandlingService
 	private MessageServices messageServices;
 	private AgentServices agentServices;
 	private String initialState;
+	private AgentLogger log;
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingService(AbstractAgent owner, MessageServices messageServices, AgentServices agentServices)
+	public StateHandlingService(AbstractAgent owner, MessageServices messageServices, AgentServices agentServices, AgentLogger log)
 	{
 		this.owner = owner;
 		this.messageServices = messageServices;
 		this.agentServices = agentServices;
+		this.log = log;
 
 		initializeStateHandlers();
 	}
@@ -61,8 +64,7 @@ public class StateHandlingService
 				{
 					if(initialState != null)
 					{
-						// TODO log multiple initial states defined. 
-						System.out.println("WARNING: StateHandlingService: Multiple initial states defined.");
+						log.warn("StateHandlingService: Multiple initial states defined.");
 					}
 					
 					initialState = callback.state();
@@ -105,8 +107,7 @@ public class StateHandlingService
 			}
 			else
 			{
-				// TODO log undefined state
-				System.out.println("ERROR: StateHandlingService: Undefined current state. <"+currentState+">");
+				log.error("StateHandlingService: Undefined current state. <{}>.", currentState);
 				return;
 			}
 		}
@@ -116,8 +117,7 @@ public class StateHandlingService
 	{
 		if(!stateHandlers.keySet().contains(newState))
 		{
-			// TODO log undefined state
-			System.out.println("ERROR: StateHandlingService: Changing to undefined new state. <"+newState+">");
+			log.error("StateHandlingService: Changing to undefined new state. <{}>.", newState);
 			return;
 		}
 		

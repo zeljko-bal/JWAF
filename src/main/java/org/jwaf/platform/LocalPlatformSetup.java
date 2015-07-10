@@ -30,6 +30,7 @@ import org.jwaf.service.annotations.ServiceQualifier;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 import org.jwaf.task.manager.TaskManager;
+import org.slf4j.Logger;
 
 
 @Singleton
@@ -61,6 +62,9 @@ public class LocalPlatformSetup
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
+	
+	@Inject
+	Logger log;
 
 	@PostConstruct
 	private void setup()
@@ -77,7 +81,7 @@ public class LocalPlatformSetup
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			log.error("Error during platform setup.", e);
 		}
 	}
 
@@ -88,7 +92,7 @@ public class LocalPlatformSetup
 		
 		if(!aidManager.find(createCleanupRequest.getParams()).isEmpty())
 		{
-			System.out.println("cleanup already exists");
+			log.info("Cleanup already exists.");
 			return;
 		}
 		
@@ -121,7 +125,7 @@ public class LocalPlatformSetup
 			
 			if(agentTypeManager.find(typeName) != null)
 			{
-				System.out.println("[LocalPlatformSetup] agent type: <"+typeName+"> already registered.");
+				log.info("Agent type: <{}> already registered.", typeName);
 				return;
 			}
 			
@@ -137,7 +141,7 @@ public class LocalPlatformSetup
 			
 			agentTypeManager.create(type);
 			
-			System.out.println("[LocalPlatformSetup] registered agent type: <"+type.getName()+">.");
+			log.info("Registered agent type: <{}>.", type.getName());
 		});
 	}
 	
@@ -164,7 +168,7 @@ public class LocalPlatformSetup
 
 			serviceManager.register(type);
 			
-			System.out.println("[LocalPlatformSetup] registered service type: <"+type.getName()+">.");
+			log.info("Registered service type: <{}>.", type.getName());
 		});
 	}
 }

@@ -8,9 +8,14 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class URLListWrapper implements List<URL>
 {
 	private List<String> wrappedList;
+	
+	private Logger log = LoggerFactory.getLogger("URLListWrapper");
 
 	public URLListWrapper(List<String> wrappedList)
 	{
@@ -163,8 +168,7 @@ public class URLListWrapper implements List<URL>
 		} 
 		catch (MalformedURLException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("MalformedURLException", e);
 		}
 		return null;
 	}

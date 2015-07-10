@@ -10,10 +10,12 @@ import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.slf4j.Logger;
 
 @Singleton
 @LocalBean
@@ -23,6 +25,9 @@ public class LocalPlatformPtoperties
 	private String name;
 	private URL address;
 	private String ejbJNDIPrefix;
+	
+	@Inject
+	private Logger logger;
 	
 	@PostConstruct
 	public void setup()
@@ -40,8 +45,7 @@ public class LocalPlatformPtoperties
 		}
 		catch (IOException e1)
 		{
-			// TODO properties.load catch block
-			e1.printStackTrace();
+			logger.error("Error while loading platform.properties", e1);
 		}
 	}
 	

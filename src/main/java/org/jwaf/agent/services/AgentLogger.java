@@ -2,7 +2,6 @@ package org.jwaf.agent.services;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 
 public class AgentLogger
@@ -10,9 +9,9 @@ public class AgentLogger
 	private AgentIdentifier aid;
 	private Logger logger;
 	
-	public AgentLogger(String loggerName)
+	public AgentLogger(Logger logger)
 	{
-		logger = LoggerFactory.getLogger(loggerName);
+		this.logger = logger;
 	}
 	
 	public void setAid(AgentIdentifier aid)

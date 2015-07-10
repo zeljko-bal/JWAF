@@ -28,6 +28,7 @@ import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
 import org.jwaf.util.AgentNameUtils;
+import org.slf4j.Logger;
 
 /**
  * Session Bean implementation class AgentManager
@@ -69,6 +70,9 @@ public class AgentManager
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
 	
+	@Inject
+	private Logger log;
+	
 	public AgentIdentifier initialize(CreateAgentRequest request)
 	{
 		AgentType type = null;
@@ -79,8 +83,7 @@ public class AgentManager
 		}
 		catch (NoResultException e)
 		{
-			e.printStackTrace();
-			// TODO throw type doesnt exist
+			log.error("Agent not found during initialization.", e);
 		}
 		
 		// new aid with name : <random-uuid>:<agent-type>@<local-platform-name>

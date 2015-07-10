@@ -8,8 +8,13 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Base64;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SerializationUtils
 {
+	private static Logger log = LoggerFactory.getLogger("SerializationUtils");
+	
 	public static Serializable deSerialize(String string)
 	{
 		if(string == null)
@@ -26,13 +31,13 @@ public class SerializationUtils
 			object = (Serializable) objectInputStream.readObject();
 		} 
 		catch (IOException e) {
-			e.printStackTrace();
+			log.error("deserialization error", e);
 		} 
 		catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			log.error("deserialization error", e);
 		} 
 		catch (ClassCastException e) {
-			e.printStackTrace();
+			log.error("deserialization error", e);
 		}
 		
 		return object;
@@ -57,7 +62,7 @@ public class SerializationUtils
 		} 
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			log.error("serialization error", e);
 		}
 
 		return encoded;

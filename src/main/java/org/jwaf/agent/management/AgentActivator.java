@@ -17,6 +17,7 @@ import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
 import org.jwaf.remote.exceptions.AgentTransportSuccessful;
+import org.slf4j.Logger;
 
 @Stateless
 @LocalBean
@@ -30,6 +31,9 @@ public class AgentActivator
 	
 	@Inject @AgentInitializedEvent
 	private Event<AgentIdentifier> agentInitializedEvent;
+	
+	@Inject
+	private Logger log;
 
 	@Asynchronous
 	public void activate(AgentIdentifier aid, ACLMessage message)
@@ -55,8 +59,8 @@ public class AgentActivator
 	
 	private void execute(AgentIdentifier aid, String type)
 	{
-		System.out.println("[AgentActivator] activating agent: <"+aid.getName()+">");
-
+		log.info("activating agent: <{}>", aid.getName());
+		
 		try
 		{
 			// find agent by type
@@ -76,9 +80,9 @@ public class AgentActivator
 		}
 		catch (NamingException e) 
 		{
-			// TODO agent not found
 			// agent bean not found
-			e.printStackTrace();
+			log.error("Agent not found.", e);
+			
 			// force agent to passivate
 			agentRepo.passivate(aid, true);
 		}
@@ -88,11 +92,11 @@ public class AgentActivator
 			
 			if(cause instanceof AgentSelfTerminatedException || cause instanceof AgentTransportSuccessful)
 			{
-				System.out.println("[AgentActivator] "+cause.getMessage());
+				log.info(cause.getMessage());
 			}
 			else
 			{
-				e.printStackTrace();
+				log.error("Error during agent execution.", e);
 				// if service submit failed force agent to passivate
 				agentRepo.passivate(aid, true);
 			}
@@ -111,9 +115,8 @@ public class AgentActivator
 		}
 		catch (NamingException e) 
 		{
-			// TODO agent not found
 			// agent not found
-			e.printStackTrace();
+			log.error("Agent not found.", e);
 		}
 		finally
 		{
@@ -138,9 +141,8 @@ public class AgentActivator
 		}
 		catch (NamingException e) 
 		{
-			// TODO agent not found
 			// agent not found
-			e.printStackTrace();
+			log.error("Agent not found.", e);
 		}
 		finally
 		{

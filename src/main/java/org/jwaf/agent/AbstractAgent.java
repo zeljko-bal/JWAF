@@ -25,6 +25,8 @@ import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.manager.TaskManager;
+import org.jwaf.util.annotations.NamedLogger;
+import org.slf4j.Logger;
 
 @AgentQualifier
 public abstract class AbstractAgent
@@ -63,6 +65,9 @@ public abstract class AbstractAgent
 	@Inject @LocalPlatformName
 	protected String localPlatformName;
 	
+	@Inject @NamedLogger("AGENT")
+	private Logger logger;
+	
 	/*
 	 * Agent services
 	 */
@@ -91,7 +96,7 @@ public abstract class AbstractAgent
 		timer = new TimerServices(timerManager);
 		service = new ServiceDirectory(serviceManager);
 		type = new TypeServices(agentManager, typeManager);
-		log = new AgentLogger("AGENT");
+		log = new AgentLogger(logger);
 	}
 	
 	private void setAid(AgentIdentifier aid)

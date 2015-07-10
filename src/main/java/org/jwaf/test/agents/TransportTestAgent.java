@@ -20,8 +20,9 @@ public class TransportTestAgent extends AbstractReactiveAgent
 	@Override
 	public void onArrival()
 	{
-		System.out.println("[TransportTestAgent] agent <"+aid.getName()+"> arrived at destination platform <"+localPlatformName+">.");
-		System.out.println("aid param: test_param_key_1="+aid.getUserDefinedParameters().get("test_param_key_1"));
-		System.out.println("aid param: test_param_key_2="+aid.getUserDefinedParameters().get("test_param_key_2"));
+		log.info("Arrived at destination platform <{}>.", localPlatformName);
+		log.info("aid params: test_param_key_1={}, test_param_key_2={}", 
+				aid.getUserDefinedParameters().get("test_param_key_1"),
+				aid.getUserDefinedParameters().get("test_param_key_2"));
 	}
 }

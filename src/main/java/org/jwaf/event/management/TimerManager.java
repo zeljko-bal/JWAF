@@ -16,6 +16,7 @@ import javax.inject.Inject;
 
 import org.jwaf.event.persistence.entity.TimerEventInfo;
 import org.jwaf.event.persistence.entity.TimerEventParam;
+import org.slf4j.Logger;
 
 @Stateless
 @LocalBean
@@ -26,6 +27,9 @@ public class TimerManager
 	
 	@Inject
 	private EventManager eventManager;
+	
+	@Inject
+	private Logger log;
 	
 	public void register(String timerName, String eventName, Date initialExpiration, long intervalDuration)
 	{
@@ -95,8 +99,7 @@ public class TimerManager
 		}
 		catch(NoSuchObjectLocalException ex)
 		{
-			// TODO log warning??
-			System.out.println("warning NoSuchObjectLocalException in timer timeout, timer was canceled");
+			log.warn("NoSuchObjectLocalException in timer timeout, timer was canceled.");
 		}
 	}
 }

@@ -6,9 +6,13 @@ import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.remote.exceptions.AgentTransportFailed;
 import org.jwaf.remote.exceptions.AgentTransportSuccessful;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MessageCallbackUtil
 {
+	private static Logger log = LoggerFactory.getLogger("MessageCallbackUtil");
+	
 	public static boolean isValidMessageCallback(Method method)
 	{
 		// has one parameter of type ACLMessage
@@ -20,9 +24,8 @@ public class MessageCallbackUtil
 			}
 		}
 
-		// TODO log wrong messae handler
-		System.out.println("WARNING: Invalid message handler method: "+ method.getName() +" , method annotated as a MessageCallbac does not have one parameter of type ACLMessage.");
-
+		log.warn("Invalid message handler method: {}, method annotated as a MessageCallbac does not have one parameter of type ACLMessage.", method.getName());
+		
 		return false;
 	}
 	
@@ -42,7 +45,7 @@ public class MessageCallbackUtil
 			}
 			else
 			{
-				wrapped.printStackTrace();
+				log.error("Error during message handler invocation.", wrapped);
 			}
 		}
 	}

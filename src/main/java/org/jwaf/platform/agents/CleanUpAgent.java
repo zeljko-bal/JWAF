@@ -27,15 +27,19 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	@MessageHandler("aid_cleanup_evt")
 	public void cleanUp(ACLMessage newMessage)
 	{
-		System.out.println("[CleanUpAgent] cleaning uppp");
-		aidManager.cleanUp();
+		doCleanup();
 	}
 	
 	@MessageHandler("aid_cleanup_request")
 	public void cleanUpRequest(ACLMessage newMessage)
 	{
-		System.out.println("[CleanUpAgent] cleaning uppp");
-		aidManager.cleanUp();
+		doCleanup();
 		message.send(new ACLMessage().setPerformative("cleanup_done").addReceivers(newMessage.getSender()));
+	}
+	
+	private void doCleanup()
+	{
+		log.info("Cleaning up.");
+		aidManager.cleanUp();
 	}
 }

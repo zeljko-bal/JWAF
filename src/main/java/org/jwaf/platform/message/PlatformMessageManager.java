@@ -8,6 +8,7 @@ import javax.naming.NamingException;
 
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
+import org.slf4j.Logger;
 
 @Stateless
 @LocalBean
@@ -15,6 +16,9 @@ public class PlatformMessageManager
 {
 	@Inject @EJBJNDIPrefix
 	private String ejbJNDIPrefix;
+	
+	@Inject
+	private Logger logger;
 	
 	public void handle(ACLMessage content)
 	{
@@ -27,8 +31,7 @@ public class PlatformMessageManager
 		catch 
 		(NamingException e)
 		{
-			// TODO log PlatformMessageManager  NamingException
-			e.printStackTrace();
+			logger.error("Platform message handler not found.", e);
 		}
 	}
 	
