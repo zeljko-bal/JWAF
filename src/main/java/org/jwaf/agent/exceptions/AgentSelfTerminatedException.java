@@ -2,8 +2,10 @@ package org.jwaf.agent.exceptions;
 
 import javax.ejb.ApplicationException;
 
+import org.jwaf.util.exceptions.AgentSuccessException;
+
 @ApplicationException
-public class AgentSelfTerminatedException extends RuntimeException
+public class AgentSelfTerminatedException extends AgentSuccessException
 {
 	private static final long serialVersionUID = 614203549501674787L;
 

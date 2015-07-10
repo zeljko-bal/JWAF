@@ -11,12 +11,11 @@ import javax.naming.NamingException;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
-import org.jwaf.agent.exceptions.AgentSelfTerminatedException;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
-import org.jwaf.remote.exceptions.AgentTransportSuccessful;
+import org.jwaf.util.exceptions.AgentSuccessException;
 import org.slf4j.Logger;
 
 @Stateless
@@ -90,7 +89,7 @@ public class AgentActivator
 		{
 			Throwable cause = e.getCause();
 			
-			if(cause instanceof AgentSelfTerminatedException || cause instanceof AgentTransportSuccessful)
+			if(cause instanceof AgentSuccessException)
 			{
 				log.info(cause.getMessage());
 			}
