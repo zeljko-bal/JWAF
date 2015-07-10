@@ -1,17 +1,14 @@
 package org.jwaf.agent.implementations.reactive;
 
-import javax.annotation.PostConstruct;
-
 import org.jwaf.agent.AbstractAgent;
 
 public abstract class AbstractReactiveAgent extends AbstractAgent
 {
 	protected MessageHandlingTools messageHandling;
 
-	@PostConstruct
-	protected void postConstruct()
+	@Override
+	protected void initializeTools()
 	{
-		super.postConstruct();
 		messageHandling = new MessageHandlingTools(this, message);
 	}
 	

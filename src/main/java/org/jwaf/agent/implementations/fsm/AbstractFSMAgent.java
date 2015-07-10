@@ -1,17 +1,14 @@
 package org.jwaf.agent.implementations.fsm;
 
-import javax.annotation.PostConstruct;
-
 import org.jwaf.agent.AbstractAgent;
 
 public class AbstractFSMAgent extends AbstractAgent
 {
 	protected StateHandlingTools stateHandling;
 	
-	@PostConstruct
-	protected void postConstruct()
+	@Override
+	protected void initializeTools()
 	{
-		super.postConstruct();
 		stateHandling = new StateHandlingTools(this, message, self, log);
 	}
 	

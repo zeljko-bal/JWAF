@@ -13,6 +13,7 @@ import org.jwaf.agent.tools.AgentLogger;
 import org.jwaf.agent.tools.AgentTools;
 import org.jwaf.agent.tools.EventTools;
 import org.jwaf.agent.tools.MessageTools;
+import org.jwaf.agent.tools.PlatformTools;
 import org.jwaf.agent.tools.RemotePlatformTools;
 import org.jwaf.agent.tools.ServiceDirectory;
 import org.jwaf.agent.tools.TaskTools;
@@ -80,12 +81,13 @@ public abstract class AbstractAgent
 	protected EventTools event;
 	protected TimerTools timer;
 	protected RemotePlatformTools remotePlatforms;
+	protected PlatformTools platform;
 	protected ServiceDirectory service;
 	protected TypeTools type;
 	protected AgentLogger log;
 	
 	@PostConstruct
-	protected void postConstruct()
+	private void postConstruct()
 	{
 		remotePlatforms = new RemotePlatformTools(remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
@@ -96,9 +98,12 @@ public abstract class AbstractAgent
 		timer = new TimerTools(timerManager);
 		service = new ServiceDirectory(serviceManager);
 		type = new TypeTools(agentManager, typeManager);
+		platform = new PlatformTools(aidManager);
 		log = new AgentLogger(logger);
+		
+		initializeTools();
 	}
-	
+
 	private void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;
@@ -108,8 +113,10 @@ public abstract class AbstractAgent
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
 		log.setAid(aid);
+		
+		onSetAid(aid);
 	}
-	
+
 	public void _execute(AgentIdentifier aid) throws Exception
 	{
 		setAid(aid);
@@ -128,11 +135,17 @@ public abstract class AbstractAgent
 		onArrival();
 	}
 
-	public abstract void execute() throws Exception;
+	protected abstract void execute() throws Exception;
 	
-	public void setup()
+	protected void setup()
 	{/* no-op */}
 	
-	public void onArrival()
+	protected void onArrival()
+	{/* no-op */}
+	
+	protected void onSetAid(AgentIdentifier aid)
+	{/* no-op */}
+	
+	protected void initializeTools()
 	{/* no-op */}
 }
