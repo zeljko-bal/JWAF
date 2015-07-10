@@ -1,4 +1,4 @@
-package org.jwaf.agent.template.common;
+package org.jwaf.agent.implementations.common;
 
 import java.lang.reflect.Method;
 

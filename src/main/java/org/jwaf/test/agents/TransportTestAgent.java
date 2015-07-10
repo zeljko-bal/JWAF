@@ -3,8 +3,8 @@ package org.jwaf.test.agents;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jwaf.agent.template.reactive.AbstractReactiveAgent;
-import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.agent.implementations.reactive.AbstractReactiveAgent;
+import org.jwaf.agent.implementations.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless

@@ -1,15 +1,15 @@
-package org.jwaf.agent.template.fsm;
+package org.jwaf.agent.implementations.fsm;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.implementations.common.AgentMessageHandler;
+import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
+import org.jwaf.agent.implementations.common.MessageCallbackUtil;
+import org.jwaf.agent.implementations.fsm.annotation.StateCallback;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.agent.template.common.AgentMessageHandler;
-import org.jwaf.agent.template.common.InvocationExceptionWrapper;
-import org.jwaf.agent.template.common.MessageCallbackUtil;
-import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.agent.tools.AgentLogger;
 import org.jwaf.agent.tools.AgentTools;
 import org.jwaf.agent.tools.MessageTools;

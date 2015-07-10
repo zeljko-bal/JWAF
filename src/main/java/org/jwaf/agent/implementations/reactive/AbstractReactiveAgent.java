@@ -1,4 +1,4 @@
-package org.jwaf.agent.template.reactive;
+package org.jwaf.agent.implementations.reactive;
 
 import javax.annotation.PostConstruct;
 

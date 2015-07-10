@@ -5,9 +5,9 @@ import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.agent.implementations.reactive.AbstractReactiveAgent;
+import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.agent.management.AidManager;
-import org.jwaf.agent.template.reactive.AbstractReactiveAgent;
-import org.jwaf.agent.template.reactive.annotation.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless

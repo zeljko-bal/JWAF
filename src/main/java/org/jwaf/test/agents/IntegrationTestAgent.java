@@ -9,11 +9,11 @@ import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 
 import org.jwaf.agent.AgentState;
+import org.jwaf.agent.implementations.fsm.AbstractFSMAgent;
+import org.jwaf.agent.implementations.fsm.annotation.StateCallback;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
-import org.jwaf.agent.template.fsm.AbstractFSMAgent;
-import org.jwaf.agent.template.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.common.annotations.TypeAttributes;
 import org.jwaf.event.persistence.entity.TimerEventParam;

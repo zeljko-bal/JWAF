@@ -1,4 +1,4 @@
-package org.jwaf.agent.template.fsm;
+package org.jwaf.agent.implementations.fsm;
 
 import javax.annotation.PostConstruct;
 

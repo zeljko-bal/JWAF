@@ -1,4 +1,4 @@
-package org.jwaf.agent.template.reactive;
+package org.jwaf.agent.implementations.reactive;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.jwaf.agent.AbstractAgent;
-import org.jwaf.agent.template.common.AgentMessageHandler;
-import org.jwaf.agent.template.common.InvocationExceptionWrapper;
-import org.jwaf.agent.template.common.MessageCallbackUtil;
-import org.jwaf.agent.template.reactive.annotation.DefaultMessageHandler;
-import org.jwaf.agent.template.reactive.annotation.MessageHandler;
+import org.jwaf.agent.implementations.common.AgentMessageHandler;
+import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
+import org.jwaf.agent.implementations.common.MessageCallbackUtil;
+import org.jwaf.agent.implementations.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.agent.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
