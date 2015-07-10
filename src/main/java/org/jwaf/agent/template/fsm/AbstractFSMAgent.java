@@ -6,13 +6,13 @@ import org.jwaf.agent.AbstractAgent;
 
 public class AbstractFSMAgent extends AbstractAgent
 {
-	protected StateHandlingService stateHandling;
+	protected StateHandlingTools stateHandling;
 	
 	@PostConstruct
 	protected void postConstruct()
 	{
 		super.postConstruct();
-		stateHandling = new StateHandlingService(this, message, self, log);
+		stateHandling = new StateHandlingTools(this, message, self, log);
 	}
 	
 	@Override

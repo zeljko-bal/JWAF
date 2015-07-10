@@ -15,7 +15,7 @@ import org.jwaf.agent.tools.AgentTools;
 import org.jwaf.agent.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
-public class StateHandlingService
+public class StateHandlingTools
 {
 	private Map<String, AgentMessageHandler> stateHandlers;
 	private AbstractAgent owner;
@@ -26,7 +26,7 @@ public class StateHandlingService
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingService(AbstractAgent owner, MessageTools messageServices, AgentTools agentServices, AgentLogger log)
+	public StateHandlingTools(AbstractAgent owner, MessageTools messageServices, AgentTools agentServices, AgentLogger log)
 	{
 		this.owner = owner;
 		this.messageServices = messageServices;

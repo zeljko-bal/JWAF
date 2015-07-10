@@ -6,13 +6,13 @@ import org.jwaf.agent.AbstractAgent;
 
 public abstract class AbstractReactiveAgent extends AbstractAgent
 {
-	protected MessageHandlingService messageHandling;
+	protected MessageHandlingTools messageHandling;
 
 	@PostConstruct
 	protected void postConstruct()
 	{
 		super.postConstruct();
-		messageHandling = new MessageHandlingService(this, message);
+		messageHandling = new MessageHandlingTools(this, message);
 	}
 	
 	@Override

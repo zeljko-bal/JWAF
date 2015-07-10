@@ -15,7 +15,7 @@ import org.jwaf.agent.template.reactive.annotation.MessageHandler;
 import org.jwaf.agent.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
-public class MessageHandlingService
+public class MessageHandlingTools
 {
 	private Map<String, AgentMessageHandler> messageHandlers;
 	private List<ACLMessage> unhandledMessages;
@@ -23,7 +23,7 @@ public class MessageHandlingService
 	private MessageTools messageServices;
 	private AgentMessageHandler defaultMessageHandler;
 	
-	public MessageHandlingService(AbstractAgent owner, MessageTools messageServices)
+	public MessageHandlingTools(AbstractAgent owner, MessageTools messageServices)
 	{
 		unhandledMessages = new ArrayList<>();
 		this.owner = owner;
