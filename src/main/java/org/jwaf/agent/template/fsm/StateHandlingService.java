@@ -7,8 +7,8 @@ import java.util.Map;
 import org.jwaf.agent.AbstractAgent;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.services.AgentLogger;
-import org.jwaf.agent.services.AgentServices;
-import org.jwaf.agent.services.MessageServices;
+import org.jwaf.agent.services.AgentTools;
+import org.jwaf.agent.services.MessageTools;
 import org.jwaf.agent.template.common.AgentMessageHandler;
 import org.jwaf.agent.template.common.InvocationExceptionWrapper;
 import org.jwaf.agent.template.common.MessageCallbackUtil;
@@ -19,14 +19,14 @@ public class StateHandlingService
 {
 	private Map<String, AgentMessageHandler> stateHandlers;
 	private AbstractAgent owner;
-	private MessageServices messageServices;
-	private AgentServices agentServices;
+	private MessageTools messageServices;
+	private AgentTools agentServices;
 	private String initialState;
 	private AgentLogger log;
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingService(AbstractAgent owner, MessageServices messageServices, AgentServices agentServices, AgentLogger log)
+	public StateHandlingService(AbstractAgent owner, MessageTools messageServices, AgentTools agentServices, AgentLogger log)
 	{
 		this.owner = owner;
 		this.messageServices = messageServices;

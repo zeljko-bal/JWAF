@@ -13,10 +13,10 @@ public class AgentDirectory
 {
 	private AidManager aidManager;
 	private AgentManager agentManager;
-	private RemotePlatformServices remoteService;
+	private RemotePlatformTools remoteService;
 	private String localPlatformName;
 	
-	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformServices remoteService, String localPlatformName)
+	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformTools remoteService, String localPlatformName)
 	{
 		this.aidManager = aidManager;
 		this.agentManager = agentManager;

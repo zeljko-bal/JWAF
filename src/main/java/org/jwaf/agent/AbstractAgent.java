@@ -10,14 +10,14 @@ import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.services.AgentDirectory;
 import org.jwaf.agent.services.AgentLogger;
-import org.jwaf.agent.services.AgentServices;
-import org.jwaf.agent.services.EventServices;
-import org.jwaf.agent.services.MessageServices;
-import org.jwaf.agent.services.RemotePlatformServices;
+import org.jwaf.agent.services.AgentTools;
+import org.jwaf.agent.services.EventTools;
+import org.jwaf.agent.services.MessageTools;
+import org.jwaf.agent.services.RemotePlatformTools;
 import org.jwaf.agent.services.ServiceDirectory;
-import org.jwaf.agent.services.TaskServices;
-import org.jwaf.agent.services.TimerServices;
-import org.jwaf.agent.services.TypeServices;
+import org.jwaf.agent.services.TaskTools;
+import org.jwaf.agent.services.TimerTools;
+import org.jwaf.agent.services.TypeTools;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
 import org.jwaf.message.management.MessageSender;
@@ -74,28 +74,28 @@ public abstract class AbstractAgent
 	
 	protected AgentIdentifier aid;
 	protected AgentDirectory agent;
-	protected MessageServices message;
-	protected AgentServices self;
-	protected TaskServices task;
-	protected EventServices event;
-	protected TimerServices timer;
-	protected RemotePlatformServices remotePlatforms;
+	protected MessageTools message;
+	protected AgentTools self;
+	protected TaskTools task;
+	protected EventTools event;
+	protected TimerTools timer;
+	protected RemotePlatformTools remotePlatforms;
 	protected ServiceDirectory service;
-	protected TypeServices type;
+	protected TypeTools type;
 	protected AgentLogger log;
 	
 	@PostConstruct
 	protected void postConstruct()
 	{
-		remotePlatforms = new RemotePlatformServices(remoteManager);
+		remotePlatforms = new RemotePlatformTools(remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
-		message = new MessageServices(messageSender, agentManager);
-		self = new AgentServices(agentManager);
-		task = new TaskServices(taskManager);
-		event = new EventServices(eventManager);
-		timer = new TimerServices(timerManager);
+		message = new MessageTools(messageSender, agentManager);
+		self = new AgentTools(agentManager);
+		task = new TaskTools(taskManager);
+		event = new EventTools(eventManager);
+		timer = new TimerTools(timerManager);
 		service = new ServiceDirectory(serviceManager);
-		type = new TypeServices(agentManager, typeManager);
+		type = new TypeTools(agentManager, typeManager);
 		log = new AgentLogger(logger);
 	}
 	
