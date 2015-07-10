@@ -20,14 +20,14 @@ public class MessageHandlingTools
 	private Map<String, AgentMessageHandler> messageHandlers;
 	private List<ACLMessage> unhandledMessages;
 	private AbstractAgent owner;
-	private MessageTools messageServices;
+	private MessageTools messageTools;
 	private AgentMessageHandler defaultMessageHandler;
 	
-	public MessageHandlingTools(AbstractAgent owner, MessageTools messageServices)
+	public MessageHandlingTools(AbstractAgent owner, MessageTools messageTools)
 	{
 		unhandledMessages = new ArrayList<>();
 		this.owner = owner;
-		this.messageServices = messageServices;
+		this.messageTools = messageTools;
 		
 		initializeMessageHandlers();
 	}
@@ -100,7 +100,7 @@ public class MessageHandlingTools
 	public void invokeMessageHandlers() throws Exception
 	{
 		// for each new message
-		for(ACLMessage message : messageServices.getAll())
+		for(ACLMessage message : messageTools.getAll())
 		{
 			AgentMessageHandler handler = messageHandlers.get(message.getPerformative());
 			

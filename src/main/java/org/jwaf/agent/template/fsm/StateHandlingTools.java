@@ -19,18 +19,18 @@ public class StateHandlingTools
 {
 	private Map<String, AgentMessageHandler> stateHandlers;
 	private AbstractAgent owner;
-	private MessageTools messageServices;
-	private AgentTools agentServices;
+	private MessageTools messageTools;
+	private AgentTools agentTools;
 	private String initialState;
 	private AgentLogger log;
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingTools(AbstractAgent owner, MessageTools messageServices, AgentTools agentServices, AgentLogger log)
+	public StateHandlingTools(AbstractAgent owner, MessageTools messageTools, AgentTools agentTools, AgentLogger log)
 	{
 		this.owner = owner;
-		this.messageServices = messageServices;
-		this.agentServices = agentServices;
+		this.messageTools = messageTools;
+		this.agentTools = agentTools;
 		this.log = log;
 
 		initializeStateHandlers();
@@ -89,7 +89,7 @@ public class StateHandlingTools
 	public void invokeStateHandlers() throws Exception
 	{
 		// for each new message
-		for(ACLMessage message : messageServices.getAll())
+		for(ACLMessage message : messageTools.getAll())
 		{
 			String currentState = getCurrentState();
 			
@@ -121,12 +121,12 @@ public class StateHandlingTools
 			return;
 		}
 		
-		agentServices.getData(AgentDataType.PRIVATE).put(CURRENT_FSM_STATE, newState);
+		agentTools.getData(AgentDataType.PRIVATE).put(CURRENT_FSM_STATE, newState);
 	}
 	
 	public String getCurrentState()
 	{	
-		return agentServices.getData(AgentDataType.PRIVATE).get(CURRENT_FSM_STATE);
+		return agentTools.getData(AgentDataType.PRIVATE).get(CURRENT_FSM_STATE);
 	}
 	
 	public String getInitialState()
