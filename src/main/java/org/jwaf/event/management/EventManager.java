@@ -77,7 +77,7 @@ public class EventManager
 
 		if(processor != null)
 		{
-			contentToSend = processor.process(contentToSend);
+			contentToSend = processor.process(contentToSend).toString();
 		}
 		
 		sendEventMessage(event, new ACLMessage().setContent(contentToSend));
