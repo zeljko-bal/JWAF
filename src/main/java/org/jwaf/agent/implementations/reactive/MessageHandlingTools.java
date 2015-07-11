@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 import org.jwaf.agent.implementations.common.AgentMessageHandler;
 import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
 import org.jwaf.agent.implementations.common.MessageCallbackUtil;
@@ -19,11 +19,11 @@ public class MessageHandlingTools
 {
 	private Map<String, AgentMessageHandler> messageHandlers;
 	private List<ACLMessage> unhandledMessages;
-	private AbstractAgent owner;
+	private BaseAgent owner;
 	private MessageTools messageTools;
 	private AgentMessageHandler defaultMessageHandler;
 	
-	public MessageHandlingTools(AbstractAgent owner, MessageTools messageTools)
+	public MessageHandlingTools(BaseAgent owner, MessageTools messageTools)
 	{
 		unhandledMessages = new ArrayList<>();
 		this.owner = owner;

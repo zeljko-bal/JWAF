@@ -1,8 +1,8 @@
 package org.jwaf.agent.implementations.reactive;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 
-public abstract class AbstractReactiveAgent extends AbstractAgent
+public abstract class AbstractReactiveAgent extends BaseAgent
 {
 	protected MessageHandlingTools messageHandling;
 

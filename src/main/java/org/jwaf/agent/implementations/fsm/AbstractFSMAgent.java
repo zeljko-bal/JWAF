@@ -1,8 +1,8 @@
 package org.jwaf.agent.implementations.fsm;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 
-public class AbstractFSMAgent extends AbstractAgent
+public class AbstractFSMAgent extends BaseAgent
 {
 	protected StateHandlingTools stateHandling;
 	

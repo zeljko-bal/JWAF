@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -63,7 +63,7 @@ public class AgentActivator
 		try
 		{
 			// find agent by type
-			AbstractAgent agentBean = findAgent(type);
+			BaseAgent agentBean = findAgent(type);
 
 			boolean done = false;
 
@@ -107,7 +107,7 @@ public class AgentActivator
 		try
 		{
 			// find agent by type
-			AbstractAgent agentBean = findAgent(type);
+			BaseAgent agentBean = findAgent(type);
 			
 			// invoke initial setup
 			agentBean._setup(aid);
@@ -133,7 +133,7 @@ public class AgentActivator
 		try
 		{
 			// find agent by type
-			AbstractAgent agentBean = findAgent(type);
+			BaseAgent agentBean = findAgent(type);
 			
 			// invoke onArrival
 			agentBean._onArrival(aid);
@@ -153,8 +153,8 @@ public class AgentActivator
 		}
 	}
 
-	private AbstractAgent findAgent(String type) throws NamingException
+	private BaseAgent findAgent(String type) throws NamingException
 	{
-		return (AbstractAgent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
+		return (BaseAgent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
 	}
 }

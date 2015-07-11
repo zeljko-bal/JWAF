@@ -4,7 +4,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 import org.jwaf.agent.implementations.common.AgentMessageHandler;
 import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
 import org.jwaf.agent.implementations.common.MessageCallbackUtil;
@@ -18,7 +18,7 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 public class StateHandlingTools
 {
 	private Map<String, AgentMessageHandler> stateHandlers;
-	private AbstractAgent owner;
+	private BaseAgent owner;
 	private MessageTools messageTools;
 	private AgentTools agentTools;
 	private String initialState;
@@ -26,7 +26,7 @@ public class StateHandlingTools
 	
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
 
-	public StateHandlingTools(AbstractAgent owner, MessageTools messageTools, AgentTools agentTools, AgentLogger log)
+	public StateHandlingTools(BaseAgent owner, MessageTools messageTools, AgentTools agentTools, AgentLogger log)
 	{
 		this.owner = owner;
 		this.messageTools = messageTools;

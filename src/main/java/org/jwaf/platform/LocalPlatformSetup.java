@@ -13,7 +13,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
-import org.jwaf.agent.AbstractAgent;
+import org.jwaf.agent.BaseAgent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
@@ -115,7 +115,7 @@ public class LocalPlatformSetup
 	private void registerAgentTypes()
 	{
 		@SuppressWarnings("serial")
-		Set<Bean<?>> beans = beanManager.getBeans(AbstractAgent.class, new AnnotationLiteral<AgentQualifier>() {});
+		Set<Bean<?>> beans = beanManager.getBeans(BaseAgent.class, new AnnotationLiteral<AgentQualifier>() {});
 		
 		beans.forEach(agentBean ->
 		{

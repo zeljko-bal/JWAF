@@ -30,7 +30,7 @@ import org.jwaf.util.annotations.NamedLogger;
 import org.slf4j.Logger;
 
 @AgentQualifier
-public abstract class AbstractAgent
+public abstract class BaseAgent
 {
 	/*
 	 * Injected resources
