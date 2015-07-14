@@ -37,8 +37,6 @@ public class AidRepository
 
 		if(aid.getName() != null)
 		{
-			//System.out.println("em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);  "+aid.getName());
-
 			AgentIdentifier existentAid = em.find(AgentIdentifier.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
 			// if aid with same name already is persistant return

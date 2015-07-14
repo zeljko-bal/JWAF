@@ -12,7 +12,6 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.management.AidManager;
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.annotations.events.MessageRemovedEvent;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -96,10 +95,10 @@ public class MessageRepository
 		message.setSender(aidManager.manageAID(message.getSender()));
 
 		// replace receiver list with managedAids		
-		message.getReceiverList().replaceAll((AgentIdentifier aid) -> aidManager.manageAID(aid) );
+		message.getReceiverList().replaceAll(aid -> aidManager.manageAID(aid));
 		
 		// replace in_reply_to list with managedAids		
-		message.getIn_reply_toList().replaceAll((AgentIdentifier aid) -> aidManager.manageAID(aid) );
+		message.getIn_reply_toList().replaceAll(aid -> aidManager.manageAID(aid));
 	}
 }
 
