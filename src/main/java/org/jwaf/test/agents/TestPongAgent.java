@@ -9,13 +9,12 @@ import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.common.annotations.TypeAttribute;
-import org.jwaf.common.annotations.TypeAttributes;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
 @LocalBean
-@TypeAttributes(@TypeAttribute(key="test_attr_key_2",value="test_attr_value_2"))
+@TypeAttribute(key="test_attr_key_2",value="test_attr_value_2")
 public class TestPongAgent extends AbstractReactiveAgent
 {
 	@MessageHandler("test_ping")

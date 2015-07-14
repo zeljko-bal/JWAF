@@ -15,7 +15,6 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.common.annotations.TypeAttribute;
-import org.jwaf.common.annotations.TypeAttributes;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.task.persistence.entity.TaskRequest;
@@ -23,7 +22,7 @@ import org.jwaf.task.persistence.entity.TaskResult;
 
 @Stateless
 @LocalBean
-@TypeAttributes(@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1"))
+@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1")
 public class IntegrationTestAgent extends AbstractFSMAgent
 {
 	@StateCallback(state="initial_state", initial=true)
