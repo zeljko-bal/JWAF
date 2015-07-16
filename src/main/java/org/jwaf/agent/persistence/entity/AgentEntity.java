@@ -106,6 +106,8 @@ public class AgentEntity implements AgentEntityView
 				return privateData;
 			case PUBLIC:
 				return publicData;
+			case AID:
+				return aid.getUserDefinedParameters();
 			default:
 				return null;
 		}

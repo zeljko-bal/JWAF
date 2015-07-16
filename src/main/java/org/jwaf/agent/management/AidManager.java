@@ -1,5 +1,6 @@
 package org.jwaf.agent.management;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -52,5 +53,33 @@ public class AidManager
 	public void cleanUp()
 	{
 		aidRepository.cleanUp();
+	}
+	
+	public void addAddress(String name, URL address)
+	{
+		AgentIdentifier aid = find(name);
+		aid.getAddresses().add(address);
+		aidRepository.manageAID(aid, true);
+	}
+
+	public void removeAddress(String name, URL address)
+	{
+		AgentIdentifier aid = find(name);
+		aid.getAddresses().remove(address);
+		aidRepository.manageAID(aid, true);
+	}
+
+	public void addResolver(String name, AgentIdentifier resolver)
+	{
+		AgentIdentifier aid = find(name);
+		aid.getResolvers().add(resolver);
+		aidRepository.manageAID(aid, true);
+	}
+
+	public void removeResolver(String name, AgentIdentifier resolver)
+	{
+		AgentIdentifier aid = find(name);
+		aid.getResolvers().remove(resolver);
+		aidRepository.manageAID(aid, true);
 	}
 }

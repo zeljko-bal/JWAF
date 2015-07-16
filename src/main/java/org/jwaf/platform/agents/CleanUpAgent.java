@@ -36,5 +36,6 @@ public class CleanUpAgent extends AbstractReactiveAgent
 	{
 		log.info("Cleaning up.");
 		platform.cleanUpDatabase();
+		log.info("Cleanup done.");
 	}
 }

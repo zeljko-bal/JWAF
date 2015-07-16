@@ -92,7 +92,7 @@ public abstract class BaseAgent implements Agent
 		remotePlatforms = new RemotePlatformTools(remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
-		self = new AgentTools(agentManager);
+		self = new AgentTools(agentManager, aidManager);
 		task = new TaskTools(taskManager);
 		event = new EventTools(eventManager);
 		timer = new TimerTools(timerManager);
