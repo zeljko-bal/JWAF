@@ -43,7 +43,7 @@ public class AgentActivator
 		// agent not yet initialized
 		if(AgentState.INITIALIZING.equals(prevState))
 		{
-			// TODO logger AgentState.INITIALIZING
+			log.warn("agent: <{}> received a message during initislization.", aid.getName());
 			return;
 		}
 

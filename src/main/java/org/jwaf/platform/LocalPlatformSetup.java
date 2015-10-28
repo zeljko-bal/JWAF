@@ -28,7 +28,7 @@ import org.jwaf.service.AgentService;
 import org.jwaf.service.annotations.ServiceQualifier;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
-import org.jwaf.task.manager.TaskManager;
+import org.jwaf.task.management.TaskManager;
 import org.slf4j.Logger;
 
 

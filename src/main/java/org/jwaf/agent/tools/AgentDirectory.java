@@ -7,20 +7,21 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
+import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
 public class AgentDirectory
 {
 	private AidManager aidManager;
 	private AgentManager agentManager;
-	private RemotePlatformTools remoteService;
+	private RemotePlatformManager remoteManager;
 	private String localPlatformName;
 	
-	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformTools remoteService, String localPlatformName)
+	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformManager remoteManager, String localPlatformName)
 	{
 		this.aidManager = aidManager;
 		this.agentManager = agentManager;
-		this.remoteService = remoteService;
+		this.remoteManager = remoteManager;
 		this.localPlatformName = localPlatformName;
 	}
 
@@ -50,12 +51,12 @@ public class AgentDirectory
 	
 	public boolean remotePlatformContains(AgentIdentifier aid, String platformName)
 	{
-		return remoteService.containsAid(aid.getName(), platformName);
+		return remoteManager.containsAid(aid.getName(), platformName);
 	}
 	
 	public boolean remotePlatformContains(String name, String platformName)
 	{
-		return remoteService.containsAid(name, platformName);
+		return remoteManager.containsAid(name, platformName);
 	}
 	
 	public String locationOf(AgentIdentifier aid)
@@ -71,7 +72,7 @@ public class AgentDirectory
 		}
 		else
 		{
-			AgentPlatform location = remoteService.locationOf(agentName);
+			AgentPlatform location = remoteManager.locationOf(agentName);
 			
 			if(location != null)
 			{

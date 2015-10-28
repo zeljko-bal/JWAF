@@ -25,7 +25,7 @@ import org.jwaf.message.management.MessageSender;
 import org.jwaf.platform.annotation.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
-import org.jwaf.task.manager.TaskManager;
+import org.jwaf.task.management.TaskManager;
 import org.jwaf.util.annotations.NamedLogger;
 import org.slf4j.Logger;
 
@@ -90,7 +90,7 @@ public abstract class BaseAgent implements Agent
 	private void postConstruct()
 	{
 		remotePlatforms = new RemotePlatformTools(remoteManager);
-		agent = new AgentDirectory(aidManager, agentManager, remotePlatforms, localPlatformName);
+		agent = new AgentDirectory(aidManager, agentManager, remoteManager, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
 		self = new AgentTools(agentManager, aidManager);
 		task = new TaskTools(taskManager);

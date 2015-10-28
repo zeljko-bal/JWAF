@@ -3,7 +3,7 @@ package org.jwaf.agent.tools;
 import java.util.List;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.task.manager.TaskManager;
+import org.jwaf.task.management.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 
