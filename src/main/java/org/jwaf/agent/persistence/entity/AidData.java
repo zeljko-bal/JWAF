@@ -2,14 +2,11 @@ package org.jwaf.agent.persistence.entity;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
@@ -39,15 +36,10 @@ public class AidData
 	@XmlElement(name="resolver")
 	private List<AgentIdentifier> resolvers;
 	
-	@ElementCollection(fetch=FetchType.LAZY)
-	@XmlElementWrapper
-	private Map<String, String> userDefinedParameters;
-	
 	public AidData()
 	{
 		addresses = new ArrayList<>();
 		resolvers = new ArrayList<>();
-		userDefinedParameters = new HashMap<>();
 	}
 	
 	public List<URL> getAddresses()
@@ -58,10 +50,5 @@ public class AidData
 	public List<AgentIdentifier> getResolvers()
 	{
 		return resolvers;
-	}
-	
-	public Map<String, String> getUserDefinedParameters()
-	{
-		return userDefinedParameters;
 	}
 }

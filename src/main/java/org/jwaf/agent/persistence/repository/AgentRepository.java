@@ -2,7 +2,6 @@ package org.jwaf.agent.persistence.repository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -146,14 +145,6 @@ public class AgentRepository
 		agent.setHasNewMessages(false);
 		
 		em.merge(agent);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public Map<String, String> getPublicData(String agentName)
-	{
-		AgentEntity agent = find(agentName);
-		em.detach(agent);
-		return agent.getData(AgentDataType.PUBLIC);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)

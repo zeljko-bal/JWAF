@@ -2,7 +2,6 @@ package org.jwaf.agent.persistence.entity;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -54,10 +53,5 @@ public class AgentIdentifier
 	public List<AgentIdentifier> getResolvers()
 	{
 		return data.getResolvers();
-	}
-	
-	public Map<String, String> getUserDefinedParameters()
-	{
-		return data.getUserDefinedParameters();
 	}
 }

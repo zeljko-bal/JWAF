@@ -107,7 +107,6 @@ public class LocalPlatformSetup
 		
 		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 		platformAid.getAddresses().add(localPlatformAddress);
-		platformAid.getUserDefinedParameters().put("X-agent-platform", "true");
 		aidManager.createAid(platformAid);
 	}
 

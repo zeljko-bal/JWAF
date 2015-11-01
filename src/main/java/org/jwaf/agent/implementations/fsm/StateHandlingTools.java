@@ -9,10 +9,10 @@ import org.jwaf.agent.implementations.common.AgentMessageHandler;
 import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
 import org.jwaf.agent.implementations.common.MessageCallbackUtil;
 import org.jwaf.agent.implementations.fsm.annotation.StateCallback;
-import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.tools.AgentLogger;
 import org.jwaf.agent.tools.AgentTools;
 import org.jwaf.agent.tools.MessageTools;
+import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class StateHandlingTools

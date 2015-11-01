@@ -19,6 +19,7 @@ import org.jwaf.agent.tools.ServiceDirectory;
 import org.jwaf.agent.tools.TaskTools;
 import org.jwaf.agent.tools.TimerTools;
 import org.jwaf.agent.tools.TypeTools;
+import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
 import org.jwaf.message.management.MessageSender;
@@ -41,6 +42,9 @@ public abstract class BaseAgent implements Agent
 	
 	@Inject
 	private AidManager aidManager;
+	
+	@Inject
+	private AgentDataManager agentDataManager;
 	
 	@Inject
 	private EventManager eventManager;
@@ -90,9 +94,9 @@ public abstract class BaseAgent implements Agent
 	private void postConstruct()
 	{
 		remotePlatforms = new RemotePlatformTools(remoteManager);
-		agent = new AgentDirectory(aidManager, agentManager, remoteManager, localPlatformName);
+		agent = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
-		self = new AgentTools(agentManager, aidManager);
+		self = new AgentTools(agentManager, aidManager, agentDataManager);
 		task = new TaskTools(taskManager);
 		event = new EventTools(eventManager);
 		timer = new TimerTools(timerManager);

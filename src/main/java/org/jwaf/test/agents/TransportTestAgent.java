@@ -21,8 +21,5 @@ public class TransportTestAgent extends AbstractReactiveAgent
 	public void onArrival()
 	{
 		log.info("Arrived at destination platform <{}>.", localPlatformName);
-		log.info("aid params: test_param_key_1={}, test_param_key_2={}", 
-				aid.getUserDefinedParameters().get("test_param_key_1"),
-				aid.getUserDefinedParameters().get("test_param_key_2"));
 	}
 }

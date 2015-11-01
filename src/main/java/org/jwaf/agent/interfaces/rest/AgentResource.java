@@ -53,14 +53,6 @@ public class AgentResource
 		return Response.ok(Boolean.toString((agentManager.contains(name)))).build();
 	}
 	
-	@GET
-	@Path("public_data/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response getPublicData(@PathParam("name") String agentName)
-	{
-		return Response.ok(agentManager.getPublicData(agentName)).build();
-	}
-	
 	// /agent/type/
 	
 	@GET

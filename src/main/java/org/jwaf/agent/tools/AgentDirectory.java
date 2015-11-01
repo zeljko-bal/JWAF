@@ -7,6 +7,8 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
+import org.jwaf.data.management.AgentDataManager;
+import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
@@ -14,13 +16,15 @@ public class AgentDirectory
 {
 	private AidManager aidManager;
 	private AgentManager agentManager;
+	private AgentDataManager agentDataManager;
 	private RemotePlatformManager remoteManager;
 	private String localPlatformName;
 	
-	public AgentDirectory(AidManager aidManager, AgentManager agentManager, RemotePlatformManager remoteManager, String localPlatformName)
+	public AgentDirectory(AidManager aidManager, AgentManager agentManager, AgentDataManager agentDataManager, RemotePlatformManager remoteManager, String localPlatformName)
 	{
 		this.aidManager = aidManager;
 		this.agentManager = agentManager;
+		this.agentDataManager = agentDataManager;
 		this.remoteManager = remoteManager;
 		this.localPlatformName = localPlatformName;
 	}
@@ -91,7 +95,7 @@ public class AgentDirectory
 	
 	public Map<String, String> getPublicData(String agentName)
 	{
-		return agentManager.getPublicData(agentName);
+		return agentDataManager.getDataStore(agentName, AgentDataType.PUBLIC);
 	}
 	
 	/*

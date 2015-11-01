@@ -2,7 +2,6 @@ package org.jwaf.agent.management;
 
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -19,9 +18,7 @@ import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
-import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
-import org.jwaf.agent.persistence.repository.DataStore;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
@@ -89,7 +86,6 @@ public class AgentManager
 		// new aid with name : <random-uuid>:<agent-type>@<local-platform-name>
 		AgentIdentifier aid = new AgentIdentifier(agentName.createRandom(type.getName()));
 		aid.getAddresses().add(localPlatformAddress);
-		aid.getUserDefinedParameters().putAll(request.getParams());
 		aid = aidManager.createAid(aid);
 		
 		AgentEntity newAgent = new AgentEntity(type, aid);
@@ -146,16 +142,6 @@ public class AgentManager
 		agentRepo.ignoreNewMessages(name);
 	}
 
-	public DataStore getDataStore(String agentName, AgentDataType type)
-	{
-		return new DataStore(agentRepo, type, agentName);
-	}
-	
-	public Map<String, String> getPublicData(String agentName)
-	{
-		return agentRepo.getPublicData(agentName);
-	}
-
 	public boolean contains(AgentIdentifier aid)
 	{
 		return agentRepo.containsAgent(aid);
@@ -196,7 +182,6 @@ public class AgentManager
 		AgentIdentifier remoteAid = agent.getAid();
 		AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
 		aid.getAddresses().addAll(remoteAid.getAddresses());
-		aid.getUserDefinedParameters().putAll(remoteAid.getUserDefinedParameters());
 		aid.getResolvers().addAll(remoteAid.getResolvers());
 		aid = aidManager.createAid(aid);
 		
@@ -208,8 +193,9 @@ public class AgentManager
 		
 		agentRepo.create(newAgent);
 		
+		/* TODO implement self serialization and deserialization
 		newAgent.getData(AgentDataType.PUBLIC).putAll(agent.getData(AgentDataType.PUBLIC));
-		newAgent.getData(AgentDataType.PRIVATE).putAll(agent.getData(AgentDataType.PRIVATE));
+		newAgent.getData(AgentDataType.PRIVATE).putAll(agent.getData(AgentDataType.PRIVATE));*/
 		
 		return true; // TODO implement acceptance check
 	}

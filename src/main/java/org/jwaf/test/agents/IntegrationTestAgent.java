@@ -13,8 +13,8 @@ import org.jwaf.agent.implementations.fsm.AbstractFSMAgent;
 import org.jwaf.agent.implementations.fsm.annotation.StateCallback;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
-import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.common.annotations.TypeAttribute;
+import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.task.persistence.entity.TaskRequest;
@@ -54,9 +54,6 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		self.getData(AgentDataType.PUBLIC).put("test_public_data_key", "test_public_data_val");
 		assertEquals("test_public_data_val", self.getData(AgentDataType.PUBLIC).get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC)");
 		
-		// aid
-		assertEquals("test_param_value_1", aid.getUserDefinedParameters().get("test_param_key_1"), "aid.getUserDefinedParameters parameter");
-		
 		// agent
 		assertEquals(AgentState.ACTIVE, agent.getState(aid.getName()), "agent.getState(aid.getName())");
 		assertTrue(agent.localPlatformContains(aid), "agent.localPlatformContains(aid)");
@@ -64,7 +61,6 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		AgentIdentifier aidResult =  agent.findAid(aid.getName());
 		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
-		assertEquals("test_param_value_1", aidResult.getUserDefinedParameters().get("test_param_key_1"), "agent.findAid(aid.getName().getUserDefinedParameters()");
 		
 		assertEquals("test_public_data_val", agent.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
 		

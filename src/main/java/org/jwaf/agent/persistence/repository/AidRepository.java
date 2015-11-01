@@ -45,7 +45,6 @@ public class AidRepository
 				if(update)
 				{
 					existentAid.getAddresses().addAll(aid.getAddresses());
-					existentAid.getUserDefinedParameters().putAll(aid.getUserDefinedParameters());
 					existentAid.getResolvers().addAll(aid.getResolvers());
 					em.merge(existentAid);
 					em.flush();

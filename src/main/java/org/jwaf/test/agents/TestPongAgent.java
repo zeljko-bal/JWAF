@@ -7,8 +7,8 @@ import org.jwaf.agent.implementations.reactive.AbstractReactiveAgent;
 import org.jwaf.agent.implementations.reactive.annotation.DefaultMessageHandler;
 import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.persistence.repository.AgentDataType;
 import org.jwaf.common.annotations.TypeAttribute;
+import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
