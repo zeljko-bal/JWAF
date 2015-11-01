@@ -1,6 +1,6 @@
-package org.jwaf.agent.implementations.reactive;
+package org.jwaf.base.implementations.reactive;
 
-import org.jwaf.agent.BaseAgent;
+import org.jwaf.base.BaseAgent;
 
 public abstract class AbstractReactiveAgent extends BaseAgent
 {

@@ -1,4 +1,4 @@
-package org.jwaf.agent.implementations.fsm.annotation;
+package org.jwaf.base.implementations.reactive.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,8 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME) 
 @Target(ElementType.METHOD)
-public @interface StateCallback
+public @interface MessageHandler
 {
-	String state();
-	boolean initial() default false;
+	String value();
 }

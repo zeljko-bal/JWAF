@@ -1,24 +1,25 @@
-package org.jwaf.agent;
+package org.jwaf.base;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.jwaf.agent.Agent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.agent.tools.AgentDirectory;
-import org.jwaf.agent.tools.AgentLogger;
-import org.jwaf.agent.tools.AgentTools;
-import org.jwaf.agent.tools.EventTools;
-import org.jwaf.agent.tools.MessageTools;
-import org.jwaf.agent.tools.PlatformTools;
-import org.jwaf.agent.tools.RemotePlatformTools;
-import org.jwaf.agent.tools.ServiceDirectory;
-import org.jwaf.agent.tools.TaskTools;
-import org.jwaf.agent.tools.TimerTools;
-import org.jwaf.agent.tools.TypeTools;
+import org.jwaf.base.tools.AgentDirectory;
+import org.jwaf.base.tools.AgentLogger;
+import org.jwaf.base.tools.AgentTools;
+import org.jwaf.base.tools.EventTools;
+import org.jwaf.base.tools.MessageTools;
+import org.jwaf.base.tools.PlatformTools;
+import org.jwaf.base.tools.RemotePlatformTools;
+import org.jwaf.base.tools.ServiceDirectory;
+import org.jwaf.base.tools.TaskTools;
+import org.jwaf.base.tools.TimerTools;
+import org.jwaf.base.tools.TypeTools;
 import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;

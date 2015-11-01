@@ -4,8 +4,8 @@ import javax.ejb.LocalBean;
 import javax.ejb.ScheduleExpression;
 import javax.ejb.Stateless;
 
-import org.jwaf.agent.implementations.reactive.AbstractReactiveAgent;
-import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
+import org.jwaf.base.implementations.reactive.AbstractReactiveAgent;
+import org.jwaf.base.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless

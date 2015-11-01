@@ -1,4 +1,4 @@
-package org.jwaf.agent.implementations.reactive.annotation;
+package org.jwaf.base.implementations.reactive.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

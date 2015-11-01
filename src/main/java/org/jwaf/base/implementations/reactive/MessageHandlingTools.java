@@ -1,4 +1,4 @@
-package org.jwaf.agent.implementations.reactive;
+package org.jwaf.base.implementations.reactive;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -6,13 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jwaf.agent.BaseAgent;
-import org.jwaf.agent.implementations.common.AgentMessageHandler;
-import org.jwaf.agent.implementations.common.InvocationExceptionWrapper;
-import org.jwaf.agent.implementations.common.MessageCallbackUtil;
-import org.jwaf.agent.implementations.reactive.annotation.DefaultMessageHandler;
-import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
-import org.jwaf.agent.tools.MessageTools;
+import org.jwaf.base.BaseAgent;
+import org.jwaf.base.implementations.common.AgentMessageHandler;
+import org.jwaf.base.implementations.common.InvocationExceptionWrapper;
+import org.jwaf.base.implementations.common.MessageCallbackUtil;
+import org.jwaf.base.implementations.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.base.implementations.reactive.annotation.MessageHandler;
+import org.jwaf.base.tools.MessageTools;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class MessageHandlingTools

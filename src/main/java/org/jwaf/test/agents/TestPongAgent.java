@@ -3,10 +3,10 @@ package org.jwaf.test.agents;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jwaf.agent.implementations.reactive.AbstractReactiveAgent;
-import org.jwaf.agent.implementations.reactive.annotation.DefaultMessageHandler;
-import org.jwaf.agent.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.base.implementations.reactive.AbstractReactiveAgent;
+import org.jwaf.base.implementations.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.base.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.common.annotations.TypeAttribute;
 import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.message.performative.PlatformPerformative;

@@ -1,4 +1,4 @@
-package org.jwaf.agent.tools;
+package org.jwaf.base.tools;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.slf4j.Logger;

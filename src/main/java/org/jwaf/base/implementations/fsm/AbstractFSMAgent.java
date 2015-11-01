@@ -1,6 +1,6 @@
-package org.jwaf.agent.implementations.fsm;
+package org.jwaf.base.implementations.fsm;
 
-import org.jwaf.agent.BaseAgent;
+import org.jwaf.base.BaseAgent;
 
 public class AbstractFSMAgent extends BaseAgent
 {

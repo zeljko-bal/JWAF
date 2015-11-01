@@ -1,4 +1,4 @@
-package org.jwaf.agent.implementations.common;
+package org.jwaf.base.implementations.common;
 
 public class InvocationExceptionWrapper extends RuntimeException
 {
