@@ -118,14 +118,8 @@ public class RemotePlatformRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentPlatform locationOf(String agentName)
 	{
-		List<AgentPlatform> result = em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class).setParameter("agentName", agentName).getResultList();
-		if(result.isEmpty())
-		{
-			return null;
-		}
-		else
-		{
-			return result.get(0);
-		}
+		return em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class)
+				.setParameter("agentName", agentName)
+				.getSingleResult();
 	}
 }
