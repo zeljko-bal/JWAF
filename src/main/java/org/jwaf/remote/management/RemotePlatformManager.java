@@ -14,11 +14,13 @@ import javax.ws.rs.client.Entity;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
-import org.jwaf.remote.exceptions.AgentTransportFailed;
-import org.jwaf.remote.exceptions.AgentTransportSuccessful;
+import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
+import org.jwaf.remote.AgentTransportData;
+import org.jwaf.remote.exceptions.AgentDeparted;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 import org.jwaf.remote.persistence.repository.RemotePlatformRepository;
 
@@ -33,8 +35,14 @@ public class RemotePlatformManager
 	@Inject
 	private AgentManager agentManager;
 	
+	@Inject
+	private AidManager aidManager;
+	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
+	
+	@Inject @LocalPlatformAddress
+	private URL localPlatformAddress;
 	
 	public AgentPlatform locationOf(String agentName)
 	{
@@ -116,46 +124,62 @@ public class RemotePlatformManager
 		});
 	}
 	
-	public void sendAgent(String agentName, String platformName) throws AgentTransportSuccessful, AgentTransportFailed
+	/*
+	 * transport
+	 */
+	
+	public void sendAgent(String agentName, String platformName, String serializedData) 
+			throws AgentDeparted
 	{
 		AgentEntity agent = agentManager.depart(agentName);
+		AgentTransportData transportData = new AgentTransportData(agent, serializedData, localPlatformName, localPlatformAddress);
+
+		URL address = findPlatform(platformName).getAddress();
 		
-		try
-		{
-			URL address = findPlatform(platformName).getAddress();
-			
-			// if response is http ok (200)
-			if(ClientBuilder.newClient().target(address.toString()).path("remote").path("receive").request().post(Entity.xml(agent)).getStatus() == 200)
-			{
-				agentManager.departed(agentName);
-				ClientBuilder.newClient().target(address.toString()).path("remote").path("arrived").request().post(Entity.text(agentName));
-				throw new AgentTransportSuccessful("agent <" + agentName + "> transported successfully to <"+platformName+">.");
-			}
-			else
-			{
-				throw new AgentTransportFailed("agent <" + agentName + "> transport to <"+platformName+"> failed.");
-			}
-		}
-		catch(AgentTransportSuccessful e)
-		{
-			throw e;
-		}
-		catch(Exception e)
-		{
-			agentManager.cancelDeparture(agentName);
-			throw e;
-		}
+		// receive agent on a remote platform
+		ClientBuilder.newClient().target(address.toString())
+				.path("remote")
+				.path("receive")
+				.request().post(Entity.xml(transportData));
+		
+		throw new AgentDeparted("agent <" + agentName + "> traveling to <"+platformName+">.");
 	}
 	
-	public boolean receiveRemoteAgent(AgentEntity agent)
+	public void agentReceived(String agentName, String originPlatform)
+	{
+		agentManager.transported(agentName, originPlatform);
+		
+		URL address = findPlatform(originPlatform).getAddress();
+		
+		ClientBuilder.newClient().target(address.toString())
+				.path("remote")
+				.path("arrived")
+				.request().post(Entity.text(agentName));
+	}
+	
+	public void agentNotReceived(String agentName)
+	{
+		agentManager.cancelDeparture(agentName);
+	}
+	
+	public void receiveRemoteAgent(AgentTransportData transportData)
 	{
 		try
 		{
-			return agentManager.receiveAgent(agent);
+			agentManager.receiveAgent(transportData.getAgent(), transportData.getSerializedData());
+			
+			ClientBuilder.newClient().target(transportData.getPlatformAddress().toString())
+					.path("remote")
+					.path("received")
+					.path(transportData.getPlatformName())
+					.request().post(Entity.text(transportData.getAgent().getAid().getName()));
 		}
 		catch(Exception e)
 		{
-			return false;
+			ClientBuilder.newClient().target(transportData.getPlatformAddress().toString())
+					.path("remote")
+					.path("not_received")
+					.request().post(Entity.text(transportData.getAgent().getAid().getName()));
 		}
 	}
 	

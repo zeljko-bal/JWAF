@@ -16,7 +16,7 @@ import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 
 @Stateless
 @LocalBean

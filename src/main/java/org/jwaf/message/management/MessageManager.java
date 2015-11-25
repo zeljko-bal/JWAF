@@ -22,9 +22,7 @@ import org.jwaf.message.annotations.events.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
 import org.jwaf.message.persistence.repository.MessageRepository;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
-import org.jwaf.platform.message.MessageParam;
-import org.jwaf.platform.message.PlatformMessageManager;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 
 /**
@@ -46,9 +44,6 @@ public class MessageManager
 	@Inject
 	private AgentActivator activator;
 	
-	@Inject
-	private PlatformMessageManager platformMsgManager;
-	
 	@Inject @MessageRetrievedEvent
 	private Event<ACLMessage> messageRetrievedEvent;
 	
@@ -68,13 +63,6 @@ public class MessageManager
 			return;
 		}
 		
-		// if this is a platform message pass it to PlatformMessageManager
-		if(transportMessage.getContent().getUserDefinedParameters().containsKey(MessageParam.PLATFORM_MESSAGE))
-		{
-			platformMsgManager.handle(transportMessage.getContent());
-			return;
-		}
-		
 		List<AgentIdentifier> local = new ArrayList<>();
 		List<AgentIdentifier> remote = new ArrayList<>();
 		List<AgentIdentifier> outbox = new ArrayList<>();
@@ -82,7 +70,7 @@ public class MessageManager
 		List<AgentIdentifier> recievers = transportMessage.getIntendedReceivers();
 
 		// classify receivers
-		recievers.forEach((AgentIdentifier aid)->
+		recievers.forEach(aid ->
 		{
 			if(agentManager.contains(aid))
 			{
@@ -119,11 +107,11 @@ public class MessageManager
 		}
 
 		// if agent is local send to local agent
-		local.forEach((AgentIdentifier aid)-> sendToLocal(aid, message));
+		local.forEach(aid -> sendToLocal(aid, message));
 		// if we can locate agent on a remote platform send to remote platform
-		remote.forEach((AgentIdentifier aid)-> sendToRemote(aid, transportMessage));
+		remote.forEach(aid -> sendToRemote(aid, transportMessage));
 		// if the receiver cannot be located leave message in outbox for manual retrieval
-		outbox.forEach((AgentIdentifier aid)-> sendToOutbox(aid, message));
+		outbox.forEach(aid -> sendToOutbox(aid, message));
 	}
 
 	private void sendToLocal(AgentIdentifier aid, ACLMessage message)

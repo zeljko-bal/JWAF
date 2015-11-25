@@ -11,6 +11,8 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
+import org.jwaf.agent.MultiThreadedAgent;
+import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.common.annotations.TypeAttribute;
@@ -32,36 +34,55 @@ public class AgentSetup
 	Logger log;
 	
 	@PostConstruct
+	@SuppressWarnings("serial")
 	private void setup()
 	{
-		@SuppressWarnings("serial")
-		Set<Bean<?>> beans = beanManager.getBeans(Object.class, new AnnotationLiteral<AgentQualifier>() {});
+		Set<Bean<?>> agentBeans = beanManager.getBeans(Object.class, new AnnotationLiteral<AgentQualifier>() {});
+		// TODO try Agent.class instead of Object.class, no annotations..
 		
-		beans.forEach(agentBean ->
+		agentBeans.forEach(this::registerType);
+	}
+	
+	private void registerType(Bean<?> agentBean)
+	{
+		Class<?> agentClass = agentBean.getBeanClass();
+		
+		String typeName = agentClass.getSimpleName();
+		
+		if(agentTypeManager.find(typeName) != null)
 		{
-			Class<?> agentClass = agentBean.getBeanClass();
-			
-			String typeName = agentClass.getSimpleName();
-			
-			if(agentTypeManager.find(typeName) != null)
-			{
-				log.info("Agent type: <{}> already registered.", typeName);
-				return;
-			}
-			
-			AgentType type = new AgentType(typeName);
+			log.info("Agent type: <{}> already registered.", typeName);
+			return;
+		}
+		
+		if(!(implementsInterface(agentClass, SingleThreadedAgent.class) ||
+			 implementsInterface(agentClass, MultiThreadedAgent.class)))
+		{
+			log.error("Agent type: <{}> must implement either SingleThreadedAgent or MultiThreadedAgent.", typeName);
+			return;
+		}
+		
+		AgentType type = new AgentType(typeName);
 
-			if(agentClass.isAnnotationPresent(TypeAttributes.class))
+		if(agentClass.isAnnotationPresent(TypeAttributes.class))
+		{
+			for(TypeAttribute attribute : agentClass.getAnnotation(TypeAttributes.class).value())
 			{
-				for(TypeAttribute attribute : agentClass.getAnnotation(TypeAttributes.class).value())
-				{
-					type.getAttributes().put(attribute.key(), attribute.value());
-				}
+				type.getAttributes().put(attribute.key(), attribute.value());
 			}
-			
-			agentTypeManager.create(type);
-			
-			log.info("Registered agent type: <{}>.", type.getName());
-		});
+		}
+		
+		agentTypeManager.create(type);
+		
+		log.info("Registered agent type: <{}>.", type.getName());
+	}
+	
+	private boolean implementsInterface(Class<?> agentClass, Class<?> inter)
+	{
+		for(Class<?> implemented : agentClass.getInterfaces())
+		{
+			if(inter.equals(implemented)) return true;
+		}
+		return false;
 	}
 }

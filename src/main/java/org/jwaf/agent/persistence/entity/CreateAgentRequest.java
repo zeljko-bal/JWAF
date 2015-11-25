@@ -13,6 +13,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CreateAgentRequest
 {
+	public static final String AID_NAME = "AID_NAME";
+	
 	@XmlElement
 	private String type;
 	
@@ -34,6 +36,12 @@ public class CreateAgentRequest
 	public void setType(String type)
 	{
 		this.type = type;
+	}
+	
+	public CreateAgentRequest param(String key, String value)
+	{
+		params.put(key, value);
+		return this;
 	}
 
 	public Map<String, String> getParams()

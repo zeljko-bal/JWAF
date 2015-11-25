@@ -36,7 +36,13 @@ public class AgentData
 	public AgentData()
 	{
 		privateData = new HashMap<>();
-		publicData = new HashMap<>();		
+		publicData = new HashMap<>();
+	}
+	
+	public AgentData(String name)
+	{
+		this();
+		this.name = name;
 	}
 	
 	public Map<String, String> get(AgentDataType type)

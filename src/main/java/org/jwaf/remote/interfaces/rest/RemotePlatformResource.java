@@ -17,8 +17,8 @@ import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.remote.AgentTransportData;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
@@ -28,6 +28,10 @@ public class RemotePlatformResource
 {
 	@Inject
 	private RemotePlatformManager remoteManager;
+	
+	/*
+	 * information
+	 */
 	
 	@GET
 	@Path("platform/find/{name}")
@@ -113,19 +117,35 @@ public class RemotePlatformResource
 		return Response.ok(entity).build();
 	}
 	
+	/*
+	 * agent transfer
+	 */
+	
 	@POST
 	@Path("receive")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response receiveRemoteAgent(AgentEntity agent)
+	public Response receiveRemoteAgent(AgentTransportData transportData)
 	{
-		if(remoteManager.receiveRemoteAgent(agent))
-		{
-			return Response.ok().build();
-		}
-		else
-		{
-			return Response.notModified().build();
-		}
+		remoteManager.receiveRemoteAgent(transportData);
+		return Response.ok().build();
+	}
+	
+	@POST
+	@Path("received/{platform_name}")
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response agentReceived(@PathParam("platform_name") String platformName, String agentName)
+	{
+		remoteManager.agentReceived(agentName, platformName);
+		return Response.ok().build();
+	}
+	
+	@POST
+	@Path("not_received")
+	@Consumes(MediaType.TEXT_PLAIN)
+	public Response agentNotReceived(String agentName)
+	{
+		remoteManager.agentNotReceived(agentName);
+		return Response.ok().build();
 	}
 	
 	@POST

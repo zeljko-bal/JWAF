@@ -1,4 +1,4 @@
-package org.jwaf.platform;
+package org.jwaf.platform.management;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,9 +12,9 @@ import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
-import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
-import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
+import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.slf4j.Logger;
 
 @Singleton

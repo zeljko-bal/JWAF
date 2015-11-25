@@ -6,7 +6,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 
 @Stateless
 @LocalBean
@@ -18,5 +18,10 @@ public class AgentNameUtils
 	public String createRandom(String type)
 	{
 		return UUID.randomUUID().toString()+":"+type+"@"+localPlatformName;
+	}
+	
+	public String createNamed(String type, String name)
+	{
+		return name+":"+type+"@"+localPlatformName;
 	}
 }

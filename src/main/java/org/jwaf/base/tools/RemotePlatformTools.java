@@ -3,6 +3,7 @@ package org.jwaf.base.tools;
 import java.util.List;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.base.SerializableAgent;
 import org.jwaf.remote.exceptions.AgentTransportFailed;
 import org.jwaf.remote.exceptions.AgentTransportSuccessful;
 import org.jwaf.remote.management.RemotePlatformManager;
@@ -12,9 +13,11 @@ public class RemotePlatformTools
 {
 	private RemotePlatformManager remoteManager;
 	private AgentIdentifier aid;
+	private SerializableAgent owner;
 	
-	public RemotePlatformTools(RemotePlatformManager remoteManager)
+	public RemotePlatformTools(SerializableAgent owner, RemotePlatformManager remoteManager)
 	{
+		this.owner = owner;
 		this.remoteManager = remoteManager;
 	}
 	
@@ -60,6 +63,6 @@ public class RemotePlatformTools
 	
 	public void travelTo(String platformName) throws AgentTransportSuccessful, AgentTransportFailed
 	{
-		remoteManager.sendAgent(aid.getName(), platformName);
+		remoteManager.sendAgent(aid.getName(), platformName, owner.serialize());
 	}
 }

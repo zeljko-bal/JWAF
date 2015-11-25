@@ -7,9 +7,11 @@ import javax.ejb.Stateless;
 import org.jwaf.base.implementations.reactive.AbstractReactiveAgent;
 import org.jwaf.base.implementations.reactive.annotation.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.jwaf.platform.annotations.SystemAgent;
 
 @Stateless
 @LocalBean
+@SystemAgent("platform_cleanup")
 public class CleanUpAgent extends AbstractReactiveAgent
 {
 	public void setup()

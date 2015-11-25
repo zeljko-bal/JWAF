@@ -69,4 +69,16 @@ public class AgentDataRepository
 		data.get(dataType).clear();
 		em.merge(data);
 	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public boolean containsDataFor(String agentName)
+	{
+		return em.find(AgentData.class, agentName) != null;
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void initializeData(String agentName)
+	{
+		em.persist(new AgentData(agentName));
+	}
 }

@@ -3,7 +3,7 @@ package org.jwaf.base;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.jwaf.agent.Agent;
+import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
@@ -24,7 +24,7 @@ import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
 import org.jwaf.message.management.MessageSender;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
@@ -32,7 +32,7 @@ import org.jwaf.util.annotations.NamedLogger;
 import org.slf4j.Logger;
 
 @AgentQualifier
-public abstract class BaseAgent implements Agent
+public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgent
 {
 	/*
 	 * Injected resources
@@ -94,7 +94,7 @@ public abstract class BaseAgent implements Agent
 	@PostConstruct
 	private void postConstruct()
 	{
-		remotePlatforms = new RemotePlatformTools(remoteManager);
+		remotePlatforms = new RemotePlatformTools(this, remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
 		self = new AgentTools(agentManager, aidManager, agentDataManager);
@@ -122,28 +122,49 @@ public abstract class BaseAgent implements Agent
 		onSetAid(aid);
 	}
 
+	@Override
 	public void _execute(AgentIdentifier aid) throws Exception
 	{
 		setAid(aid);
 		execute();
 	}
 	
+	@Override
 	public void _setup(AgentIdentifier aid)
 	{
 		setAid(aid);
 		setup();
 	}
 	
+	@Override
 	public void _onArrival(AgentIdentifier aid)
 	{
 		setAid(aid);
 		onArrival();
+	}
+	
+	@Override
+	public void _deserialize(AgentIdentifier aid, String data)
+	{
+		setAid(aid);
+		deserialize(data);
 	}
 
 	protected abstract void execute() throws Exception;
 	
 	protected void setup()
 	{/* no-op */}
+	
+	@Override
+	public String serialize()
+	{
+		return agentDataManager.getAllDataAsString(aid.getName());
+	}
+	
+	protected void deserialize(String data)
+	{
+		agentDataManager.initializeData(aid.getName(), data);
+	}
 	
 	protected void onArrival()
 	{/* no-op */}

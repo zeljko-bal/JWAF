@@ -18,7 +18,7 @@ import org.jwaf.event.persistence.repository.EventRepository;
 import org.jwaf.event.processor.EventProcessor;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
+import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 
 @Stateless
 @LocalBean

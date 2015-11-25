@@ -92,6 +92,7 @@ public class AgentRepository
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean passivate(AgentIdentifier aid, boolean force)
 	{
+		// TODO require just agent name as a String parameter instead of AgentIdentifier
 		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
 		// if agent has new messages and isnt forced to passivate

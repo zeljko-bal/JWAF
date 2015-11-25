@@ -17,7 +17,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AgentType
-{	
+{
 	@Id
 	@XmlElement(required=true)
 	private String name;

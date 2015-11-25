@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
+import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.task.deployer.DefaultTaskDeployer;
 import org.jwaf.task.deployer.TaskDeployer;
 import org.jwaf.task.persistence.entity.TaskRequest;

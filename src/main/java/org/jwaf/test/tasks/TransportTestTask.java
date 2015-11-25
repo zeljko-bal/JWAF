@@ -9,7 +9,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.LocalPlatformName;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.task.deployer.TaskDeployer;
 import org.jwaf.task.persistence.entity.TaskRequest;
 

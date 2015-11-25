@@ -10,11 +10,14 @@ import javax.naming.NamingException;
 
 import org.jwaf.agent.Agent;
 import org.jwaf.agent.AgentState;
+import org.jwaf.agent.MultiThreadedAgent;
+import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.EJBJNDIPrefix;
+import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.util.exceptions.AgentSuccessException;
 import org.slf4j.Logger;
 
@@ -37,53 +40,54 @@ public class AgentActivator
 	@Asynchronous
 	public void activate(AgentIdentifier aid, ACLMessage message)
 	{
-		// activate agent and get previous state
-		String prevState = agentRepo.activate(aid, message);
-		
-		// agent not yet initialized
-		if(AgentState.INITIALIZING.equals(prevState))
-		{
-			log.warn("agent: <{}> received a message during initislization.", aid.getName());
-			return;
-		}
-
-		// if agent was passive activate him
-		if(AgentState.PASSIVE.equals(prevState))
-		{
-			String agentTypeName = agentRepo.findView(aid.getName()).getType().getName();
-			
-			execute(aid, agentTypeName);
-		}
-	}
-	
-	private void execute(AgentIdentifier aid, String type)
-	{
-		log.info("activating agent: <{}>", aid.getName());
+		AgentType type = agentRepo.findView(aid.getName()).getType();
 		
 		try
 		{
 			// find agent by type
-			Agent agentBean = findAgent(type);
-
-			boolean done = false;
-
-			// while execution is not done (agent not passivated)
-			while(!done)
-			{
-				// execute
-				agentBean._execute(aid);
-
-				// try to passivate
-				done = agentRepo.passivate(aid, false);
-			}
-		}
-		catch (NamingException e) 
-		{
-			// agent bean not found
-			log.error("Agent not found.", e);
+			Agent agentBean = findAgent(type.getName());
 			
-			// force agent to passivate
-			agentRepo.passivate(aid, true);
+			if(agentBean instanceof SingleThreadedAgent)
+			{
+				// activate agent and get previous state
+				String prevState = agentRepo.activate(aid, message);
+				
+				// agent not yet initialized
+				if(AgentState.INITIALIZING.equals(prevState))
+				{
+					log.warn("agent: <{}> received a message during initislization.", aid.getName());
+					return;
+				}
+		
+				// if agent was passive activate him
+				if(AgentState.PASSIVE.equals(prevState))
+				{
+					log.info("activating agent: <{}>", aid.getName());
+					
+					SingleThreadedAgent stAgent = (SingleThreadedAgent)agentBean;
+					boolean done = false;
+
+					// while execution is not done (agent not passivated)
+					while(!done)
+					{
+						// execute
+						stAgent._execute(aid);
+
+						// try to passivate
+						done = agentRepo.passivate(aid, false);
+					}
+				}
+			}
+			else if(agentBean instanceof MultiThreadedAgent)// AgentType.MULTI_THREADED
+			{
+				MultiThreadedAgent mtAgent = (MultiThreadedAgent)agentBean;
+				mtAgent._handle(aid, message);
+				// TODO instance counting, INITIALIZING state, Transit state
+			}
+			else
+			{
+				log.error("Agent bean must implement either SingleThreadedAgent or MultiThreadedAgent.");
+			}
 		}
 		catch(Exception e)
 		{
@@ -112,11 +116,6 @@ public class AgentActivator
 			// invoke initial setup
 			agentBean._setup(aid);
 		}
-		catch (NamingException e) 
-		{
-			// agent not found
-			log.error("Agent not found.", e);
-		}
 		finally
 		{
 			// force agent to passivate
@@ -124,6 +123,20 @@ public class AgentActivator
 			
 			// notify that agent is initialized
 			agentInitializedEvent.fire(aid);
+		}
+	}
+	
+	public void deserialize(AgentIdentifier aid, String type, String data) throws Exception
+	{
+		try
+		{
+			Agent agentBean = findAgent(type);
+			agentBean._deserialize(aid, data);
+		}
+		catch(Exception e)
+		{
+			log.error("Agent <"+aid.getName()+"> not serialized properly.", e);
+			throw e;
 		}
 	}
 	
@@ -138,11 +151,6 @@ public class AgentActivator
 			// invoke onArrival
 			agentBean._onArrival(aid);
 		}
-		catch (NamingException e) 
-		{
-			// agent not found
-			log.error("Agent not found.", e);
-		}
 		finally
 		{
 			// force agent to passivate
@@ -153,8 +161,17 @@ public class AgentActivator
 		}
 	}
 
-	private Agent findAgent(String type) throws NamingException
+	private Agent findAgent(String type)
 	{
-		return (Agent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
+		try
+		{
+			return (Agent)(new InitialContext()).lookup(ejbJNDIPrefix + type);
+		}
+		catch (NamingException e) 
+		{
+			// agent bean not found
+			log.error("Agent bean not found.", e);
+			throw new RuntimeException("Agent bean not found.");
+		}
 	}
 }

@@ -23,7 +23,7 @@ import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.platform.annotation.resource.LocalPlatformAddress;
+import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.util.AgentNameUtils;
 import org.slf4j.Logger;
 
@@ -72,6 +72,18 @@ public class AgentManager
 	
 	public AgentIdentifier initialize(CreateAgentRequest request)
 	{
+		AgentIdentifier aid = createAgentEntity(request);
+		
+		// invoke custom setup method
+		activator.setup(aid, request.getType());
+		
+		agentCreatedEvent.fire(aid);
+		
+		return aid;
+	}
+	
+	private AgentIdentifier createAgentEntity(CreateAgentRequest request)
+	{
 		AgentType type = null;
 		
 		try
@@ -80,11 +92,21 @@ public class AgentManager
 		}
 		catch (NoResultException e)
 		{
-			log.error("Agent not found during initialization.", e);
+			log.error("Agent type not found during initialization.", e);
 		}
 		
 		// new aid with name : <random-uuid>:<agent-type>@<local-platform-name>
-		AgentIdentifier aid = new AgentIdentifier(agentName.createRandom(type.getName()));
+		String name;
+		if(request.getParams().containsKey(CreateAgentRequest.AID_NAME))
+		{
+			name = request.getParams().get(CreateAgentRequest.AID_NAME);
+		}
+		else
+		{
+			name = agentName.createRandom(type.getName());
+		}
+		
+		AgentIdentifier aid = new AgentIdentifier(name);
 		aid.getAddresses().add(localPlatformAddress);
 		aid = aidManager.createAid(aid);
 		
@@ -92,11 +114,6 @@ public class AgentManager
 		
 		// persist agent
 		agentRepo.create(newAgent);
-		
-		// invoke custom setup method
-		activator.setup(aid, request.getType());
-		
-		agentCreatedEvent.fire(aid);
 		
 		return aid;
 	}
@@ -132,7 +149,7 @@ public class AgentManager
 		List<ACLMessage> messages = agentRepo.getMessages(name);
 		
 		// notify that messages have ben retrieved
-		messages.forEach((ACLMessage message) -> messageRetrievedEvent.fire(message));
+		messages.forEach(messageRetrievedEvent::fire);
 		
 		return messages;
 	}
@@ -158,6 +175,11 @@ public class AgentManager
 
 	public void arrived(String agentName)
 	{
+		
+		
+		
+		
+		
 		String typeName = findView(agentName).getType().getName();
 		activator.onArrival(aidManager.manageAID(new AgentIdentifier(agentName)), typeName);
 	}
@@ -167,36 +189,47 @@ public class AgentManager
 		return agentRepo.depart(agentName);
 	}
 
-	public void departed(String agentName)
+	public void transported(String agentName, String originPlatform)
 	{
 		agentRepo.remove(agentName);
+		
+		
+		
+		aidManager.addAddress(agentName, address);
+		aidManager.removeAddress(agentName, localPlatformAddress);
 	}
 
 	public void cancelDeparture(String agentName)
 	{
-		agentRepo.passivate(aidManager.manageAID(new AgentIdentifier(agentName)), true);
+		agentRepo.passivate(new AgentIdentifier(agentName), true);
 	}
 
-	public boolean receiveAgent(AgentEntity agent)
+	public void receiveAgent(AgentEntity agent, String serializedData) throws Exception
 	{
-		AgentIdentifier remoteAid = agent.getAid();
-		AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
-		aid.getAddresses().addAll(remoteAid.getAddresses());
-		aid.getResolvers().addAll(remoteAid.getResolvers());
-		aid = aidManager.createAid(aid);
-		
-		AgentEntity newAgent = new AgentEntity();
-		newAgent.setAid(aid);
-		newAgent.setHasNewMessages(!agent.getMessages().isEmpty());
-		newAgent.setState(AgentState.IN_TRANSIT);
-		newAgent.setType(typeManager.find(agent.getType().getName()));
-		
-		agentRepo.create(newAgent);
-		
-		/* TODO implement self serialization and deserialization
-		newAgent.getData(AgentDataType.PUBLIC).putAll(agent.getData(AgentDataType.PUBLIC));
-		newAgent.getData(AgentDataType.PRIVATE).putAll(agent.getData(AgentDataType.PRIVATE));*/
-		
-		return true; // TODO implement acceptance check
+		try
+		{
+			AgentIdentifier remoteAid = agent.getAid();
+			AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
+			aid.getAddresses().addAll(remoteAid.getAddresses());
+			aid.getResolvers().addAll(remoteAid.getResolvers());
+			aid = aidManager.createAid(aid);
+			
+			AgentEntity newAgent = new AgentEntity();
+			newAgent.setAid(aid);
+			newAgent.setHasNewMessages(!agent.getMessages().isEmpty());
+			newAgent.setState(AgentState.IN_TRANSIT);
+			newAgent.setType(typeManager.find(agent.getType().getName()));
+			
+			agentRepo.create(newAgent);
+			
+			activator.deserialize(aid, agent.getType().getName(), serializedData);
+			
+			// TODO implement acceptance check
+		}
+		catch(Exception e)
+		{
+			log.error("Agent <"+agent.getAid().getName()+"> not received properly.", e);
+			throw e;
+		}
 	}
 }
