@@ -1,6 +1,7 @@
 package org.jwaf.agent.management;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +13,9 @@ import javax.inject.Inject;
 import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AidRepository;
+import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotations.resource.LocalPlatformName;
+import org.jwaf.remote.management.RemotePlatformManager;
 
 @Stateless
 @LocalBean
@@ -21,8 +24,14 @@ public class AidManager
 	@Inject
 	private AidRepository aidRepository;
 	
+	@Inject
+	private RemotePlatformManager remotePlatformManager;
+	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
+	
+	@Inject @LocalPlatformAddress
+	private URL localPlatformAddress;
 	
 	@Produces @LocalPlatformAid
 	public AgentIdentifier getPlatformAid()
@@ -47,7 +56,7 @@ public class AidManager
 	
 	public AgentIdentifier createAid(AgentIdentifier aid)
 	{
-		return aidRepository.manageAID(aid, false);
+		return aidRepository.manageAID(aid, true);
 	}
 
 	public void cleanUp()
@@ -81,5 +90,22 @@ public class AidManager
 		AgentIdentifier aid = find(name);
 		aid.getResolvers().remove(resolver);
 		aidRepository.manageAID(aid, true);
+	}
+	
+	public void changeLocation(String name, String newPlatform)
+	{
+		List<URL> mtAddresses;
+		
+		if(localPlatformName.equals(newPlatform))
+		{
+			mtAddresses = new ArrayList<>();
+			mtAddresses.add(localPlatformAddress);
+		}
+		else
+		{
+			mtAddresses = remotePlatformManager.findPlatform(newPlatform).getMTAddresses();
+		}
+		
+		aidRepository.changeMTADdresses(name, mtAddresses);
 	}
 }

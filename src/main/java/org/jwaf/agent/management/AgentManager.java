@@ -173,35 +173,9 @@ public class AgentManager
 	 * agent transport methods
 	 */
 
-	public void arrived(String agentName)
-	{
-		
-		
-		
-		
-		
-		String typeName = findView(agentName).getType().getName();
-		activator.onArrival(aidManager.manageAID(new AgentIdentifier(agentName)), typeName);
-	}
-
 	public AgentEntity depart(String agentName)
 	{
 		return agentRepo.depart(agentName);
-	}
-
-	public void transported(String agentName, String originPlatform)
-	{
-		agentRepo.remove(agentName);
-		
-		
-		
-		aidManager.addAddress(agentName, address);
-		aidManager.removeAddress(agentName, localPlatformAddress);
-	}
-
-	public void cancelDeparture(String agentName)
-	{
-		agentRepo.passivate(new AgentIdentifier(agentName), true);
 	}
 
 	public void receiveAgent(AgentEntity agent, String serializedData) throws Exception
@@ -210,19 +184,20 @@ public class AgentManager
 		{
 			AgentIdentifier remoteAid = agent.getAid();
 			AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
-			aid.getAddresses().addAll(remoteAid.getAddresses());
+			aid.getAddresses().clear();
+			aid.getAddresses().add(localPlatformAddress);
 			aid.getResolvers().addAll(remoteAid.getResolvers());
 			aid = aidManager.createAid(aid);
 			
 			AgentEntity newAgent = new AgentEntity();
 			newAgent.setAid(aid);
-			newAgent.setHasNewMessages(!agent.getMessages().isEmpty());
+			newAgent.setHasNewMessages(false);
 			newAgent.setState(AgentState.IN_TRANSIT);
 			newAgent.setType(typeManager.find(agent.getType().getName()));
 			
 			agentRepo.create(newAgent);
 			
-			activator.deserialize(aid, agent.getType().getName(), serializedData);
+			activator.onArrival(aid, agent.getType().getName(), serializedData);
 			
 			// TODO implement acceptance check
 		}
@@ -231,5 +206,37 @@ public class AgentManager
 			log.error("Agent <"+agent.getAid().getName()+"> not received properly.", e);
 			throw e;
 		}
+	}
+	
+	public void completeDeparture(String agentName, String destinationPlatform)
+	{
+		// update aid
+		aidManager.changeLocation(agentName, destinationPlatform);
+		
+		// remove agent and retrieve remaining messages
+		List<ACLMessage> messages = agentRepo.completeDeparture(agentName);
+		messages.forEach(messageRetrievedEvent::fire);
+		
+		// resend messages
+		messages.forEach(m->resendMessage(new AgentIdentifier(agentName), m));
+	}
+
+	public void cancelDeparture(String agentName)
+	{
+		agentRepo.passivate(agentName, true);
+	}
+	
+	public void transportComplete(String agentName)
+	{
+		agentRepo.passivate(agentName, true);
+	}
+	
+	private void resendMessage(AgentIdentifier aid, ACLMessage message)
+	{
+		aid.getAddresses().clear();
+		message.getReceiverList().clear();
+		message.getReceiverList().add(aid);
+		
+		messageSender.send(message);
 	}
 }

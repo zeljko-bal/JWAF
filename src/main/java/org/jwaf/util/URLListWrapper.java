@@ -1,4 +1,4 @@
-package org.jwaf.agent.persistence.entity;
+package org.jwaf.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;

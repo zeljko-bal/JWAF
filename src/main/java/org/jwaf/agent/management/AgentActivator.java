@@ -13,9 +13,11 @@ import org.jwaf.agent.AgentState;
 import org.jwaf.agent.MultiThreadedAgent;
 import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
+import org.jwaf.agent.exceptions.AgentNotFound;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.util.exceptions.AgentSuccessException;
@@ -31,6 +33,9 @@ public class AgentActivator
 	@Inject
 	private AgentRepository agentRepo;
 	
+	@Inject
+	private MessageSender messageSender;
+	
 	@Inject @AgentInitializedEvent
 	private Event<AgentIdentifier> agentInitializedEvent;
 	
@@ -40,10 +45,10 @@ public class AgentActivator
 	@Asynchronous
 	public void activate(AgentIdentifier aid, ACLMessage message)
 	{
-		AgentType type = agentRepo.findView(aid.getName()).getType();
-		
 		try
 		{
+			AgentType type = agentRepo.findView(aid.getName()).getType();
+			
 			// find agent by type
 			Agent agentBean = findAgent(type.getName());
 			
@@ -52,16 +57,15 @@ public class AgentActivator
 				// activate agent and get previous state
 				String prevState = agentRepo.activate(aid, message);
 				
-				// agent not yet initialized
 				if(AgentState.INITIALIZING.equals(prevState))
 				{
+					// agent not yet initialized
 					log.warn("agent: <{}> received a message during initislization.", aid.getName());
 					return;
 				}
-		
-				// if agent was passive activate him
-				if(AgentState.PASSIVE.equals(prevState))
+				else if(AgentState.PASSIVE.equals(prevState))
 				{
+					// if agent was passive activate him
 					log.info("activating agent: <{}>", aid.getName());
 					
 					SingleThreadedAgent stAgent = (SingleThreadedAgent)agentBean;
@@ -74,7 +78,7 @@ public class AgentActivator
 						stAgent._execute(aid);
 
 						// try to passivate
-						done = agentRepo.passivate(aid, false);
+						done = agentRepo.passivate(aid.getName(), false);
 					}
 				}
 			}
@@ -89,6 +93,10 @@ public class AgentActivator
 				log.error("Agent bean must implement either SingleThreadedAgent or MultiThreadedAgent.");
 			}
 		}
+		catch(AgentNotFound e)
+		{
+			resendMessage(aid, message);
+		}
 		catch(Exception e)
 		{
 			Throwable cause = e.getCause();
@@ -101,11 +109,11 @@ public class AgentActivator
 			{
 				log.error("Error during agent execution.", e);
 				// if service submit failed force agent to passivate
-				agentRepo.passivate(aid, true);
+				agentRepo.passivate(aid.getName(), true);
 			}
 		}
 	}
-	
+
 	public void setup(AgentIdentifier aid, String type)
 	{
 		try
@@ -119,29 +127,15 @@ public class AgentActivator
 		finally
 		{
 			// force agent to passivate
-			agentRepo.passivate(aid, true);
+			agentRepo.passivate(aid.getName(), true);
 			
 			// notify that agent is initialized
 			agentInitializedEvent.fire(aid);
 		}
 	}
 	
-	public void deserialize(AgentIdentifier aid, String type, String data) throws Exception
-	{
-		try
-		{
-			Agent agentBean = findAgent(type);
-			agentBean._deserialize(aid, data);
-		}
-		catch(Exception e)
-		{
-			log.error("Agent <"+aid.getName()+"> not serialized properly.", e);
-			throw e;
-		}
-	}
-	
 	@Asynchronous
-	public void onArrival(AgentIdentifier aid, String type)
+	public void onArrival(AgentIdentifier aid, String type, String data)
 	{
 		try
 		{
@@ -149,15 +143,12 @@ public class AgentActivator
 			Agent agentBean = findAgent(type);
 			
 			// invoke onArrival
-			agentBean._onArrival(aid);
+			agentBean._onArrival(aid, data);
 		}
-		finally
+		catch(Exception e)
 		{
-			// force agent to passivate
-			agentRepo.passivate(aid, true);
-			
-			// notify that agent has arrived
-			// TODO agentArrivedEvent.fire(aid);
+			log.error("Agent <"+aid.getName()+"> did not arrive properly.", e);
+			throw e;
 		}
 	}
 
@@ -173,5 +164,14 @@ public class AgentActivator
 			log.error("Agent bean not found.", e);
 			throw new RuntimeException("Agent bean not found.");
 		}
+	}
+	
+	private void resendMessage(AgentIdentifier aid, ACLMessage message)
+	{
+		aid.getAddresses().clear();
+		message.getReceiverList().clear();
+		message.getReceiverList().add(aid);
+		
+		messageSender.send(message);
 	}
 }

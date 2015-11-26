@@ -14,7 +14,6 @@ import javax.ws.rs.client.Entity;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.management.AgentManager;
-import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
@@ -34,9 +33,6 @@ public class RemotePlatformManager
 	
 	@Inject
 	private AgentManager agentManager;
-	
-	@Inject
-	private AidManager aidManager;
 	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
@@ -145,23 +141,6 @@ public class RemotePlatformManager
 		throw new AgentDeparted("agent <" + agentName + "> traveling to <"+platformName+">.");
 	}
 	
-	public void agentReceived(String agentName, String originPlatform)
-	{
-		agentManager.transported(agentName, originPlatform);
-		
-		URL address = findPlatform(originPlatform).getAddress();
-		
-		ClientBuilder.newClient().target(address.toString())
-				.path("remote")
-				.path("arrived")
-				.request().post(Entity.text(agentName));
-	}
-	
-	public void agentNotReceived(String agentName)
-	{
-		agentManager.cancelDeparture(agentName);
-	}
-	
 	public void receiveRemoteAgent(AgentTransportData transportData)
 	{
 		try
@@ -183,8 +162,25 @@ public class RemotePlatformManager
 		}
 	}
 	
-	public void arrived(String agentName)
+	public void agentReceived(String agentName, String destinationPlatform)
 	{
-		agentManager.arrived(agentName);
+		agentManager.completeDeparture(agentName, destinationPlatform);
+		
+		URL address = findPlatform(destinationPlatform).getAddress();
+		
+		ClientBuilder.newClient().target(address.toString())
+				.path("remote")
+				.path("transport_complete")
+				.request().post(Entity.text(agentName));
+	}
+	
+	public void agentNotReceived(String agentName)
+	{
+		agentManager.cancelDeparture(agentName);
+	}
+	
+	public void transportComplete(String agentName)
+	{
+		agentManager.transportComplete(agentName);
 	}
 }

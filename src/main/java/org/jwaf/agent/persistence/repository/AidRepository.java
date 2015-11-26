@@ -1,5 +1,6 @@
 package org.jwaf.agent.persistence.repository;
 
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -93,5 +94,16 @@ public class AidRepository
 		List<AgentIdentifier> agentIdentifiers = findAll();
 
 		agentIdentifiers.forEach(aid -> remover.removeIfUnused(aid) );
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void changeMTADdresses(String aidName, List<URL> mtAddresses)
+	{
+		AgentIdentifier aid = em.find(AgentIdentifier.class, aidName, LockModeType.PESSIMISTIC_WRITE);
+		
+		aid.getAddresses().clear();
+		aid.getAddresses().addAll(mtAddresses);
+		
+		em.merge(aid);
 	}
 }

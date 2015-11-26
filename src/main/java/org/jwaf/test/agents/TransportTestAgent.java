@@ -18,7 +18,7 @@ public class TransportTestAgent extends AbstractReactiveAgent
 	}
 	
 	@Override
-	public void onArrival()
+	public void onArrival(String data)
 	{
 		log.info("Arrived at destination platform <{}>.", localPlatformName);
 	}

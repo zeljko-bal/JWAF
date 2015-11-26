@@ -12,6 +12,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.AgentState;
+import org.jwaf.agent.exceptions.AgentNotFound;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -37,7 +38,15 @@ public class AgentRepository
 	public AgentEntityView findView(String name)
 	{
 		// TODO maybe detatch
-		return find(name);
+		AgentEntityView ret = find(name);
+		if(ret == null)
+		{
+			throw new AgentNotFound();
+		}
+		else
+		{
+			return ret;
+		}
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -65,6 +74,11 @@ public class AgentRepository
 	{
 		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
 
+		if(agent == null)
+		{
+			throw new AgentNotFound();
+		}
+		
 		// get previous state
 		String prevState = agent.getState();
 		
@@ -80,8 +94,11 @@ public class AgentRepository
 		// set unread messages flag
 		agent.setHasNewMessages(true);
 
-		// activate agent
-		agent.setState(AgentState.ACTIVE);
+		if(AgentState.PASSIVE.equals(prevState))
+		{
+			// activate agent
+			agent.setState(AgentState.ACTIVE);
+		}
 
 		// persist
 		em.merge(agent);
@@ -90,10 +107,9 @@ public class AgentRepository
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public boolean passivate(AgentIdentifier aid, boolean force)
+	public boolean passivate(String name, boolean force)
 	{
-		// TODO require just agent name as a String parameter instead of AgentIdentifier
-		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
+		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
 
 		// if agent has new messages and isnt forced to passivate
 		if(agent.hasNewMessages() && !force)
@@ -167,6 +183,20 @@ public class AgentRepository
 		agent.setState(AgentState.IN_TRANSIT);
 		em.merge(agent);
 		return agent;
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public List<ACLMessage> completeDeparture(String name)
+	{
+		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
+
+		// get all messages
+		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());
+
+		// remove agent
+		em.remove(agent);
+
+		return messages;
 	}
 	
 	private AgentEntity find(String name)

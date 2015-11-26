@@ -149,11 +149,11 @@ public class RemotePlatformResource
 	}
 	
 	@POST
-	@Path("arrived")
+	@Path("transport_complete")
 	@Consumes(MediaType.TEXT_PLAIN)
 	public Response agentArrived(String agentName)
 	{
-		remoteManager.arrived(agentName);
+		remoteManager.transportComplete(agentName);
 		return Response.ok().build();
 	}
 }

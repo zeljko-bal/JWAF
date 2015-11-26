@@ -137,17 +137,10 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 	}
 	
 	@Override
-	public void _onArrival(AgentIdentifier aid)
+	public void _onArrival(AgentIdentifier aid, String data)
 	{
 		setAid(aid);
-		onArrival();
-	}
-	
-	@Override
-	public void _deserialize(AgentIdentifier aid, String data)
-	{
-		setAid(aid);
-		deserialize(data);
+		onArrival(data);
 	}
 
 	protected abstract void execute() throws Exception;
@@ -161,13 +154,10 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 		return agentDataManager.getAllDataAsString(aid.getName());
 	}
 	
-	protected void deserialize(String data)
+	protected void onArrival(String data)
 	{
 		agentDataManager.initializeData(aid.getName(), data);
 	}
-	
-	protected void onArrival()
-	{/* no-op */}
 	
 	protected void onSetAid(AgentIdentifier aid)
 	{/* no-op */}
