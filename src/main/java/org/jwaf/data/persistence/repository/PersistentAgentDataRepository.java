@@ -14,7 +14,7 @@ import org.jwaf.data.persistence.entity.AgentDataType;
 
 @Stateless
 @LocalBean
-public class AgentDataRepository
+public class PersistentAgentDataRepository
 {
 	@PersistenceContext
 	private EntityManager em;

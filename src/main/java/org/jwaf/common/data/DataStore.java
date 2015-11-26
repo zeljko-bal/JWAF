@@ -1,4 +1,4 @@
-package org.jwaf.data.persistence.repository;
+package org.jwaf.common.data;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -6,24 +6,19 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jwaf.common.util.SerializationUtils;
-import org.jwaf.data.persistence.entity.AgentDataType;
 
 public class DataStore implements Map<String, String>
 {
-	private AgentDataRepository dataRepo;
-	private AgentDataType dataType;
-	private String agentName;
+	private DataRepository dataRepo;
 	
-	public DataStore(AgentDataRepository dataRepo, AgentDataType dataType, String agentName)
+	public DataStore(DataRepository dataRepo)
 	{
 		this.dataRepo = dataRepo;
-		this.dataType = dataType;
-		this.agentName = agentName;
 	}
 	
 	private Map<String,String> getData()
 	{
-		return dataRepo.getData(agentName, dataType);
+		return dataRepo.getData();
 	}
 
 	@Override
@@ -95,7 +90,7 @@ public class DataStore implements Map<String, String>
 	@Override
 	public String put(String key, String value)
 	{
-		return dataRepo.put(agentName, dataType, key, value);
+		return dataRepo.put(key, value);
 	}
 	
 	public Serializable putObject(String key, Serializable value)
@@ -106,7 +101,7 @@ public class DataStore implements Map<String, String>
 	@Override
 	public String remove(Object key)
 	{
-		return dataRepo.remove(agentName, dataType, key);
+		return dataRepo.remove(key);
 	}
 	
 	public Serializable removeObject(Object key)
@@ -117,13 +112,13 @@ public class DataStore implements Map<String, String>
 	@Override
 	public void putAll(Map<? extends String, ? extends String> m)
 	{
-		dataRepo.putAll(agentName, dataType, m);
+		dataRepo.putAll(m);
 	}
 
 	@Override
 	public void clear()
 	{
-		dataRepo.clear(agentName, dataType);
+		dataRepo.clear();
 	}
 
 	@Override

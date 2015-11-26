@@ -4,10 +4,13 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.common.data.AgentDataRepoWrapper;
+import org.jwaf.common.data.DataRepository;
+import org.jwaf.common.data.DataStore;
+import org.jwaf.common.data.DataStoreSerialization;
 import org.jwaf.data.persistence.entity.AgentDataType;
-import org.jwaf.data.persistence.repository.AgentDataRepository;
-import org.jwaf.data.persistence.repository.DataStore;
-import org.jwaf.data.persistence.repository.DataStoreSerialization;
+import org.jwaf.data.persistence.repository.PersistentAgentDataRepository;
+import org.jwaf.data.persistence.repository.PersistentDataRepoWrapper;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -20,7 +23,7 @@ public class AgentDataManager
 	private static final String PUBLIC = "PUBLIC";
 	
 	@Inject
-	private AgentDataRepository dataRepo;
+	private PersistentAgentDataRepository dataRepo;
 	
 	public DataStore getDataStore(String agentName, AgentDataType dataType)
 	{
@@ -29,7 +32,9 @@ public class AgentDataManager
 			dataRepo.initializeData(agentName);
 		}
 		
-		return new DataStore(dataRepo, dataType, agentName);
+		DataRepository repoWrapper = new AgentDataRepoWrapper(new PersistentDataRepoWrapper(dataRepo, dataType), agentName);
+		
+		return new DataStore(repoWrapper);
 	}
 	
 	public void initializeData(String agentName)

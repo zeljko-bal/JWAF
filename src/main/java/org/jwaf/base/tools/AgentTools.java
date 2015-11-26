@@ -7,9 +7,9 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.common.data.DataStore;
 import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.data.persistence.entity.AgentDataType;
-import org.jwaf.data.persistence.repository.DataStore;
 
 public class AgentTools
 {

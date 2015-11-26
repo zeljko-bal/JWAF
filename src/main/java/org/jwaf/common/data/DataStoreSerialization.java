@@ -1,4 +1,4 @@
-package org.jwaf.data.persistence.repository;
+package org.jwaf.common.data;
 
 import java.util.HashMap;
 import java.util.Map;
