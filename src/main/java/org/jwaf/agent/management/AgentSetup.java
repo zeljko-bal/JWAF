@@ -15,8 +15,8 @@ import org.jwaf.agent.MultiThreadedAgent;
 import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.common.annotations.TypeAttribute;
-import org.jwaf.common.annotations.TypeAttributes;
+import org.jwaf.common.annotations.attributes.TypeAttribute;
+import org.jwaf.common.annotations.attributes.TypeAttributes;
 import org.slf4j.Logger;
 
 @Singleton

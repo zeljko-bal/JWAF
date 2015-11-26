@@ -11,8 +11,8 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
-import org.jwaf.common.annotations.TypeAttribute;
-import org.jwaf.common.annotations.TypeAttributes;
+import org.jwaf.common.annotations.attributes.TypeAttribute;
+import org.jwaf.common.annotations.attributes.TypeAttributes;
 import org.jwaf.service.AgentService;
 import org.jwaf.service.annotations.ServiceQualifier;
 import org.jwaf.service.persistence.entity.AgentServiceType;

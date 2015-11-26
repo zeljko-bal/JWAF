@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.util.URLListWrapper;
+import org.jwaf.common.URLListWrapper;
 
 @Entity
 @XmlRootElement

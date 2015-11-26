@@ -13,7 +13,7 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.base.implementations.fsm.AbstractFSMAgent;
 import org.jwaf.base.implementations.fsm.annotation.StateCallback;
-import org.jwaf.common.annotations.TypeAttribute;
+import org.jwaf.common.annotations.attributes.TypeAttribute;
 import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;

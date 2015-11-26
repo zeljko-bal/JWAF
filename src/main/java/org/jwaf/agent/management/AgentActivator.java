@@ -17,10 +17,10 @@ import org.jwaf.agent.exceptions.AgentNotFound;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.common.exceptions.AgentSuccessException;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
-import org.jwaf.util.exceptions.AgentSuccessException;
 import org.slf4j.Logger;
 
 @Stateless

@@ -1,4 +1,4 @@
-package org.jwaf.util.annotations;
+package org.jwaf.common.annotations.logger;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

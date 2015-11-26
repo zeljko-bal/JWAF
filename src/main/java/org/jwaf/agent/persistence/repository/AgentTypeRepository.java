@@ -12,7 +12,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.util.SQLQuerryUtils;
+import org.jwaf.common.util.SQLQuerryUtils;
 
 
 

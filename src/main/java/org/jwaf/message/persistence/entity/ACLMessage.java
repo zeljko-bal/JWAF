@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.util.SerializationUtils;
+import org.jwaf.common.util.SerializationUtils;
 
 @Entity
 @XmlRootElement

@@ -2,7 +2,7 @@ package org.jwaf.remote.exceptions;
 
 import javax.ejb.ApplicationException;
 
-import org.jwaf.util.exceptions.AgentSuccessException;
+import org.jwaf.common.exceptions.AgentSuccessException;
 
 @ApplicationException
 public class AgentDeparted extends AgentSuccessException

@@ -1,4 +1,4 @@
-package org.jwaf.common.annotations;
+package org.jwaf.common.annotations.attributes;
 
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;

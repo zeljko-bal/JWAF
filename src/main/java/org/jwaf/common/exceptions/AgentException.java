@@ -1,4 +1,4 @@
-package org.jwaf.util.exceptions;
+package org.jwaf.common.exceptions;
 
 public class AgentException extends RuntimeException
 {

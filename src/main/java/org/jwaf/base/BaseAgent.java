@@ -20,6 +20,7 @@ import org.jwaf.base.tools.ServiceDirectory;
 import org.jwaf.base.tools.TaskTools;
 import org.jwaf.base.tools.TimerTools;
 import org.jwaf.base.tools.TypeTools;
+import org.jwaf.common.annotations.logger.NamedLogger;
 import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
@@ -28,7 +29,6 @@ import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
-import org.jwaf.util.annotations.NamedLogger;
 import org.slf4j.Logger;
 
 @AgentQualifier

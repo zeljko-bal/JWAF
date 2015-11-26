@@ -14,10 +14,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import org.jwaf.common.util.XMLSchemaUtils;
 import org.jwaf.message.management.MessageManager;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.TransportMessage;
-import org.jwaf.util.XMLSchemaUtils;
 
 @Path("message")
 @Stateless

@@ -2,7 +2,7 @@ package org.jwaf.remote.exceptions;
 
 import javax.ejb.ApplicationException;
 
-import org.jwaf.util.exceptions.AgentException;
+import org.jwaf.common.exceptions.AgentException;
 
 @ApplicationException
 public class AgentTransportFailed extends AgentException

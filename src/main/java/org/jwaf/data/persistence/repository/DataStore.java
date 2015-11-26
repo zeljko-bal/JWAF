@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.jwaf.common.util.SerializationUtils;
 import org.jwaf.data.persistence.entity.AgentDataType;
-import org.jwaf.util.SerializationUtils;
 
 public class DataStore implements Map<String, String>
 {

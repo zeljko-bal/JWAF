@@ -1,4 +1,4 @@
-package org.jwaf.util;
+package org.jwaf.common;
 
 import java.net.MalformedURLException;
 import java.net.URL;

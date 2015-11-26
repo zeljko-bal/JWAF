@@ -1,4 +1,4 @@
-package org.jwaf.util;
+package org.jwaf.common.util;
 
 import java.util.UUID;
 

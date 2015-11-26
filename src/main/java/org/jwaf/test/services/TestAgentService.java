@@ -3,7 +3,7 @@ package org.jwaf.test.services;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jwaf.common.annotations.TypeAttribute;
+import org.jwaf.common.annotations.attributes.TypeAttribute;
 import org.jwaf.service.AgentService;
 
 @Stateless

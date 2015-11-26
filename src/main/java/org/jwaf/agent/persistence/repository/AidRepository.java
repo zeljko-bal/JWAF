@@ -14,7 +14,7 @@ import javax.persistence.LockModeType;
 import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.util.SQLQuerryUtils;
+import org.jwaf.common.util.SQLQuerryUtils;
 
 @Stateless
 @LocalBean

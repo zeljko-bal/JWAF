@@ -1,4 +1,4 @@
-package org.jwaf.util;
+package org.jwaf.common;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -6,7 +6,7 @@ import javax.enterprise.inject.Default;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
-import org.jwaf.util.annotations.NamedLogger;
+import org.jwaf.common.annotations.logger.NamedLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,7 +2,7 @@ package org.jwaf.agent.exceptions;
 
 import javax.ejb.ApplicationException;
 
-import org.jwaf.util.exceptions.AgentSuccessException;
+import org.jwaf.common.exceptions.AgentSuccessException;
 
 @ApplicationException
 public class AgentSelfTerminatedException extends AgentSuccessException

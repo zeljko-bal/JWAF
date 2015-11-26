@@ -2,8 +2,8 @@ package org.jwaf.base.implementations.common;
 
 import java.lang.reflect.Method;
 
+import org.jwaf.common.exceptions.AgentException;
 import org.jwaf.message.persistence.entity.ACLMessage;
-import org.jwaf.util.exceptions.AgentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

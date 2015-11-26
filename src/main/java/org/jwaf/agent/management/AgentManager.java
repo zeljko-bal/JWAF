@@ -19,12 +19,12 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.common.util.AgentNameUtils;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
-import org.jwaf.util.AgentNameUtils;
 import org.slf4j.Logger;
 
 /**

@@ -1,4 +1,4 @@
-package org.jwaf.util;
+package org.jwaf.common.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

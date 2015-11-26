@@ -16,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import org.jwaf.common.util.XMLSchemaUtils;
 import org.jwaf.task.management.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
-import org.jwaf.util.XMLSchemaUtils;
 
 @Path("task")
 @Stateless
