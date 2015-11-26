@@ -117,6 +117,7 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 		task.setAid(aid);
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
+		service.setAid(aid);
 		log.setAid(aid);
 		
 		onSetAid(aid);

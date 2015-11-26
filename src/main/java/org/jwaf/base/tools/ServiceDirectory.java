@@ -4,15 +4,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.service.management.ServiceManager;
 
 public class ServiceDirectory
 {
 	private ServiceManager serviceManager;
+	private AgentIdentifier aid;
 	
 	public ServiceDirectory(ServiceManager serviceManager)
 	{
 		this.serviceManager = serviceManager;
+	}
+	
+	public void setAid(AgentIdentifier aid)
+	{
+		this.aid = aid;
 	}
 
 	public List<String> find(Map<String, String> attributes)
@@ -32,11 +39,23 @@ public class ServiceDirectory
 	
 	public Object callSynch(String serviceName, Object... params)
 	{
-		return serviceManager.callSynch(serviceName, params);
+		return serviceManager.callSync(serviceName, params);
 	}
 	
 	public Future<Object> callAsynch(String serviceName, Object... params)
 	{
-		return serviceManager.callAsynch(serviceName, params);
+		return serviceManager.callAsync(serviceName, params);
+	}
+	
+	public Future<Object> callForMessage(String serviceName, Object... params)
+	{
+		Object[] serviceParams = new Object[params.length+1];
+		serviceParams[0] = aid.getName();
+		for(int i=1; i < serviceParams.length; i++)
+		{
+			serviceParams[i] = params[i-1];
+		}
+		
+		return serviceManager.callAsync(serviceName, serviceParams);
 	}
 }

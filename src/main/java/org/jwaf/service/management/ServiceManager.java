@@ -42,16 +42,16 @@ public class ServiceManager
 		return serviceRepo.find(name).getAttributes();
 	}
 	
-	public Object callSynch(String serviceName, Object... params)
+	public Object callSync(String serviceName, Object... params)
 	{
 		AgentService service = findService(serviceName);
 		return service.call(params);
 	}
 	
 	@Asynchronous
-	public Future<Object> callAsynch(String serviceName, Object... params)
+	public Future<Object> callAsync(String serviceName, Object... params)
 	{
-		Object result = callSynch(serviceName, params);
+		Object result = callSync(serviceName, params);
 		return new AsyncResult<Object>(result);
 	}
 	
