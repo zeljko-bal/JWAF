@@ -7,8 +7,9 @@ public class AbstractFSMAgent extends BaseAgent
 	protected StateHandlingTools stateHandling;
 	
 	@Override
-	protected void initializeTools()
+	protected void postConstruct()
 	{
+		super.postConstruct();
 		stateHandling = new StateHandlingTools(this, message, self, log);
 	}
 	

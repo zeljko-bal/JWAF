@@ -7,8 +7,9 @@ public abstract class AbstractReactiveAgent extends BaseAgent
 	protected MessageHandlingTools messageHandling;
 
 	@Override
-	protected void initializeTools()
+	protected void postConstruct()
 	{
+		super.postConstruct();
 		messageHandling = new MessageHandlingTools(this, message);
 	}
 	

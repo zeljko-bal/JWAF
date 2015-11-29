@@ -1,16 +1,13 @@
 package org.jwaf.base;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
-import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.base.tools.AgentDirectory;
-import org.jwaf.base.tools.AgentLogger;
 import org.jwaf.base.tools.AgentTools;
 import org.jwaf.base.tools.EventTools;
 import org.jwaf.base.tools.MessageTools;
@@ -20,7 +17,6 @@ import org.jwaf.base.tools.ServiceDirectory;
 import org.jwaf.base.tools.TaskTools;
 import org.jwaf.base.tools.TimerTools;
 import org.jwaf.base.tools.TypeTools;
-import org.jwaf.common.annotations.logger.NamedLogger;
 import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
@@ -29,10 +25,9 @@ import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
-import org.slf4j.Logger;
 
 @AgentQualifier
-public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgent
+public abstract class BaseAgent extends EmptyBaseAgent
 {
 	/*
 	 * Injected resources
@@ -71,14 +66,10 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 	@Inject @LocalPlatformName
 	protected String localPlatformName;
 	
-	@Inject @NamedLogger("AGENT")
-	private Logger logger;
-	
 	/*
-	 * Agent services
+	 * Agent tools
 	 */
 	
-	protected AgentIdentifier aid;
 	protected AgentDirectory agent;
 	protected MessageTools message;
 	protected AgentTools self;
@@ -89,11 +80,11 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 	protected PlatformTools platform;
 	protected ServiceDirectory service;
 	protected TypeTools type;
-	protected AgentLogger log;
 	
-	@PostConstruct
-	private void postConstruct()
+	@Override
+	protected void postConstruct()
 	{
+		super.postConstruct();
 		remotePlatforms = new RemotePlatformTools(this, remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
@@ -104,50 +95,19 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 		service = new ServiceDirectory(serviceManager);
 		type = new TypeTools(agentManager, typeManager);
 		platform = new PlatformTools(aidManager);
-		log = new AgentLogger(logger);
-		
-		initializeTools();
 	}
 
-	private void setAid(AgentIdentifier aid)
+	@Override
+	protected void onSetAid(AgentIdentifier aid)
 	{
-		this.aid = aid;
+		super.onSetAid(aid);
 		message.setAid(aid);
 		self.setAid(aid);
 		task.setAid(aid);
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
 		service.setAid(aid);
-		log.setAid(aid);
-		
-		onSetAid(aid);
 	}
-
-	@Override
-	public void _execute(AgentIdentifier aid) throws Exception
-	{
-		setAid(aid);
-		execute();
-	}
-	
-	@Override
-	public void _setup(AgentIdentifier aid)
-	{
-		setAid(aid);
-		setup();
-	}
-	
-	@Override
-	public void _onArrival(AgentIdentifier aid, String data)
-	{
-		setAid(aid);
-		onArrival(data);
-	}
-
-	protected abstract void execute() throws Exception;
-	
-	protected void setup()
-	{/* no-op */}
 	
 	@Override
 	public String serialize()
@@ -155,14 +115,9 @@ public abstract class BaseAgent implements SingleThreadedAgent, SerializableAgen
 		return agentDataManager.getAllDataAsString(aid.getName());
 	}
 	
+	@Override
 	protected void onArrival(String data)
 	{
 		agentDataManager.initializeData(aid.getName(), data);
 	}
-	
-	protected void onSetAid(AgentIdentifier aid)
-	{/* no-op */}
-	
-	protected void initializeTools()
-	{/* no-op */}
 }
