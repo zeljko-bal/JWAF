@@ -170,6 +170,10 @@ public class MongoAgentDataRepository
 	{
 		Query<T> query = ds.createQuery(colName, type);
 		query = queryFunc.apply(query);
+		if(!colName.equals(query.getCollection().getName()))
+		{
+			throw new IllegalArgumentException("MongoAgentDataRepository: supplied QueryFunction returned a query for a different collection.");
+		}
 		return query;
 	}
 	
