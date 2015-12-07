@@ -9,7 +9,7 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
-import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.QueryFunction;
 
 @Stateless
 @LocalBean

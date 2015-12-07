@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 

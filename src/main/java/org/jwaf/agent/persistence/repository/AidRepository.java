@@ -7,7 +7,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaAdvancedDatastore;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;

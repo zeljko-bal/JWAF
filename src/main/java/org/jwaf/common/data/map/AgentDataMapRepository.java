@@ -1,8 +1,8 @@
-package org.jwaf.common.data;
+package org.jwaf.common.data.map;
 
 import java.util.Map;
 
-public interface AgentDataRepository
+public interface AgentDataMapRepository
 {
 	Map<String, String> getData(String agentName);
 	String put(String agentName, String key, String value);

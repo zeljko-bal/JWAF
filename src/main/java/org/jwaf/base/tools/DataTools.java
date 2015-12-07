@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.bson.Document;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.common.data.DataMap;
-import org.jwaf.common.mongo.QueryFunction;
-import org.jwaf.common.mongo.UpdateFunction;
+import org.jwaf.common.data.map.DataMap;
+import org.jwaf.common.data.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.UpdateFunction;
 import org.jwaf.data.management.AgentDataManager;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.UpdateResults;

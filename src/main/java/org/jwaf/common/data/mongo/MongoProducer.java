@@ -1,4 +1,4 @@
-package org.jwaf.common.mongo;
+package org.jwaf.common.data.mongo;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.LocalBean;
@@ -8,11 +8,11 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jwaf.common.mongo.annotations.MongoDB;
-import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
-import org.jwaf.common.mongo.annotations.MorphiaDatastore;
-import org.jwaf.common.mongo.annotations.MorphiaODM;
-import org.jwaf.common.mongo.annotations.SystemMongoClient;
+import org.jwaf.common.data.mongo.annotations.MongoDB;
+import org.jwaf.common.data.mongo.annotations.MorphiaAdvancedDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaODM;
+import org.jwaf.common.data.mongo.annotations.SystemMongoClient;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;

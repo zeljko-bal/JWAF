@@ -14,7 +14,7 @@ import org.jwaf.agent.exceptions.AgentStateChangeFailed;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaAdvancedDatastore;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.query.Query;

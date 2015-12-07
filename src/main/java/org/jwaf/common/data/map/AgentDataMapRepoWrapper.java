@@ -1,13 +1,13 @@
-package org.jwaf.common.data;
+package org.jwaf.common.data.map;
 
 import java.util.Map;
 
-public class AgentDataRepoWrapper implements DataRepository
+public class AgentDataMapRepoWrapper implements DataMapRepository
 {
-	private AgentDataRepository dataRepo;
+	private AgentDataMapRepository dataRepo;
 	private String agentName;
 	
-	public AgentDataRepoWrapper(AgentDataRepository dataRepo, String agentName)
+	public AgentDataMapRepoWrapper(AgentDataMapRepository dataRepo, String agentName)
 	{
 		this.dataRepo = dataRepo;
 		this.agentName = agentName;

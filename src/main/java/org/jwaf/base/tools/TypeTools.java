@@ -7,7 +7,7 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.QueryFunction;
 
 public class TypeTools
 {

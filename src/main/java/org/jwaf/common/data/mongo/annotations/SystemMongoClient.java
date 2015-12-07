@@ -1,4 +1,4 @@
-package org.jwaf.common.mongo.annotations;
+package org.jwaf.common.data.mongo.annotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -9,13 +9,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})
-public @interface MorphiaDatastore
-{
-	@Nonbinding String value() default "";
-}
+@Retention(RetentionPolicy.RUNTIME)
+@Qualifier
+public @interface SystemMongoClient
+{}

@@ -1,4 +1,4 @@
-package org.jwaf.common.mongo.annotations;
+package org.jwaf.common.data.mongo.annotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;

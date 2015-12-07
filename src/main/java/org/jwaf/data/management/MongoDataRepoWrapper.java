@@ -5,12 +5,12 @@ import java.util.Map;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;
-import org.jwaf.common.data.AgentDataRepository;
+import org.jwaf.common.data.map.AgentDataMapRepository;
 
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
-public class MongoDataRepoWrapper implements AgentDataRepository
+public class MongoDataRepoWrapper implements AgentDataMapRepository
 {
 	private AgentDataManager dataManager;
 	private Bson query;

@@ -1,4 +1,4 @@
-package org.jwaf.common.mongo.annotations;
+package org.jwaf.common.data.mongo.annotations;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
@@ -12,10 +12,10 @@ import java.lang.annotation.Target;
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
-@Target({TYPE, METHOD, FIELD, PARAMETER})
-@Retention(RetentionPolicy.RUNTIME)
 @Qualifier
-public @interface MongoDB
+@Retention(RetentionPolicy.RUNTIME)
+@Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface MorphiaDatastore
 {
 	@Nonbinding String value() default "";
 }

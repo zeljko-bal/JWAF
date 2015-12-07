@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.service.AgentService;
 import org.jwaf.service.persistence.entity.AgentServiceType;

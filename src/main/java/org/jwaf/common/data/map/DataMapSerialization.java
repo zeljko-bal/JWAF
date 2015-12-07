@@ -1,4 +1,4 @@
-package org.jwaf.common.data;
+package org.jwaf.common.data.map;
 
 import java.util.HashMap;
 import java.util.Map;

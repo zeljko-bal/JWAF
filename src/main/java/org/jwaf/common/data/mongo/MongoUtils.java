@@ -1,4 +1,4 @@
-package org.jwaf.common.mongo;
+package org.jwaf.common.data.mongo;
 
 import java.util.ArrayList;
 import java.util.List;

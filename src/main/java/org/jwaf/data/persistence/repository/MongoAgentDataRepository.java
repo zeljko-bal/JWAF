@@ -7,11 +7,11 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.bson.Document;
-import org.jwaf.common.mongo.QueryFunction;
-import org.jwaf.common.mongo.UpdateFunction;
-import org.jwaf.common.mongo.annotations.MongoDB;
-import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
-import org.jwaf.common.mongo.annotations.MorphiaODM;
+import org.jwaf.common.data.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.UpdateFunction;
+import org.jwaf.common.data.mongo.annotations.MongoDB;
+import org.jwaf.common.data.mongo.annotations.MorphiaAdvancedDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaODM;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.Morphia;

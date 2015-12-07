@@ -6,7 +6,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
-import org.jwaf.common.mongo.annotations.MorphiaDatastore;
+import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;

@@ -9,9 +9,9 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.jwaf.common.mongo.MongoUtils;
-import org.jwaf.common.mongo.QueryFunction;
-import org.jwaf.common.mongo.annotations.MorphiaDatastore;
+import org.jwaf.common.data.mongo.MongoUtils;
+import org.jwaf.common.data.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
 import org.jwaf.message.annotations.events.MessageRemovedEvent;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;

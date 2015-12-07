@@ -1,8 +1,8 @@
-package org.jwaf.common.data;
+package org.jwaf.common.data.map;
 
 import java.util.Map;
 
-public interface DataRepository
+public interface DataMapRepository
 {
 	Map<String, String> getData();
 	String put(String key, String value);

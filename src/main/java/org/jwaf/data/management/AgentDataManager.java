@@ -8,10 +8,10 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.bson.Document;
-import org.jwaf.common.data.AgentDataRepoWrapper;
-import org.jwaf.common.data.DataMap;
-import org.jwaf.common.mongo.QueryFunction;
-import org.jwaf.common.mongo.UpdateFunction;
+import org.jwaf.common.data.map.AgentDataMapRepoWrapper;
+import org.jwaf.common.data.map.DataMap;
+import org.jwaf.common.data.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.UpdateFunction;
 import org.jwaf.data.persistence.repository.MongoAgentDataRepository;
 import org.mongodb.morphia.Key;
 import org.mongodb.morphia.query.UpdateResults;
@@ -153,7 +153,7 @@ public class AgentDataManager
 	public DataMap createDataMap(String name, String dataName)
 	{
 		return new DataMap(
-				new AgentDataRepoWrapper(
+				new AgentDataMapRepoWrapper(
 						new MongoDataRepoWrapper(dataName, this), name));
 	}
 	

@@ -1,4 +1,4 @@
-package org.jwaf.common.data;
+package org.jwaf.common.data.map;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -9,9 +9,9 @@ import org.jwaf.common.util.SerializationUtils;
 
 public class DataMap implements Map<String, String>
 {
-	private DataRepository dataRepo;
+	private DataMapRepository dataRepo;
 	
-	public DataMap(DataRepository dataRepo)
+	public DataMap(DataMapRepository dataRepo)
 	{
 		this.dataRepo = dataRepo;
 	}

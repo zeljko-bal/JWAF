@@ -7,8 +7,8 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.common.mongo.QueryFunction;
-import org.jwaf.common.mongo.annotations.MorphiaDatastore;
+import org.jwaf.common.data.mongo.QueryFunction;
+import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
