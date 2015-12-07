@@ -12,6 +12,7 @@ import javax.naming.NamingException;
 
 import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
+import org.jwaf.agent.annotations.events.AidRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.jwaf.event.persistence.repository.EventRepository;
@@ -64,6 +65,11 @@ public class EventManager
 	public void unsubscribe(String agentName, String eventName)
 	{
 		eventRepo.unsubscribe(agentName, eventName);
+	}
+	
+	public void onAidRemoved(@Observes @AidRemovedEvent String agentName)
+	{
+		eventRepo.unsubscribe(agentName);
 	}
 
 	@Asynchronous
@@ -124,6 +130,6 @@ public class EventManager
 	
 	public void unregisterDestroyedAgent(@Observes @AgentRemovedEvent AgentIdentifier aid)
 	{
-		eventRepo.findAll().forEach(event -> unsubscribe(aid.getName(), event.getName()));
+		eventRepo.getAll().forEach(event -> unsubscribe(aid.getName(), event.getName()));
 	}
 }

@@ -1,16 +1,21 @@
 package org.jwaf.message.persistence.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.xml.bind.annotation.XmlTransient;
+
+import org.mongodb.morphia.annotations.Embedded;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 @Entity
 public class OutboxEntry
 {
 	@Id
+	@XmlTransient
+	private Integer id;
+	
 	private String receiverName;
 	
-	@OneToOne
+	@Embedded
 	private ACLMessage message;
 	
 	public OutboxEntry()

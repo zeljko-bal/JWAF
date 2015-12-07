@@ -4,33 +4,37 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bson.Document;
 import org.jwaf.base.BaseAgent;
 import org.jwaf.base.implementations.common.AgentMessageHandler;
 import org.jwaf.base.implementations.common.InvocationExceptionWrapper;
 import org.jwaf.base.implementations.common.MessageCallbackUtil;
 import org.jwaf.base.implementations.fsm.annotation.StateCallback;
 import org.jwaf.base.tools.AgentLogger;
-import org.jwaf.base.tools.AgentTools;
+import org.jwaf.base.tools.DataTools;
 import org.jwaf.base.tools.MessageTools;
-import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.message.persistence.entity.ACLMessage;
+
+import com.mongodb.client.model.UpdateOptions;
 
 public class StateHandlingTools
 {
 	private Map<String, AgentMessageHandler> stateHandlers;
 	private BaseAgent owner;
 	private MessageTools messageTools;
-	private AgentTools agentTools;
+	private DataTools dataTools;
 	private String initialState;
 	private AgentLogger log;
 	
+	public static final String FSM_DATA = "FSM_DATA";
 	public static final String CURRENT_FSM_STATE = "CURRENT_FSM_STATE";
+	private static final Document QUERY = new Document("_id", FSM_DATA);
 
-	public StateHandlingTools(BaseAgent owner, MessageTools messageTools, AgentTools agentTools, AgentLogger log)
+	public StateHandlingTools(BaseAgent owner, MessageTools messageTools, DataTools dataTools, AgentLogger log)
 	{
 		this.owner = owner;
 		this.messageTools = messageTools;
-		this.agentTools = agentTools;
+		this.dataTools = dataTools;
 		this.log = log;
 
 		initializeStateHandlers();
@@ -121,12 +125,15 @@ public class StateHandlingTools
 			return;
 		}
 		
-		agentTools.getData(AgentDataType.PRIVATE).put(CURRENT_FSM_STATE, newState);
+		dataTools.getCollection().replaceOne(QUERY, new Document(CURRENT_FSM_STATE, newState), 
+				new UpdateOptions().upsert(true));
 	}
 	
 	public String getCurrentState()
-	{	
-		return agentTools.getData(AgentDataType.PRIVATE).get(CURRENT_FSM_STATE);
+	{
+		return dataTools.getCollection()
+				.find(QUERY).first()
+				.getString(CURRENT_FSM_STATE);
 	}
 	
 	public String getInitialState()

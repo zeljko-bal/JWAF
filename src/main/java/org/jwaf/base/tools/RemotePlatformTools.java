@@ -31,11 +31,6 @@ public class RemotePlatformTools
 		return remoteManager.findPlatform(name);
 	}
 	
-	public AgentIdentifier findAid(String name)
-	{
-		return remoteManager.findAid(name);
-	}
-	
 	public boolean containsPlatform(String name)
 	{
 		return remoteManager.containsPlatform(name);
@@ -51,9 +46,9 @@ public class RemotePlatformTools
 		return remoteManager.retrievePlatforms();
 	}
 	
-	public List<AgentIdentifier> retrieveAgentIds(String platformName)
+	public List<AgentIdentifier> getAgentIds(String platformName)
 	{
-		return remoteManager.retrieveAgentIds(platformName);
+		return remoteManager.getAgentIds(platformName);
 	}
 	
 	public AgentPlatform locationOf(String agentName)

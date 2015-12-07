@@ -7,17 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.Lob;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -27,61 +16,63 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.util.SerializationUtils;
+import org.mongodb.morphia.annotations.Embedded;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ACLMessage
 {
-	@Id @GeneratedValue
+	@Id
 	@XmlTransient
 	private Integer id;
 	
 	@XmlElement
 	private String performative;
 	
-	@ManyToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE})
 	@XmlElement
+	@Embedded
 	private AgentIdentifier sender;
 	
-	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
-	@JoinTable(name = "ACLMessage_receiver")
 	@XmlElementWrapper
 	@XmlElement(name="AgentIdentifier")
+	@Embedded
 	private List<AgentIdentifier> receiver;
-	
-	@Lob 
+	 
 	@XmlElement
 	private String content;
 	
 	@XmlElement
 	private String reply_with;
 	
-	@Temporal(TemporalType.TIMESTAMP)
 	@XmlElement
 	private Date reply_by;
 	
 	@XmlElement
 	private String reply_to;
 	
-	@ManyToMany(cascade={CascadeType.REFRESH, CascadeType.MERGE})
-	@JoinTable(name = "ACLMessage_in_reply_to")
 	@XmlElementWrapper
 	@XmlElement(name="AgentIdentifier")
+	@Embedded
 	private List<AgentIdentifier> in_reply_to;
 	
 	@XmlElement
 	private String language;
+	
 	@XmlElement
 	private String encoding;
+	
 	@XmlElement
 	private String ontology;
+	
 	@XmlElement
 	private String protocol;
+	
 	@XmlElement
 	private String conversation_id;
 
-    @ElementCollection
 	@XmlElementWrapper
 	@XmlElement(name="parameter")
 	private Map<String, String> user_defined_parameters;

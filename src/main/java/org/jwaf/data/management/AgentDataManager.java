@@ -1,67 +1,175 @@
 package org.jwaf.data.management;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.bson.Document;
 import org.jwaf.common.data.AgentDataRepoWrapper;
-import org.jwaf.common.data.DataRepository;
-import org.jwaf.common.data.DataStore;
-import org.jwaf.common.data.DataStoreSerialization;
-import org.jwaf.data.persistence.entity.AgentDataType;
-import org.jwaf.data.persistence.repository.PersistentAgentDataRepository;
-import org.jwaf.data.persistence.repository.PersistentDataRepoWrapper;
+import org.jwaf.common.data.DataMap;
+import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.mongo.UpdateFunction;
+import org.jwaf.data.persistence.repository.MongoAgentDataRepository;
+import org.mongodb.morphia.Key;
+import org.mongodb.morphia.query.UpdateResults;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.mongodb.WriteConcern;
+import com.mongodb.WriteResult;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.FindOneAndReplaceOptions;
 
 @Stateless
 @LocalBean
 public class AgentDataManager
 {
-	private static final String PRIVATE = "PRIVATE";
-	private static final String PUBLIC = "PUBLIC";
+	public static final String PUBLIC_DATA = "public_agent_data";
 	
 	@Inject
-	private PersistentAgentDataRepository dataRepo;
+	private MongoAgentDataRepository dataRepo;
 	
-	public DataStore getDataStore(String agentName, AgentDataType dataType)
+	public MongoCollection<Document> getCollection(String name)
 	{
-		if(!dataRepo.containsDataFor(agentName))
-		{
-			dataRepo.initializeData(agentName);
-		}
-		
-		DataRepository repoWrapper = new AgentDataRepoWrapper(new PersistentDataRepoWrapper(dataRepo, dataType), agentName);
-		
-		return new DataStore(repoWrapper);
+		return dataRepo.getCollection(name);
 	}
 	
-	public void initializeData(String agentName)
+	public <T> Key<T> insert(String name, T entity)
 	{
-		dataRepo.initializeData(agentName);
+		return dataRepo.insert(name, entity);
 	}
 	
-	public void initializeData(String agentName, String serializedData)
+	public <T> Iterable<Key<T>> insert(String name, Iterable<T> entities)
 	{
-		DataStore privateDataStore = getDataStore(agentName, AgentDataType.PRIVATE);
-		DataStore publicDataStore = getDataStore(agentName, AgentDataType.PUBLIC);
-		
-		JsonObject data = new JsonParser().parse(serializedData).getAsJsonObject();
-		
-		DataStoreSerialization.deserialize(privateDataStore, data.get(PRIVATE).getAsString());
-		DataStoreSerialization.deserialize(publicDataStore, data.get(PUBLIC).getAsString());
+		return dataRepo.insert(name, entities);
 	}
 	
-	public String getAllDataAsString(String agentName)
+	public <T> Iterable<Key<T>> insert(String name, Iterable<T> entities, WriteConcern wc)
 	{
-		DataStore privateDataStore = getDataStore(agentName, AgentDataType.PRIVATE);
-		DataStore publicDataStore = getDataStore(agentName, AgentDataType.PUBLIC);
+		return dataRepo.insert(name, entities, wc);
+	}
+	
+	public <T> T find(String name, Class<T> type, QueryFunction<T> queryFunc)
+	{
+		return dataRepo.find(name, type, queryFunc);
+	}
+	
+	public <T> List<T> findAll(String name, Class<T> type)
+	{
+		return dataRepo.findAll(name, type);
+	}
+	
+	public <T> List<T> findMany(String name, Class<T> type, QueryFunction<T> queryFunc)
+	{
+		return dataRepo.findMany(name, type, queryFunc);
+	}
+	
+	public <T> WriteResult delete(String name, Class<T> type, QueryFunction<T> queryFunc)
+	{
+		return dataRepo.delete(name, type, queryFunc);
+	}
+	
+	public <T> WriteResult delete(String name, Class<T> type, QueryFunction<T> queryFunc, WriteConcern wc)
+	{
+		return dataRepo.delete(name, type, queryFunc, wc);
+	}
+	
+	public <T> long getCount(String name, Class<T> type, QueryFunction<T> queryFunc)
+	{
+		return dataRepo.getCount(name, type, queryFunc);
+	}
+	
+	public <T> Key<T> save(String name, T entity)
+	{
+		return dataRepo.save(name, entity);
+	}
+	
+	public <T> Key<T> save(String name, T entity, WriteConcern wc)
+	{
+		return dataRepo.save(name, entity, wc);
+	}
+	
+	public <T> UpdateResults update(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
+	{
+		return dataRepo.update(name, type, queryFunc, updateFunc);
+	}
+	
+	public <T> UpdateResults update(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean createIfMissing)
+	{
+		return dataRepo.update(name, type, queryFunc, updateFunc, createIfMissing);
+	}
+	
+	public <T> UpdateResults update(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
+			boolean createIfMissing, WriteConcern wc)
+	{
+		return dataRepo.update(name, type, queryFunc, updateFunc, createIfMissing, wc);
+	}
+	
+	public <T> T findAndDelete(String name, Class<T> type, QueryFunction<T> queryFunc)
+	{
+		return dataRepo.findAndDelete(name, type, queryFunc);
+	}
+	
+	public <T> T findAndModify(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
+	{
+		return dataRepo.findAndModify(name, type, queryFunc, updateFunc);
+	}
+	
+	public <T> T findAndModify(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean oldVersion)
+	{
+		return dataRepo.findAndModify(name, type, queryFunc, updateFunc, oldVersion);
+	}
+	
+	public <T> T findAndModify(String name, Class<T> type, 
+			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
+			boolean oldVersion, boolean createIfMissing)
+	{
+		return dataRepo.findAndModify(name, type, queryFunc, updateFunc, oldVersion, createIfMissing);
+	}
+	
+	public Document getPublicData(String name)
+	{
+		return getCollection(name).find(Filters.eq("_id", PUBLIC_DATA)).first();
+	}
+	
+	public void putPublicData(String name, Document data)
+	{
+		getCollection(name).findOneAndReplace(Filters.eq("_id", PUBLIC_DATA), data, 
+				new FindOneAndReplaceOptions().upsert(true));
+	}
+	
+	public DataMap getPublicDataMap(String name)
+	{
+		return createDataMap(name, PUBLIC_DATA);
+	}
+	
+	public DataMap createDataMap(String name, String dataName)
+	{
+		return new DataMap(
+				new AgentDataRepoWrapper(
+						new MongoDataRepoWrapper(dataName, this), name));
+	}
+	
+	public String getAllDataAsString(String name)
+	{
+		List<Document> allData = new ArrayList<>();
 		
-		JsonObject jsonData = new JsonObject();
-		jsonData.addProperty(PRIVATE, DataStoreSerialization.serialize(privateDataStore));
-		jsonData.addProperty(PUBLIC, DataStoreSerialization.serialize(publicDataStore));
+		getCollection(name).find().forEach((Document d)->allData.add(d));
 		
-		return jsonData.getAsString();
+		return new Document(name, allData).toJson();
+	}
+
+	public void initializeData(String name, String data)
+	{
+		@SuppressWarnings("unchecked")
+		List<Document> allData = (List<Document>) Document.parse(data).get(name);
+		getCollection(name).insertMany(allData);
 	}
 }

@@ -1,16 +1,19 @@
 package org.jwaf.agent.persistence.entity;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.jwaf.common.URLListWrapper;
+import org.mongodb.morphia.annotations.Embedded;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 @Entity
 @XmlRootElement
@@ -21,12 +24,19 @@ public class AgentIdentifier
 	@XmlElement(required=true)
 	private String name;
 	
-	@OneToOne(cascade=CascadeType.ALL)
-	private AidData data;
+	@XmlElementWrapper
+	@XmlElement(name="address")
+	private List<String> addresses;
+	
+	@XmlElementWrapper
+	@XmlElement(name="resolver")
+	@Embedded
+	private List<AgentIdentifier> resolvers;
 	
 	public AgentIdentifier()
 	{
-		data = new AidData();
+		addresses = new ArrayList<>();
+		resolvers = new ArrayList<>();
 	}
 	
 	public AgentIdentifier(String name)
@@ -47,11 +57,11 @@ public class AgentIdentifier
 	
 	public List<URL> getAddresses()
 	{
-		return data.getAddresses();
+		return new URLListWrapper(addresses);
 	}
 	
 	public List<AgentIdentifier> getResolvers()
 	{
-		return data.getResolvers();
+		return resolvers;
 	}
 }

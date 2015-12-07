@@ -16,6 +16,7 @@ import javax.ws.rs.client.Entity;
 
 import org.jwaf.agent.management.AgentActivator;
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.annotations.events.MessageSentEvent;
@@ -37,6 +38,9 @@ public class MessageManager
 	
 	@Inject
 	private AgentManager agentManager;
+	
+	@Inject
+	private AidManager aidManager;
 
 	@Inject
 	private RemotePlatformManager remoteManager;
@@ -85,7 +89,7 @@ public class MessageManager
 			else if(remoteManager.containsAid(aid.getName()))
 			{
 				// else if remoteManager has addresses for this agent
-				aid.getAddresses().addAll(remoteManager.findAid(aid.getName()).getAddresses());
+				aid.getAddresses().addAll(aidManager.find(aid.getName()).getAddresses());
 				remote.add(aid);
 			}
 			else
@@ -148,12 +152,8 @@ public class MessageManager
 		messageRepo.createOutboxEntry(aid.getName(), message);
 	}
 	
-	public ACLMessage retrieveOutboxMessage(String receiverName)
+	public List<ACLMessage> retrieveOutboxMessage(String receiverName)
 	{
-		ACLMessage message = messageRepo.retrieveOutboxMessage(receiverName);
-		
-		messageRetrievedEvent.fire(message);
-		
-		return message;
+		return messageRepo.retrieveOutboxMessages(receiverName);
 	}
 }

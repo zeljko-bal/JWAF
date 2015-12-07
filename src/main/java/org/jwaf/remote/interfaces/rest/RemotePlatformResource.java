@@ -42,14 +42,6 @@ public class RemotePlatformResource
 	}
 	
 	@GET
-	@Path("aid/find/{name}")
-	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response findAid(@PathParam("name") String name)
-	{
-		return Response.ok(remoteManager.findAid(name)).build();
-	}
-	
-	@GET
 	@Path("platform/contains/{name}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public Response containsPlatform(@PathParam("name") String name)
@@ -109,11 +101,11 @@ public class RemotePlatformResource
 	}
 	
 	@GET
-	@Path("aid/find_all/{platformName}")
+	@Path("aid/get_all/{platformName}")
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
-	public Response retrieveAgentIds(@PathParam("platformName") String platformName)
+	public Response getAgentIds(@PathParam("platformName") String platformName)
 	{
-		GenericEntity<List<AgentIdentifier>> entity = new GenericEntity<List<AgentIdentifier>>(remoteManager.retrieveAgentIds(platformName)) {};
+		GenericEntity<List<AgentIdentifier>> entity = new GenericEntity<List<AgentIdentifier>>(remoteManager.getAgentIds(platformName)) {};
 		return Response.ok(entity).build();
 	}
 	

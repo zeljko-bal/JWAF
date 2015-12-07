@@ -7,22 +7,17 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.common.data.DataStore;
-import org.jwaf.data.management.AgentDataManager;
-import org.jwaf.data.persistence.entity.AgentDataType;
 
 public class AgentTools
 {
 	private AgentManager agentManager;
 	private AidManager aidManager;
-	private AgentDataManager agentDataManager;
 	private AgentIdentifier aid;
 	
-	public AgentTools(AgentManager agentManager, AidManager aidManager, AgentDataManager agentDataManager)
+	public AgentTools(AgentManager agentManager, AidManager aidManager)
 	{
 		this.agentManager = agentManager;
 		this.aidManager = aidManager;
-		this.agentDataManager = agentDataManager;
 	}
 
 	public void setAid(AgentIdentifier aid)
@@ -33,11 +28,6 @@ public class AgentTools
 	/*
 	 * data
 	 */
-	
-	public DataStore getData(AgentDataType type)
-	{
-		return agentDataManager.getDataStore(aid.getName(), type);
-	}
 	
 	public void addAddress(URL address)
 	{

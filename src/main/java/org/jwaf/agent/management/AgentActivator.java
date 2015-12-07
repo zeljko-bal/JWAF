@@ -14,6 +14,7 @@ import org.jwaf.agent.MultiThreadedAgent;
 import org.jwaf.agent.SingleThreadedAgent;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.exceptions.AgentNotFound;
+import org.jwaf.agent.exceptions.AgentStateChangeFailed;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentRepository;
@@ -55,7 +56,7 @@ public class AgentActivator
 			if(agentBean instanceof SingleThreadedAgent)
 			{
 				// activate agent and get previous state
-				String prevState = agentRepo.activate(aid, message);
+				String prevState = agentRepo.activate(aid.getName(), message);
 				
 				if(AgentState.INITIALIZING.equals(prevState))
 				{
@@ -84,9 +85,20 @@ public class AgentActivator
 			}
 			else if(agentBean instanceof MultiThreadedAgent)// AgentType.MULTI_THREADED
 			{
+				String currentState = agentRepo.findView(aid.getName()).getState();
+				
+				if(AgentState.INITIALIZING.equals(currentState))
+				{
+					// agent not yet initialized
+					log.warn("agent: <{}> received a message during initislization.", aid.getName());
+					return;
+				}
+				
 				MultiThreadedAgent mtAgent = (MultiThreadedAgent)agentBean;
+				
 				mtAgent._handle(aid, message);
-				// TODO instance counting, INITIALIZING state, Transit state
+				
+				// TODO instance counting, Transit state
 			}
 			else
 			{
@@ -96,6 +108,10 @@ public class AgentActivator
 		catch(AgentNotFound e)
 		{
 			resendMessage(aid, message);
+		}
+		catch(AgentStateChangeFailed e)
+		{
+			log.error("Error during agent activation.", e);
 		}
 		catch(Exception e)
 		{
@@ -116,6 +132,8 @@ public class AgentActivator
 
 	public void setup(AgentIdentifier aid, String type)
 	{
+		boolean success = false;
+		
 		try
 		{
 			// find agent by type
@@ -123,12 +141,17 @@ public class AgentActivator
 			
 			// invoke initial setup
 			agentBean._setup(aid);
+			
+			success = true;
 		}
 		finally
 		{
 			// force agent to passivate
 			agentRepo.passivate(aid.getName(), true);
-			
+		}
+		
+		if(success)
+		{
 			// notify that agent is initialized
 			agentInitializedEvent.fire(aid);
 		}

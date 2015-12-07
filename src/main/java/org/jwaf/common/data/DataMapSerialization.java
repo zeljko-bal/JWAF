@@ -8,9 +8,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-public class DataStoreSerialization
+public class DataMapSerialization
 {
-	public static String serialize(DataStore dataStore)
+	public static String serialize(DataMap dataStore)
 	{
 		JsonObject data = new JsonObject();
 		
@@ -22,7 +22,7 @@ public class DataStoreSerialization
 		return data.getAsString();
 	}
 	
-	public static void deserialize(DataStore dataStore, String serialized)
+	public static void deserialize(DataMap dataStore, String serialized)
 	{
 		JsonObject data = new JsonParser().parse(serialized).getAsJsonObject();
 		

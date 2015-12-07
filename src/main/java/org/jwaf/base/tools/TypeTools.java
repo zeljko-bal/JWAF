@@ -7,6 +7,7 @@ import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
+import org.jwaf.common.mongo.QueryFunction;
 
 public class TypeTools
 {
@@ -37,5 +38,10 @@ public class TypeTools
 	public List<AgentType> find(Map<String, String> attributes)
 	{
 		return typeManager.find(attributes);
+	}
+	
+	public List<AgentType> find(QueryFunction<AgentType> queryFunc)
+	{
+		return typeManager.find(queryFunc);
 	}
 }

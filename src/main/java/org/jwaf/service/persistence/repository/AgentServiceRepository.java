@@ -2,51 +2,60 @@ package org.jwaf.service.persistence.repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import javax.inject.Inject;
 
-import org.jwaf.common.util.SQLQuerryUtils;
+import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.mongo.annotations.MorphiaDatastore;
 import org.jwaf.service.persistence.entity.AgentServiceType;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 @Stateless
 @LocalBean
 public class AgentServiceRepository
 {
-	@PersistenceContext
-	private EntityManager em;
+	@Inject @MorphiaDatastore
+	private Datastore ds;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentServiceType find(String name)
 	{
-		return em.find(AgentServiceType.class, name, LockModeType.PESSIMISTIC_WRITE);
+		return ds.get(AgentServiceType.class, name);
 	}
 	
-	@SuppressWarnings("unchecked")
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public List<String> find(QueryFunction<AgentServiceType> queryFunc)
+	{
+		Query<AgentServiceType> query = ds.createQuery(AgentServiceType.class);
+		query = queryFunc.apply(query);
+		return find(query);
+	}
+	
 	public List<String> find(Map<String, String> attributes)
 	{
-		return SQLQuerryUtils.createParameterMapQuery(attributes, "AgentServiceType", "name", "attributes", em).getResultList();
+		Query<AgentServiceType> query = ds.createQuery(AgentServiceType.class);
+		
+		for(String key : attributes.keySet())
+		{
+			query = query.field("attributes."+key).equal(attributes.get(key));
+		}
+		
+		return find(query);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private List<String> find(Query<AgentServiceType> query)
+	{
+		return query.retrievedFields(true, "name")
+			  	.asList()
+			  	.stream()
+			  	.map(t -> t.getName())
+			  	.collect(Collectors.toList());
+	}
+	
 	public void register(AgentServiceType service)
 	{
-		AgentServiceType existingType = find(service.getName());
-		if(existingType == null)
-		{
-			em.persist(service);
-		}
-		else
-		{
-			existingType.getAttributes().clear();
-			existingType.getAttributes().putAll(service.getAttributes());
-			em.merge(existingType);
-		}
+		ds.save(service);
 	}
 }

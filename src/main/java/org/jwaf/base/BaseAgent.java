@@ -9,9 +9,10 @@ import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.base.tools.AgentDirectory;
 import org.jwaf.base.tools.AgentTools;
+import org.jwaf.base.tools.AutoPersister;
+import org.jwaf.base.tools.DataTools;
 import org.jwaf.base.tools.EventTools;
 import org.jwaf.base.tools.MessageTools;
-import org.jwaf.base.tools.PlatformTools;
 import org.jwaf.base.tools.RemotePlatformTools;
 import org.jwaf.base.tools.ServiceDirectory;
 import org.jwaf.base.tools.TaskTools;
@@ -27,7 +28,7 @@ import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
 
 @AgentQualifier
-public abstract class BaseAgent extends EmptyBaseAgent
+public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAgent
 {
 	/*
 	 * Injected resources
@@ -77,9 +78,10 @@ public abstract class BaseAgent extends EmptyBaseAgent
 	protected EventTools event;
 	protected TimerTools timer;
 	protected RemotePlatformTools remotePlatforms;
-	protected PlatformTools platform;
 	protected ServiceDirectory service;
 	protected TypeTools type;
+	protected DataTools data;
+	protected AutoPersister autoDataPersister;
 	
 	@Override
 	protected void postConstruct()
@@ -88,15 +90,16 @@ public abstract class BaseAgent extends EmptyBaseAgent
 		remotePlatforms = new RemotePlatformTools(this, remoteManager);
 		agent = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
 		message = new MessageTools(messageSender, agentManager);
-		self = new AgentTools(agentManager, aidManager, agentDataManager);
+		self = new AgentTools(agentManager, aidManager);
 		task = new TaskTools(taskManager);
 		event = new EventTools(eventManager);
 		timer = new TimerTools(timerManager);
 		service = new ServiceDirectory(serviceManager);
 		type = new TypeTools(agentManager, typeManager);
-		platform = new PlatformTools(aidManager);
+		data = new DataTools(agentDataManager);
+		autoDataPersister = new AutoPersister(this, data, true);
 	}
-
+	
 	@Override
 	protected void onSetAid(AgentIdentifier aid)
 	{
@@ -107,17 +110,37 @@ public abstract class BaseAgent extends EmptyBaseAgent
 		event.setAid(aid);
 		remotePlatforms.setAid(aid);
 		service.setAid(aid);
+		data.setAid(aid);
 	}
 	
 	@Override
 	public String serialize()
 	{
-		return agentDataManager.getAllDataAsString(aid.getName());
+		return data.getAllDataAsString();
 	}
 	
 	@Override
-	protected void onArrival(String data)
+	protected void preArrival(String jsonData)
 	{
-		agentDataManager.initializeData(aid.getName(), data);
+		data.initializeData(jsonData);
+		autoDataPersister.autoLoad();
+	}
+	
+	@Override
+	protected void postArrival(String jsonData)
+	{
+		autoDataPersister.autoPersist();
+	}
+	
+	@Override
+	protected void preExecute()
+	{
+		autoDataPersister.autoLoad();
+	}
+	
+	@Override
+	protected void postExecute()
+	{
+		autoDataPersister.autoPersist();
 	}
 }

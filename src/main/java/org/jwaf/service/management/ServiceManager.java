@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import org.jwaf.common.mongo.QueryFunction;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.service.AgentService;
 import org.jwaf.service.persistence.entity.AgentServiceType;
@@ -32,9 +33,14 @@ public class ServiceManager
 		return serviceRepo.find(attributes);
 	}
 	
+	public List<String> find(QueryFunction<AgentServiceType> queryFunc)
+	{
+		return serviceRepo.find(queryFunc);
+	}
+	
 	public boolean exists(String name)
 	{
-		return findService(name) != null;
+		return findServiceBean(name) != null;
 	}
 	
 	public Map<String, String> getAttributes(String name)
@@ -44,7 +50,7 @@ public class ServiceManager
 	
 	public Object callSync(String serviceName, Object... params)
 	{
-		AgentService service = findService(serviceName);
+		AgentService service = findServiceBean(serviceName);
 		return service.call(params);
 	}
 	
@@ -55,7 +61,7 @@ public class ServiceManager
 		return new AsyncResult<Object>(result);
 	}
 	
-	private AgentService findService(String name)
+	private AgentService findServiceBean(String name)
 	{
 		try
 		{

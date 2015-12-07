@@ -25,6 +25,8 @@ import com.mongodb.client.MongoDatabase;
 @Startup
 public class MongoProducer
 {
+	public static final String SYSTEM_DB_NAME = "jwaf_system";
+	
 	private MongoClient mongoClient;
 	private Morphia morphia;
 	
@@ -47,14 +49,12 @@ public class MongoProducer
 	public MongoDatabase getDatabase(InjectionPoint ip)
 	{
 		String dbName = ip.getAnnotated().getAnnotation(MongoDB.class).value();
-		if(StringUtils.isNotEmpty(dbName))
+		if(StringUtils.isEmpty(dbName))
 		{
-			return mongoClient.getDatabase(dbName);
+			dbName = SYSTEM_DB_NAME;
 		}
-		else
-		{
-			return null;
-		}
+		
+		return mongoClient.getDatabase(dbName);
 	}
 	
 	@Produces @MorphiaODM
@@ -79,13 +79,11 @@ public class MongoProducer
 	
 	public Datastore createDatastore(String dbName)
 	{
-		if(StringUtils.isNotEmpty(dbName))
+		if(StringUtils.isEmpty(dbName))
 		{
-			return morphia.createDatastore(mongoClient, dbName);
+			dbName = SYSTEM_DB_NAME;
 		}
-		else
-		{
-			return null;
-		}
+		
+		return morphia.createDatastore(mongoClient, dbName);
 	}
 }

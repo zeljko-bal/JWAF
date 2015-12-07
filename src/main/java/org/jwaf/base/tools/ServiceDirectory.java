@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.common.mongo.QueryFunction;
 import org.jwaf.service.management.ServiceManager;
+import org.jwaf.service.persistence.entity.AgentServiceType;
 
 public class ServiceDirectory
 {
@@ -25,6 +27,11 @@ public class ServiceDirectory
 	public List<String> find(Map<String, String> attributes)
 	{
 		return serviceManager.find(attributes);
+	}
+	
+	public List<String> find(QueryFunction<AgentServiceType> queryFunc)
+	{
+		return serviceManager.find(queryFunc);
 	}
 	
 	public boolean exists(String name)

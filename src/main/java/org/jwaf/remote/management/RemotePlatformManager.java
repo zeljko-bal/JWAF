@@ -14,6 +14,7 @@ import javax.ws.rs.client.Entity;
 import org.jwaf.agent.annotations.events.AgentInitializedEvent;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.management.AgentManager;
+import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
@@ -34,6 +35,9 @@ public class RemotePlatformManager
 	@Inject
 	private AgentManager agentManager;
 	
+	@Inject
+	private AidManager aidManager;
+	
 	@Inject @LocalPlatformName
 	private String localPlatformName;
 	
@@ -48,11 +52,6 @@ public class RemotePlatformManager
 	public AgentPlatform findPlatform(String name)
 	{
 		return repo.findPlatform(name);
-	}
-	
-	public AgentIdentifier findAid(String name)
-	{
-		return repo.findAid(name);
 	}
 	
 	public boolean containsPlatform(String name)
@@ -77,7 +76,8 @@ public class RemotePlatformManager
 	
 	public void registerAid(AgentIdentifier aid, String platformName)
 	{
-		repo.register(aid, platformName);
+		aidManager.insert(aid);
+		repo.register(aid.getName(), platformName);
 	}
 	
 	public void unregisterPlatform(String platformName)
@@ -92,12 +92,12 @@ public class RemotePlatformManager
 	
 	public List<AgentPlatform> retrievePlatforms()
 	{
-		return repo.retrievePlatforms();
+		return repo.getAllPlatforms();
 	}
 	
-	public List<AgentIdentifier> retrieveAgentIds(String platformName)
+	public List<AgentIdentifier> getAgentIds(String platformName)
 	{
-		return repo.retrieveAgentIds(platformName);
+		return repo.getAgentIds(platformName);
 	}
 	
 	public void agentInitializedEventHandler(@Observes @AgentInitializedEvent AgentIdentifier aid)

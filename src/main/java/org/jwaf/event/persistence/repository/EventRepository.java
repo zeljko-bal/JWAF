@@ -4,80 +4,70 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.management.AidManager;
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.common.mongo.annotations.MorphiaDatastore;
 import org.jwaf.event.persistence.entity.EventEntity;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
 
 @Stateless
 @LocalBean
 public class EventRepository
 {
-	@PersistenceContext
-	private EntityManager em;
+	@Inject @MorphiaDatastore
+	private Datastore ds;
 	
-	@Inject
-	private AidManager aidManager;
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public EventEntity find(String name)
 	{
-		return em.find(EventEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
+		return ds.get(EventEntity.class, name);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<EventEntity> findAll()
+	public List<EventEntity> getAll()
 	{
-		return em.createQuery("SELECT e FROM EventEntity e", EventEntity.class).getResultList();
+		return ds.find(EventEntity.class).asList();
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean exists(String name)
 	{
-		return find(name) != null;
+		return ds.find(EventEntity.class, "name", name).countAll() > 0;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void register(String name, String type)
 	{
-		EventEntity event = new EventEntity(name, type);
-		
-		em.persist(event);
+		ds.save(new EventEntity(name, type));
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void unregister(String eventName)
 	{
-		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
-		
-		em.remove(event);
+		ds.delete(EventEntity.class, eventName);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void subscribe(String agentName, String eventName)
 	{
-		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
-		
-		AgentIdentifier aid = aidManager.find(agentName);
-		
-		event.getRegisteredAgents().add(aid);
-		
-		em.merge(event);
+		Query<EventEntity> query = ds.find(EventEntity.class, "name", eventName);
+		UpdateOperations<EventEntity> updates = ds.createUpdateOperations(EventEntity.class)
+				.add("registeredAgents", agentName);
+		ds.update(query, updates);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void unsubscribe(String agentName)
+	{
+		Query<EventEntity> query = ds.find(EventEntity.class);
+		unsubscribe(agentName, query);
+	}
+	
 	public void unsubscribe(String agentName, String eventName)
 	{
-		EventEntity event = em.find(EventEntity.class, eventName, LockModeType.PESSIMISTIC_WRITE);
-		
-		event.getRegisteredAgents().removeIf((AgentIdentifier aid) -> aid.getName().equals(agentName));
-		
-		em.merge(event);
+		Query<EventEntity> query = ds.find(EventEntity.class, "name", eventName);
+		unsubscribe(agentName, query);
+	}
+	
+	public void unsubscribe(String agentName, Query<EventEntity> query)
+	{
+		UpdateOperations<EventEntity> updates = ds.createUpdateOperations(EventEntity.class)
+				.removeAll("registeredAgents", agentName);
+		ds.update(query, updates);
 	}
 }

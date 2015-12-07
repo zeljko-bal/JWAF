@@ -22,7 +22,7 @@ public class AgentDataRepoWrapper implements DataRepository
 	@Override
 	public String put(String key, String value)
 	{
-		return dataRepo.put(value, key, value);
+		return dataRepo.put(agentName, key, value);
 	}
 
 	@Override

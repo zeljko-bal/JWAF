@@ -32,7 +32,7 @@ public class MessageTools
 	
 	public List<ACLMessage> getAll()
 	{
-		return agentManager.getMessages(aid.getName());
+		return agentManager.retrieveMessages(aid.getName());
 	}
 	
 	public boolean newMessagesAvailable()

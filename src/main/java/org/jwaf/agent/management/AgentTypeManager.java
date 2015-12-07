@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
+import org.jwaf.common.mongo.QueryFunction;
 
 @Stateless
 @LocalBean
@@ -25,6 +26,11 @@ public class AgentTypeManager
 	public List<AgentType> find(Map<String, String> attributes)
 	{
 		return typeRepo.find(attributes);
+	}
+	
+	public List<AgentType> find(QueryFunction<AgentType> queryFunc)
+	{
+		return typeRepo.find(queryFunc);
 	}
 	
 	public void create(AgentType type)

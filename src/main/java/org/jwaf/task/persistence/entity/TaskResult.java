@@ -1,21 +1,21 @@
 package org.jwaf.task.persistence.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Lob;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TaskResult
 {
-	@Id @GeneratedValue
+	@Id
 	@XmlTransient
 	private Integer id;
 	
@@ -28,7 +28,6 @@ public class TaskResult
 	@XmlElement
 	private String taskType;
 	
-	@Lob 
 	@XmlElement
 	private String content;
 

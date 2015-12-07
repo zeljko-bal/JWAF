@@ -11,7 +11,7 @@ import org.jwaf.common.annotations.logger.NamedLogger;
 import org.slf4j.Logger;
 
 @AgentQualifier
-public abstract class EmptyBaseAgent implements SingleThreadedAgent, SerializableAgent
+public abstract class EmptyBaseAgent implements SingleThreadedAgent
 {
 	@Inject @NamedLogger("AGENT")
 	private Logger logger;
@@ -98,10 +98,4 @@ public abstract class EmptyBaseAgent implements SingleThreadedAgent, Serializabl
 
 	protected void postArrival(String data)
 	{/* no-op */}
-	
-	@Override
-	public String serialize()
-	{
-		return null;
-	}
 }

@@ -7,11 +7,11 @@ import java.util.Set;
 
 import org.jwaf.common.util.SerializationUtils;
 
-public class DataStore implements Map<String, String>
+public class DataMap implements Map<String, String>
 {
 	private DataRepository dataRepo;
 	
-	public DataStore(DataRepository dataRepo)
+	public DataMap(DataRepository dataRepo)
 	{
 		this.dataRepo = dataRepo;
 	}

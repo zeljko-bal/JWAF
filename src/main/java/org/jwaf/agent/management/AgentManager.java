@@ -50,7 +50,7 @@ public class AgentManager
 	private MessageSender messageSender;
 	
 	@Inject
-	private AgentNameUtils agentName;
+	private AgentNameUtils nameUtils;
 	
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
@@ -103,12 +103,12 @@ public class AgentManager
 		}
 		else
 		{
-			name = agentName.createRandom(type.getName());
+			name = nameUtils.createRandom(type.getName());
 		}
 		
 		AgentIdentifier aid = new AgentIdentifier(name);
 		aid.getAddresses().add(localPlatformAddress);
-		aid = aidManager.createAid(aid);
+		aid = aidManager.insert(aid);
 		
 		AgentEntity newAgent = new AgentEntity(type, aid);
 		
@@ -144,9 +144,9 @@ public class AgentManager
 		agentRemovedEvent.fire(removedAid);
 	}
 
-	public List<ACLMessage> getMessages(String name)
+	public List<ACLMessage> retrieveMessages(String name)
 	{
-		List<ACLMessage> messages = agentRepo.getMessages(name);
+		List<ACLMessage> messages = agentRepo.retrieveMessages(name);
 		
 		// notify that messages have ben retrieved
 		messages.forEach(messageRetrievedEvent::fire);
@@ -184,10 +184,9 @@ public class AgentManager
 		{
 			AgentIdentifier remoteAid = agent.getAid();
 			AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
-			aid.getAddresses().clear();
 			aid.getAddresses().add(localPlatformAddress);
 			aid.getResolvers().addAll(remoteAid.getResolvers());
-			aid = aidManager.createAid(aid);
+			aid = aidManager.save(aid);
 			
 			AgentEntity newAgent = new AgentEntity();
 			newAgent.setAid(aid);

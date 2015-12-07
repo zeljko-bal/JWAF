@@ -3,12 +3,6 @@ package org.jwaf.agent.persistence.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -18,6 +12,9 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.jwaf.agent.AgentState;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Reference;
 
 @Entity
 @XmlRootElement
@@ -25,17 +22,17 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 public class AgentEntity implements AgentEntityView
 {
 	@Id
-	@OneToOne(cascade={CascadeType.REFRESH, CascadeType.MERGE}, optional=false)
 	@XmlElement(required=true)
+	@Reference
 	private AgentIdentifier aid;
 	
-	@ManyToOne(optional=false)
 	@XmlElement(required=true)
+	@Reference
 	private AgentType type;
 	
-	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
 	@XmlElement(name="ACLMessage")
+	@Reference
 	private List<ACLMessage> messages;
 	
 	@XmlTransient

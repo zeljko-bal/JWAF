@@ -1,22 +1,26 @@
 package org.jwaf.agent.persistence.repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
+import javax.inject.Inject;
 
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.exceptions.AgentNotFound;
+import org.jwaf.agent.exceptions.AgentStateChangeFailed;
 import org.jwaf.agent.persistence.entity.AgentEntity;
 import org.jwaf.agent.persistence.entity.AgentEntityView;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
 import org.jwaf.message.persistence.entity.ACLMessage;
+import org.mongodb.morphia.AdvancedDatastore;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
+import org.mongodb.morphia.query.UpdateResults;
+import org.slf4j.Logger;
 
 /**
  * Session Bean implementation class AgentRepository
@@ -25,19 +29,21 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 @LocalBean
 public class AgentRepository 
 {
-	@PersistenceContext
-	private EntityManager em;
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private static final int MAX_RETRIES = 50;
+	
+	@MorphiaAdvancedDatastore
+	private AdvancedDatastore ds;
+	
+	@Inject
+	private Logger log;
+	
 	public AgentEntity findAgent(String name)
 	{
 		return find(name);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public AgentEntityView findView(String name)
 	{
-		// TODO maybe detatch
 		AgentEntityView ret = find(name);
 		if(ret == null)
 		{
@@ -48,164 +54,182 @@ public class AgentRepository
 			return ret;
 		}
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void merge(AgentEntity agent)
-	{
-		em.merge(agent);
-	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void create(AgentEntity agent)
 	{
-		em.persist(agent);
+		ds.insert(agent);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void remove(String name)
 	{
-		AgentEntity agent = find(name);
-		
-		em.remove(agent);
+		ds.delete(AgentEntity.class, name);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public String activate(AgentIdentifier aid, ACLMessage message)
+	
+	public String activate(String agentName, ACLMessage message)
 	{
-		AgentEntity agent = em.find(AgentEntity.class, aid.getName(), LockModeType.PESSIMISTIC_WRITE);
-
+		// try at most MAX_RETRIES times
+		for(int i=0; i<MAX_RETRIES; i++)
+		{
+			// retrieve previous state
+			AgentEntity agent = basicQuery(agentName)
+					.retrievedFields(true, "state")
+					.get();
+			
+			if(agent == null)
+			{
+				throw new AgentNotFound();
+			}
+			
+			String prevState = agent.getState();
+			
+			// if still INITIALIZING do nothing
+			if(AgentState.INITIALIZING.equals(prevState))
+			{
+				return prevState;
+			}
+			
+			Query<AgentEntity> query = basicQuery(agentName)
+					.field("state").equal(prevState);
+			
+			UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+					.add("messages", message)
+					.set("hasNewMessages", true);
+			
+			// if prevState was PASSIVE activate
+			if(AgentState.PASSIVE.equals(prevState))
+			{
+				// activate agent
+				updates.set("state", AgentState.ACTIVE);
+			}
+			
+			UpdateResults res = ds.update(query, updates);
+			
+			// if updated return, else retry
+			if(res.getUpdatedCount() > 0)
+			{
+				return prevState;
+			}
+			else
+			{
+				log.warn("Activation of agent <{}> failed due to state change, try count {}, will retry at most {} times."
+						,agentName, i+1, MAX_RETRIES);
+			}
+		}
+		
+		// if unsuccessful after MAX_RETRIES times
+		log.error("Activation of agent <{}> failed due to state change after {} retries, aborting.", agentName);
+		throw new AgentStateChangeFailed("Unable to activate agent.");
+	}
+	
+	public boolean passivate(String agentName, boolean force)
+	{
+		// try at most MAX_RETRIES times
+		for(int i=0; i<MAX_RETRIES; i++)
+		{
+			// retrieve hasNewMessages flag
+			AgentEntity agent = basicQuery(agentName)
+					.retrievedFields(true, "hasNewMessages")
+					.get();
+			
+			if(agent == null)
+			{
+				throw new AgentNotFound();
+			}
+			
+			boolean hasNewMessages = agent.hasNewMessages();
+			
+			Query<AgentEntity> query = basicQuery(agentName)
+					.field("hasNewMessages").equal(hasNewMessages);
+			
+			UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class);
+			
+			boolean passivated;
+			
+			// if agent has new messages and isn't forced to passivate
+			if(agent.hasNewMessages() && !force)
+			{
+				// set flag to false and don't passivate
+				updates.set("hasNewMessages", false);
+				passivated = false;
+			}
+			else
+			{
+				// else do passivate
+				updates.set("state", AgentState.PASSIVE);
+				passivated = true;
+			}
+			
+			UpdateResults res = ds.update(query, updates);
+			
+			// if updated return, else retry
+			if(res.getUpdatedCount() > 0)
+			{
+				return passivated;
+			}
+		}
+		
+		// if unsuccessful after MAX_RETRIES times
+		log.error("Passivation of agent <{}> failed due to state change after {} retries, aborting.", agentName);
+		throw new AgentStateChangeFailed("Unable to passivate agent.");
+	}
+	
+	public List<ACLMessage> retrieveMessages(String agentName)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("messages", Collections.<ACLMessage>emptyList())
+				.set("hasNewMessages", false);
+		
+		// clear messages, set hasNewMessages to false and return old AgentEntity version
+		AgentEntity agent = ds.findAndModify(basicQuery(agentName), updates, true);
+		
 		if(agent == null)
 		{
 			throw new AgentNotFound();
 		}
 		
-		// get previous state
-		String prevState = agent.getState();
-		
-		// if agent is not yet initialized
-		if(AgentState.INITIALIZING.equals(prevState))
-		{
-			return prevState;
-		}
-
-		// add the message
-		agent.getMessages().add(message);
-
-		// set unread messages flag
-		agent.setHasNewMessages(true);
-
-		if(AgentState.PASSIVE.equals(prevState))
-		{
-			// activate agent
-			agent.setState(AgentState.ACTIVE);
-		}
-
-		// persist
-		em.merge(agent);
-
-		return prevState;
-	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public boolean passivate(String name, boolean force)
-	{
-		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
-
-		// if agent has new messages and isnt forced to passivate
-		if(agent.hasNewMessages() && !force)
-		{
-			// set flag to false and dont passivate
-			agent.setHasNewMessages(false);
-
-			em.merge(agent);
-
-			// not passivated
-			return false;
-		}
-		else
-		{
-			// else do passivate
-			agent.setState(AgentState.PASSIVE);
-
-			em.merge(agent);
-
-			// passivated
-			return true;
-		}
-	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<ACLMessage> getMessages(String name)
-	{
-		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
-
-		// get all messages
-		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());
-
-		// clear dependecies to message entities
-		agent.getMessages().clear();
-
-		// no more messages for now
-		agent.setHasNewMessages(false);
-
-		// commit changes
-		em.merge(agent);
-
-		return messages;
+		return new ArrayList<ACLMessage>(agent.getMessages());
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void ignoreNewMessages(String name)
+	public void ignoreNewMessages(String agentName)
 	{
-		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("hasNewMessages", false);
 		
-		agent.setHasNewMessages(false);
-		
-		em.merge(agent);
+		ds.update(basicQuery(agentName), updates);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public boolean containsAgent(AgentIdentifier aid)
 	{
-		return contains(aid.getName());
+		return containsAgent(aid.getName());
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public boolean containsAgent(String name)
+	
+	public boolean containsAgent(String agentName)
 	{
-		return contains(name);
+		return basicQuery(agentName).countAll() > 0;
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public AgentEntity depart(String agentName)
 	{
-		AgentEntity agent = em.find(AgentEntity.class, agentName, LockModeType.PESSIMISTIC_WRITE);
-		agent.setState(AgentState.IN_TRANSIT);
-		em.merge(agent);
-		return agent;
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("state", AgentState.IN_TRANSIT);
+		
+		return ds.findAndModify(basicQuery(agentName), updates, true);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<ACLMessage> completeDeparture(String name)
+	public List<ACLMessage> completeDeparture(String agentName)
 	{
-		AgentEntity agent = em.find(AgentEntity.class, name, LockModeType.PESSIMISTIC_WRITE);
-
-		// get all messages
-		List<ACLMessage> messages = new ArrayList<>(agent.getMessages());
-
-		// remove agent
-		em.remove(agent);
-
-		return messages;
+		AgentEntity agent = ds.findAndDelete(basicQuery(agentName));
+		
+		return new ArrayList<ACLMessage>(agent.getMessages());
 	}
 	
-	private AgentEntity find(String name)
+	private AgentEntity find(String agentName)
 	{
-		return em.find(AgentEntity.class, name);
+		return basicQuery(agentName).get();
 	}
-	
-	private boolean contains(String name)
+
+	private Query<AgentEntity> basicQuery(String agentName)
 	{
-		return find(name) != null;
+		return ds.find(AgentEntity.class, "aid", agentName);
 	}
 }

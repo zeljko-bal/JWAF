@@ -1,14 +1,11 @@
 package org.jwaf.base.tools;
 
-import java.util.List;
-import java.util.Map;
-
+import org.bson.Document;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.data.management.AgentDataManager;
-import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
@@ -36,11 +33,6 @@ public class AgentDirectory
 	public AgentIdentifier findAid(String name)
 	{
 		return aidManager.find(name);
-	}
-	
-	public List<AgentIdentifier> findAid(Map<String, String> userDefinedParameters)
-	{
-		return aidManager.find(userDefinedParameters);
 	}
 	
 	public boolean localPlatformContains(AgentIdentifier aid)
@@ -93,9 +85,9 @@ public class AgentDirectory
 	 * Data
 	 */
 	
-	public Map<String, String> getPublicData(String agentName)
+	public Document getPublicData(String agentName)
 	{
-		return agentDataManager.getDataStore(agentName, AgentDataType.PUBLIC);
+		return agentDataManager.getPublicData(agentName);
 	}
 	
 	/*

@@ -8,11 +8,13 @@ import javax.ejb.DependsOn;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
+import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
+import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -56,7 +58,7 @@ public class LocalPlatformSetup
 	{
 		try
 		{
-			createLocalPlatformAid();
+			persistLocalPlatformAid();
 			
 			registerSystemAgents();
 		}
@@ -66,16 +68,35 @@ public class LocalPlatformSetup
 		}
 	}
 
-	private void createLocalPlatformAid()
+	private void persistLocalPlatformAid()
 	{
-		if(agentManager.contains(localPlatformName))
+		if(!agentManager.contains(localPlatformName))
 		{
-			return;
+			AgentIdentifier platformAid = createLocalPlatformAid();
+			aidManager.save(platformAid);
 		}
-		
+	}
+	
+	private AgentIdentifier createLocalPlatformAid()
+	{
 		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 		platformAid.getAddresses().add(localPlatformAddress);
-		aidManager.createAid(platformAid);
+		return platformAid;
+	}
+	
+	@Produces @LocalPlatformAid
+	public AgentIdentifier getPlatformAid()
+	{
+		AgentIdentifier platformAid = aidManager.find(localPlatformName);
+		
+		if(platformAid != null)
+		{
+			return platformAid;
+		}
+		else
+		{
+			return createLocalPlatformAid();
+		}
 	}
 	
 	private void registerSystemAgents()

@@ -1,7 +1,6 @@
 package org.jwaf.test.agents;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import javax.ejb.LocalBean;
@@ -14,7 +13,6 @@ import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.base.implementations.fsm.AbstractFSMAgent;
 import org.jwaf.base.implementations.fsm.annotation.StateCallback;
 import org.jwaf.common.annotations.attributes.TypeAttribute;
-import org.jwaf.data.persistence.entity.AgentDataType;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.task.persistence.entity.TaskRequest;
@@ -25,17 +23,19 @@ import org.jwaf.task.persistence.entity.TaskResult;
 @TypeAttribute(key="test_attr_key_1",value="test_attr_value_1")
 public class IntegrationTestAgent extends AbstractFSMAgent
 {
+	private static final String TEST_DATA = "TEST_DATA";
+	
 	@StateCallback(state="initial_state", initial=true)
 	public void initialState(ACLMessage newMessage)
 	{
 		log.info("activated, running initial tests..");
 		
-		self.getData(AgentDataType.PRIVATE).put("error_count", "0");
+		data.map(TEST_DATA).put("error_count", "0");
 		
 		if(newMessage.getContentAsObject() instanceof TaskRequest)
 		{
 			TaskRequest taskRequest = (TaskRequest) newMessage.getContentAsObject();
-			self.getData(AgentDataType.PRIVATE).put("task_employer", taskRequest.getEmployer());
+			data.map(TEST_DATA).put("task_employer", taskRequest.getEmployer());
 		}
 		
 		HashMap<String, String> params;
@@ -48,11 +48,11 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertEquals("IntegrationTestAgent", self.getType().getName(), "self.getType().getName()");
 		assertEquals("test_attr_value_1", self.getType().getAttributes().get("test_attr_key_1"), "self.getType().getAttributes()");
 		
-		self.getData(AgentDataType.PRIVATE).put("test_private_data_key", "test_private_data_val");
-		assertEquals("test_private_data_val", self.getData(AgentDataType.PRIVATE).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE)");
+		data.map(TEST_DATA).put("test_private_data_key", "test_private_data_val");
+		assertEquals("test_private_data_val", data.map(TEST_DATA).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE)");
 		
-		self.getData(AgentDataType.PUBLIC).put("test_public_data_key", "test_public_data_val");
-		assertEquals("test_public_data_val", self.getData(AgentDataType.PUBLIC).get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC)");
+		data.getPublicDataMap().put("test_public_data_key", "test_public_data_val");
+		assertEquals("test_public_data_val", data.getPublicDataMap().get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC)");
 		
 		// agent
 		assertEquals(AgentState.ACTIVE, agent.getState(aid.getName()), "agent.getState(aid.getName())");
@@ -63,27 +63,6 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
 		
 		assertEquals("test_public_data_val", agent.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
-		
-		params = new HashMap<>();
-		params.put("test_param_key_1", "test_param_value_1");
-		assertTrue(containsAid(agent.findAid(params), aid), "agent.findAid(params) 1");
-		params.put("nonexistent_parameter", "nonexistent_parameter");
-		assertTrue(agent.findAid(params).isEmpty(), "agent.findAid(params) nonexistent");
-		
-		params = new HashMap<>();
-		params.put("test_param_key_1", "test_param_value_1");
-		params.put("test_param_key_2", "test_param_value_2");
-		assertTrue(containsAid(agent.findAid(params), aid), "agent.findAid(params) 1 and 2");
-
-		params = new HashMap<>();
-		params.put("test_param_key_1", "test_param_value_1");
-		params.put("test_param_key_2", "wrong_value");
-		assertTrue(agent.findAid(params).isEmpty(), "agent.findAid(params) wrong value");
-		
-		params = new HashMap<>();
-		params.put("test_param_key_1", "test_param_value_1");
-		params.put("wrong_key", "test_param_value_2");
-		assertTrue(agent.findAid(params).isEmpty(), "agent.findAid(params) wrong key");
 		
 		// create pong agent
 		CreateAgentRequest createPongReq = new CreateAgentRequest("TestPongAgent");
@@ -118,17 +97,13 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		log.info("Got pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
 		// data between calls
-		assertEquals("test_private_data_val", self.getData(AgentDataType.PRIVATE).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE) second time");
-		assertEquals("test_public_data_val", self.getData(AgentDataType.PUBLIC).get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC) second time");
+		assertEquals("test_private_data_val", data.map(TEST_DATA).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE) second time");
+		assertEquals("test_public_data_val", data.getPublicDataMap().get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC) second time");
 		
 		// newMessage tests
 		assertEquals("test_pong", newMessage.getPerformative(), "newMessage.getPerformative() = test_pong");
 		
 		assertTrue(agent.localPlatformContains(newMessage.getSender()), "agent.localPlatformContains(newMessage.getSender())");
-		
-		params = new HashMap<>();
-		params.put("test_pong_param_key_1", "test_pong_param_val_1");
-		assertTrue(containsAid(agent.findAid(params), newMessage.getSender()), "agent.findAid(params) pong = sender");
 		
 		assertEquals("TestPongAgent", type.getTypeOf(newMessage.getSender()).getName(), "type.getTypeOf(newMessage.getSender())");
 		assertEquals(AgentState.PASSIVE, agent.getState(newMessage.getSender()), "agent.getState(newMessage.getSender())");
@@ -221,14 +196,14 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		
 		assertTrue(!agent.localPlatformContains(newMessage.getSender()), "agent deleted");
 		
-		String errorCount = self.getData(AgentDataType.PRIVATE).get("error_count");
+		String errorCount = data.map(TEST_DATA).get("error_count");
 		
-		self.getData(AgentDataType.PRIVATE).append("report", "[IntegrationTestAgent] tests complete. errorCount = "+errorCount+"\n");
+		data.map(TEST_DATA).append("report", "[IntegrationTestAgent] tests complete. errorCount = "+errorCount+"\n");
 		
-		if(self.getData(AgentDataType.PRIVATE).containsKey("task_employer"))
+		if(data.map(TEST_DATA).containsKey("task_employer"))
 		{
-			String employer = self.getData(AgentDataType.PRIVATE).get("task_employer");
-			String report = self.getData(AgentDataType.PRIVATE).get("report");
+			String employer = data.map(TEST_DATA).get("task_employer");
+			String report = data.map(TEST_DATA).get("report");
 			task.submitResult(new TaskResult(employer, "IntegrationTestTask", report));
 		}
 		
@@ -239,7 +214,7 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(o1 == null)
 		{
-			self.getData(AgentDataType.PRIVATE).append("report", "[Test Failed] "+ message +" ; First parameter is null.\n");
+			data.map(TEST_DATA).append("report", "[Test Failed] "+ message +" ; First parameter is null.\n");
 			incrementErrorCount();
 			return;
 		}
@@ -251,26 +226,13 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 	{
 		if(!exp)
 		{
-			self.getData(AgentDataType.PRIVATE).append("report", "[Test Failed] "+message+"\n")	;
+			data.map(TEST_DATA).append("report", "[Test Failed] "+message+"\n")	;
 			incrementErrorCount();
 		}
 	}
 	
 	private void incrementErrorCount()
 	{
-		self.getData(AgentDataType.PRIVATE).increment("error_count");
-	}
-	
-	private boolean containsAid(List<AgentIdentifier> list, AgentIdentifier aid)
-	{
-		for(AgentIdentifier listAid : list)
-		{
-			if(listAid.getName().equals(aid.getName()))
-			{
-				return true;
-			}
-		}
-		
-		return false;
+		data.map(TEST_DATA).increment("error_count");
 	}
 }

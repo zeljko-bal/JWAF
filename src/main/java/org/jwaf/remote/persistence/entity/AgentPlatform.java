@@ -1,14 +1,10 @@
 package org.jwaf.remote.persistence.entity;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -17,6 +13,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.URLListWrapper;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Reference;
 
 @Entity
 @XmlRootElement
@@ -28,16 +27,15 @@ public class AgentPlatform
 	private String name;
 	
 	@XmlElement
-	private URL address;
+	private String address;
 	
-	@ElementCollection
 	@XmlElementWrapper
 	@XmlElement(name="address")
 	private List<String> messageTransportAddresses;
 	
-	@ManyToMany(cascade=CascadeType.REFRESH)
 	@XmlElementWrapper
 	@XmlElement(name="aid")
+	@Reference(lazy=true)
 	private List<AgentIdentifier> agentIds;
 	
 	public AgentPlatform()
@@ -50,7 +48,7 @@ public class AgentPlatform
 	{
 		this();
 		this.name = name;
-		this.address = address;
+		setAddress(address);
 	}
 
 	public String getName()
@@ -65,12 +63,20 @@ public class AgentPlatform
 
 	public URL getAddress()
 	{
-		return address;
+		try
+		{
+			return new URL(address);
+		}
+		catch(MalformedURLException e)
+		{
+			String plName = name != null ? name : "NO_NAME";
+			throw new RuntimeException("AgentPlatform <"+plName+">: address value is not a valid URL.", e);
+		}
 	}
 
 	public void setAddress(URL address)
 	{
-		this.address = address;
+		this.address = address.toExternalForm();
 	}
 
 	public List<AgentIdentifier> getAgentIds()

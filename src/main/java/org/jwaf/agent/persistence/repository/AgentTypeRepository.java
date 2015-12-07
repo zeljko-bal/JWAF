@@ -5,46 +5,56 @@ import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
-import javax.persistence.PersistenceContext;
 
 import org.jwaf.agent.persistence.entity.AgentType;
-import org.jwaf.common.util.SQLQuerryUtils;
-
-
+import org.jwaf.common.mongo.QueryFunction;
+import org.jwaf.common.mongo.annotations.MorphiaDatastore;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 @Stateless
 @LocalBean
 public class AgentTypeRepository
 {
-	@PersistenceContext
-	private EntityManager em;
+	@MorphiaDatastore
+	private Datastore ds;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public AgentType find(String name) throws NoResultException
+	public AgentType find(String name)
 	{
-		return em.find(AgentType.class, name);
+		return ds.get(AgentType.class, name);
 	}
 	
-	@SuppressWarnings("unchecked")
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public List<AgentType> find(QueryFunction<AgentType> queryFunc)
+	{
+		Query<AgentType> query = ds.createQuery(AgentType.class);
+		query = queryFunc.apply(query);
+		return find(query);
+	}
+	
 	public List<AgentType> find(Map<String, String> attributes)
 	{
-		return SQLQuerryUtils.createParameterMapQuery(attributes, "AgentType", "attributes", em).getResultList();
+		Query<AgentType> query = ds.createQuery(AgentType.class);
+		
+		for(String key : attributes.keySet())
+		{
+			query = query.field("attributes."+key).equal(attributes.get(key));
+		}
+		
+		return find(query);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	private List<AgentType> find(Query<AgentType> query)
+	{
+		return query.asList();
+	}
+	
 	public void create(AgentType type)
 	{
-		em.persist(type);
+		ds.save(type);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void remove(String name)
 	{
-		em.remove(find(name));
+		ds.delete(AgentType.class, name);
 	}
 }

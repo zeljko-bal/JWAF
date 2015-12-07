@@ -4,122 +4,87 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.LockModeType;
-import javax.persistence.PersistenceContext;
 
-import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.common.mongo.annotations.MorphiaAdvancedDatastore;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
+import org.mongodb.morphia.AdvancedDatastore;
+import org.mongodb.morphia.query.Query;
+import org.mongodb.morphia.query.UpdateOperations;
 
 @Stateless
 @LocalBean
 public class RemotePlatformRepository
 {
-	@PersistenceContext
-	private EntityManager em;
+	@MorphiaAdvancedDatastore
+	private AdvancedDatastore ds;
 	
-	@Inject
-	private AidManager aidManager;
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public AgentPlatform findPlatform(String name)
 	{
-		return em.find(AgentPlatform.class, name);
+		return ds.get(AgentPlatform.class, name);
 	}
 	
-	private List<AgentIdentifier> getAidResultList(String name)
-	{
-		return em.createQuery(
-				"SELECT a FROM AgentIdentifier a WHERE a.name = :name JOIN AgentPlatform pl WHERE a MEMBER OF pl.agentAids", 
-				AgentIdentifier.class).setParameter("name", name).getResultList();
-	}
-	
-	private List<AgentIdentifier> getAidResultList(String name, String platformName)
-	{
-		return em.createQuery(
-				"SELECT a FROM AgentIdentifier a WHERE a.name = :name JOIN AgentPlatform pl WHERE a MEMBER OF pl.agentAids AND pl.name = :platformName", 
-				AgentIdentifier.class).setParameter("name", name).setParameter("platformName", platformName).getResultList();
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public AgentIdentifier findAid(String name)
-	{
-		return getAidResultList(name).get(0);
-	}
-	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean containsPlatform(String name)
 	{
-		return findPlatform(name) != null;
+		return ds.find(AgentPlatform.class, "name", name)
+				 .countAll() > 0;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public boolean containsAid(String name)
 	{
-		return !getAidResultList(name).isEmpty();
+		return ds.find(AgentPlatform.class)
+				 .field("agentIds").hasThisOne(name)
+				 .countAll() > 0;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public boolean containsAid(String name, String platformName)
+	public boolean containsAid(String agentName, String platformName)
 	{
-		return !getAidResultList(name, platformName).isEmpty();
+		return ds.find(AgentPlatform.class, "name", platformName)
+				 .field("agentIds").hasThisOne(agentName)
+				 .countAll() > 0;
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void registerPlatform(AgentPlatform platform)
 	{
-		em.persist(platform);
+		ds.insert(platform);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void register(AgentIdentifier aid, String platformName)
+	public void register(String agentName, String platformName)
 	{
-		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
-		
-		platform.getAgentIds().add(aidManager.manageAID(aid));
-		
-		em.merge(platform);
+		Query<AgentPlatform> query = ds.find(AgentPlatform.class, "name", platformName);
+		UpdateOperations<AgentPlatform> updates = ds.createUpdateOperations(AgentPlatform.class)
+				.add("agentIds", agentName);
+		ds.update(query, updates);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<AgentIdentifier> retrieveAgentIds(String platformName)
+	public List<AgentIdentifier> getAgentIds(String platformName)
 	{
 		return findPlatform(platformName).getAgentIds();
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public List<AgentPlatform> retrievePlatforms()
+	public List<AgentPlatform> getAllPlatforms()
 	{
-		return em.createQuery("SELECT pl FROM AgentPlatform AS pl", AgentPlatform.class).getResultList();
+		return ds.find(AgentPlatform.class).asList();
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void unregisterPlatform(String platformName)
 	{
-		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
-		
-		em.remove(platform);
+		ds.delete(AgentPlatform.class, platformName);
 	}
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void unregister(String agentName, String platformName)
 	{
-		AgentPlatform platform = em.find(AgentPlatform.class, platformName, LockModeType.PESSIMISTIC_WRITE);
-		
-		platform.getAgentIds().removeIf((AgentIdentifier aid)-> aid.getName().equals(agentName));
-		
-		em.merge(platform);
+		Query<AgentPlatform> query = ds.find(AgentPlatform.class, "name", platformName);
+		UpdateOperations<AgentPlatform> updates = ds.createUpdateOperations(AgentPlatform.class)
+				.removeAll("agentIds", agentName);
+		ds.update(query, updates);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public AgentPlatform locationOf(String agentName)
 	{
-		return em.createQuery("SELECT p FROM AgentPlatform p JOIN p.agentIds a WHERE :agentName = a.name", AgentPlatform.class)
-				.setParameter("agentName", agentName)
-				.getSingleResult();
+		return ds.createQuery(AgentPlatform.class)
+				 .field("agentIds")
+				 .hasThisOne(agentName)
+				 .get();
 	}
 }

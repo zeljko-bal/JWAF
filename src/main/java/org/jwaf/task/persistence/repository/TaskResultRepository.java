@@ -4,35 +4,31 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.inject.Inject;
 
+import org.jwaf.common.mongo.MongoUtils;
+import org.jwaf.common.mongo.annotations.MorphiaDatastore;
 import org.jwaf.task.persistence.entity.TaskResult;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.query.Query;
 
 @Stateless
 @LocalBean
 public class TaskResultRepository
 {
-	@PersistenceContext
-	private EntityManager em;
+	@Inject @MorphiaDatastore
+	private Datastore ds;
 	
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void persist(TaskResult result)
 	{
-		em.persist(result);
+		ds.save(result);
 	}
-
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	
 	public List<TaskResult> retrieveResultSet(String employer)
 	{
-		List<TaskResult> ret = null;
+		Query<TaskResult> query = ds.createQuery(TaskResult.class)
+				.field("employer").equal(employer);
 		
-		ret = em.createQuery("SELECT r FROM TaskResult r WHERE r.employer = :employer", TaskResult.class).setParameter("employer", employer).getResultList();
-		
-		ret.forEach(res -> em.remove(res));
-		
-		return ret;
+		return MongoUtils.findAndDeleteAll(query, ds);
 	}
 }

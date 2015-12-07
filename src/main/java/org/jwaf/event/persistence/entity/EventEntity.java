@@ -3,13 +3,10 @@ package org.jwaf.event.persistence.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
+import org.mongodb.morphia.annotations.Reference;
 
 @Entity
 public class EventEntity
@@ -19,8 +16,7 @@ public class EventEntity
 	
 	private String type;
 	
-	@ManyToMany(cascade={CascadeType.REFRESH})
-	@JoinTable(name = "Event_aid")
+	@Reference(lazy=true)
 	private List<AgentIdentifier> registeredAgents;
 
 	public EventEntity()

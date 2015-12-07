@@ -3,10 +3,8 @@ package org.jwaf.service.persistence.entity;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 @Entity
 public class AgentServiceType
@@ -14,7 +12,6 @@ public class AgentServiceType
 	@Id
 	private String name;
 	
-	@ElementCollection(fetch=FetchType.LAZY)
 	private Map<String, String> attributes;
 	
 	public AgentServiceType()

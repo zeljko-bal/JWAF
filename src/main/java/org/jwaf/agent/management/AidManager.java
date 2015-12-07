@@ -3,14 +3,15 @@ package org.jwaf.agent.management;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
+import javax.enterprise.event.Event;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
-import org.jwaf.agent.annotations.LocalPlatformAid;
+import org.jwaf.agent.annotations.events.AgentRemovedEvent;
+import org.jwaf.agent.annotations.events.AidRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.repository.AidRepository;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
@@ -33,63 +34,57 @@ public class AidManager
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
 	
-	@Produces @LocalPlatformAid
-	public AgentIdentifier getPlatformAid()
-	{
-		return aidRepository.find(localPlatformName);
-	}
-	
-	public List<AgentIdentifier> find(Map<String, String> userDefinedParameters)
-	{
-		return aidRepository.find(userDefinedParameters);
-	}
+	@Inject @AidRemovedEvent
+	private Event<String> aidRemovedEvent;
 	
 	public AgentIdentifier find(String name)
 	{
 		return aidRepository.find(name);
 	}
 	
-	public AgentIdentifier manageAID(AgentIdentifier aid)
+	public AgentIdentifier save(AgentIdentifier aid)
 	{
-		return aidRepository.manageAID(aid, false);
+		return aidRepository.save(aid);
 	}
 	
-	public AgentIdentifier createAid(AgentIdentifier aid)
+	public AgentIdentifier insert(AgentIdentifier aid)
 	{
-		return aidRepository.manageAID(aid, true);
+		return aidRepository.insert(aid);
 	}
 
-	public void cleanUp()
+	public void remove(String name)
 	{
-		aidRepository.cleanUp();
+		// TODO call from agent terminate and remote agent unregister
+		aidRepository.remove(name);
+		aidRemovedEvent.fire(name);
 	}
 	
 	public void addAddress(String name, URL address)
 	{
 		AgentIdentifier aid = find(name);
 		aid.getAddresses().add(address);
-		aidRepository.manageAID(aid, true);
+		aidRepository.save(aid);
 	}
 
 	public void removeAddress(String name, URL address)
 	{
 		AgentIdentifier aid = find(name);
 		aid.getAddresses().remove(address);
-		aidRepository.manageAID(aid, true);
+		aidRepository.save(aid);
 	}
 
 	public void addResolver(String name, AgentIdentifier resolver)
 	{
 		AgentIdentifier aid = find(name);
 		aid.getResolvers().add(resolver);
-		aidRepository.manageAID(aid, true);
+		aidRepository.save(aid);
 	}
-
+	
 	public void removeResolver(String name, AgentIdentifier resolver)
 	{
 		AgentIdentifier aid = find(name);
 		aid.getResolvers().remove(resolver);
-		aidRepository.manageAID(aid, true);
+		aidRepository.save(aid);
 	}
 	
 	public void changeLocation(String name, String newPlatform)
@@ -106,6 +101,11 @@ public class AidManager
 			mtAddresses = remotePlatformManager.findPlatform(newPlatform).getMTAddresses();
 		}
 		
-		aidRepository.changeMTADdresses(name, mtAddresses);
+		aidRepository.changeMTAddresses(name, mtAddresses);
+	}
+	
+	public void agentRemovedEventHandler(@Observes @AgentRemovedEvent AgentIdentifier aid)
+	{
+		aidRepository.remove(aid.getName());
 	}
 }

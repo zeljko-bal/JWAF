@@ -3,15 +3,14 @@ package org.jwaf.agent.persistence.entity;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import org.mongodb.morphia.annotations.Entity;
+import org.mongodb.morphia.annotations.Id;
 
 @Entity
 @XmlRootElement
@@ -22,7 +21,6 @@ public class AgentType
 	@XmlElement(required=true)
 	private String name;
 	
-	@ElementCollection(fetch=FetchType.LAZY)
 	@XmlElementWrapper
 	private Map<String, String> attributes;
 	
