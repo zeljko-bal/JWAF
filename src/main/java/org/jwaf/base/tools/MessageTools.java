@@ -37,7 +37,7 @@ public class MessageTools
 	
 	public boolean newMessagesAvailable()
 	{
-		return agentManager.findView(aid.getName()).hasNewMessages();
+		return agentManager.hasNewMessages(aid.getName());
 	}
 	
 	public void ignoreNewMessages()

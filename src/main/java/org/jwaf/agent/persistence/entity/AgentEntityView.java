@@ -8,6 +8,4 @@ public interface AgentEntityView
 	public AgentType getType();
 
 	public String getState();
-
-	public boolean hasNewMessages();
 }

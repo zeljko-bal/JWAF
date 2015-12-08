@@ -135,13 +135,9 @@ public class AgentManager
 		return agentRepo.findView(name);
 	}
 	
-	public void remove(String name)
+	public boolean hasNewMessages(String name)
 	{
-		AgentIdentifier removedAid = agentRepo.findView(name).getAid();
-		
-		agentRepo.remove(name);
-		
-		agentRemovedEvent.fire(removedAid);
+		return agentRepo.hasNewMessages(name);
 	}
 
 	public List<ACLMessage> retrieveMessages(String name)
@@ -169,6 +165,15 @@ public class AgentManager
 		return agentRepo.containsAgent(name);
 	}
 	
+	public void remove(String name)
+	{
+		AgentIdentifier removedAid = agentRepo.findView(name).getAid();
+		
+		agentRepo.remove(name);
+		
+		agentRemovedEvent.fire(removedAid);
+	}
+	
 	/*
 	 * agent transport methods
 	 */
@@ -190,7 +195,6 @@ public class AgentManager
 			
 			AgentEntity newAgent = new AgentEntity();
 			newAgent.setAid(aid);
-			newAgent.setHasNewMessages(false);
 			newAgent.setState(AgentState.IN_TRANSIT);
 			newAgent.setType(typeManager.find(agent.getType().getName()));
 			

@@ -30,13 +30,13 @@ public class AgentEntity implements AgentEntityView
 	@Reference
 	private AgentType type;
 	
+	@XmlTransient
+	private String state;
+	
 	@XmlElementWrapper
 	@XmlElement(name="ACLMessage")
 	@Reference
 	private List<ACLMessage> messages;
-	
-	@XmlTransient
-	private String state;
 	
 	@XmlTransient
 	private boolean hasNewMessages;
@@ -92,8 +92,7 @@ public class AgentEntity implements AgentEntityView
 	{
 		this.state = state;
 	}
-
-	@Override
+	
 	public boolean hasNewMessages() 
 	{
 		return hasNewMessages;

@@ -190,6 +190,14 @@ public class AgentRepository
 		return new ArrayList<ACLMessage>(agent.getMessages());
 	}
 	
+	public boolean hasNewMessages(String agentName)
+	{
+		return basicQuery(agentName)
+				.retrievedFields(true, "hasNewMessages")
+				.get()
+				.hasNewMessages();
+	}
+	
 	public void ignoreNewMessages(String agentName)
 	{
 		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
