@@ -148,7 +148,7 @@ public class AgentActivator
 			{
 				MultiThreadedAgent mtAgent = (MultiThreadedAgent)agentBean;
 				
-				for(ACLMessage msg : agentRepo.retrieveMessages(aid.getName()))
+				for(ACLMessage msg : agentRepo.retrieveFromInbox(aid.getName()))
 				{
 					// handle every message asynchronously
 					executorService.execute(()->executeMulti(aid, mtAgent, msg));

@@ -3,6 +3,7 @@ package org.jwaf.agent.persistence.repository;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -63,15 +64,6 @@ public class AgentRepository
 	public void remove(String name)
 	{
 		ds.delete(AgentEntity.class, name);
-	}
-	
-	public void putToInbox(String agentName, ACLMessage message)
-	{
-		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
-				.add("messages", message)
-				.set("hasNewMessages", true);
-		
-		ds.update(basicQuery(agentName), updates);
 	}
 	
 	public boolean activateSingleThreaded(String agentName)
@@ -248,7 +240,16 @@ public class AgentRepository
 		ds.update(basicQuery(agentName), updates);
 	}
 	
-	public List<ACLMessage> retrieveMessages(String agentName)
+	public void putToInbox(String agentName, ACLMessage message)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.add("messages", message)
+				.set("hasNewMessages", true);
+		
+		ds.update(basicQuery(agentName), updates);
+	}
+	
+	public List<ACLMessage> retrieveFromInbox(String agentName)
 	{
 		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
 				.set("messages", Collections.<ACLMessage>emptyList())
@@ -259,6 +260,23 @@ public class AgentRepository
 		assertAgentExists(agent);
 		
 		return new ArrayList<ACLMessage>(agent.getMessages());
+	}
+	
+	public void removeFromInbox(String agentName, List<Integer> keys)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.removeAll("messages", keys);
+		
+		ds.update(basicQuery(agentName), updates);
+	}
+	
+	public List<Integer> getMessageIDs(String agentName)
+	{
+		return find(agentName) // TODO optimize, use Document directly to fetch only keys
+				.getMessages()
+				.stream()
+				.map(m->m.getId())
+				.collect(Collectors.toList());
 	}
 	
 	public boolean hasNewMessages(String agentName)

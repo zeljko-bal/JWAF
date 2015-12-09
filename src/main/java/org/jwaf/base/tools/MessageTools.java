@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
@@ -33,6 +34,11 @@ public class MessageTools
 	public List<ACLMessage> getAll()
 	{
 		return agentManager.retrieveMessages(aid.getName());
+	}
+	
+	public List<ACLMessage> find(QueryFunction<ACLMessage> queryFunc)
+	{
+		return agentManager.findMessages(aid.getName(), queryFunc);
 	}
 	
 	public boolean newMessagesAvailable()

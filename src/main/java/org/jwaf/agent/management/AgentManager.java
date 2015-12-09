@@ -2,6 +2,7 @@ package org.jwaf.agent.management;
 
 import java.net.URL;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -19,8 +20,10 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.agent.persistence.repository.AgentRepository;
+import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.common.util.AgentNameUtils;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
+import org.jwaf.message.management.MessageFinder;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -48,6 +51,9 @@ public class AgentManager
 	
 	@Inject
 	private MessageSender messageSender;
+	
+	@Inject
+	private MessageFinder messageFinder;
 	
 	@Inject
 	private AgentNameUtils nameUtils;
@@ -142,9 +148,28 @@ public class AgentManager
 
 	public List<ACLMessage> retrieveMessages(String name)
 	{
-		List<ACLMessage> messages = agentRepo.retrieveMessages(name);
+		List<ACLMessage> messages = agentRepo.retrieveFromInbox(name);
 		
 		// notify that messages have ben retrieved
+		messages.forEach(messageRetrievedEvent::fire);
+		
+		return messages;
+	}
+	
+	public List<ACLMessage> findMessages(String name, QueryFunction<ACLMessage> queryFunc)
+	{
+		// get ids of inbox messages
+		List<Integer> messageIDs = agentRepo.getMessageIDs(name);
+		
+		// find messages based on the query
+		List<ACLMessage> messages = messageFinder.find(messageIDs, queryFunc);
+		
+		// remove messages from inbox
+		agentRepo.removeFromInbox(name, messages.stream()
+												.map(m->m.getId())
+												.collect(Collectors.toList()));
+		
+		// signal that the agent has retrieved the messages
 		messages.forEach(messageRetrievedEvent::fire);
 		
 		return messages;
