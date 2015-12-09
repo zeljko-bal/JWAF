@@ -65,41 +65,70 @@ public class AgentRepository
 		ds.delete(AgentEntity.class, name);
 	}
 	
-	public String activate(String agentName, ACLMessage message)
+	public void putToInbox(String agentName, ACLMessage message)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.add("messages", message)
+				.set("hasNewMessages", true);
+		
+		ds.update(basicQuery(agentName), updates);
+	}
+	
+	public boolean activateSingleThreaded(String agentName)
+	{
+		return activateSingleThreaded(agentName, null);
+	}
+	
+	public boolean activateSingleThreaded(String agentName, ACLMessage message)
 	{
 		// try at most MAX_RETRIES times
 		for(int i=0; i<MAX_RETRIES; i++)
 		{
-			// retrieve previous state
+			// retrieve previous state and hasNewMessages flag
 			AgentEntity agent = basicQuery(agentName)
-					.retrievedFields(true, "state")
+					.retrievedFields(true, "state", "hasNewMessages")
 					.get();
 			
-			if(agent == null)
-			{
-				throw new AgentNotFound();
-			}
+			assertAgentExists(agent);
 			
 			String prevState = agent.getState();
-			
-			// if still INITIALIZING do nothing
-			if(AgentState.INITIALIZING.equals(prevState))
-			{
-				return prevState;
-			}
+			boolean alreadyHasMessages = agent.hasNewMessages();
+			boolean newMessageAvailable = message != null;
+			boolean activated = false;
 			
 			Query<AgentEntity> query = basicQuery(agentName)
 					.field("state").equal(prevState);
 			
-			UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
-					.add("messages", message)
-					.set("hasNewMessages", true);
+			UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class);
 			
-			// if prevState was PASSIVE activate
+			if(newMessageAvailable)
+			{
+				updates.add("messages", message)
+						.set("hasNewMessages", true);
+			}
+			
+			// if prevState was PASSIVE
 			if(AgentState.PASSIVE.equals(prevState))
 			{
-				// activate agent
-				updates.set("state", AgentState.ACTIVE);
+				if(alreadyHasMessages || newMessageAvailable)
+				{
+					if(!newMessageAvailable)
+					{
+						// if no new messages available, ensure that we already have messages waiting
+						query.field("hasNewMessages").equal(true);
+					}
+					
+					// activate agent
+					updates.set("state", AgentState.ACTIVE)
+							.set("activeInstances", 1);
+					
+					activated = true;
+				}
+				else
+				{
+					// no messages waiting, no reason to activate
+					return false;
+				}
 			}
 			
 			UpdateResults res = ds.update(query, updates);
@@ -107,7 +136,7 @@ public class AgentRepository
 			// if updated return, else retry
 			if(res.getUpdatedCount() > 0)
 			{
-				return prevState;
+				return activated;
 			}
 			else
 			{
@@ -121,7 +150,7 @@ public class AgentRepository
 		throw new AgentStateChangeFailed("Unable to activate agent.");
 	}
 	
-	public boolean passivate(String agentName, boolean force)
+	public boolean passivateSingleThreaded(String agentName)
 	{
 		// try at most MAX_RETRIES times
 		for(int i=0; i<MAX_RETRIES; i++)
@@ -131,10 +160,7 @@ public class AgentRepository
 					.retrievedFields(true, "hasNewMessages")
 					.get();
 			
-			if(agent == null)
-			{
-				throw new AgentNotFound();
-			}
+			assertAgentExists(agent);
 			
 			boolean hasNewMessages = agent.hasNewMessages();
 			
@@ -145,8 +171,8 @@ public class AgentRepository
 			
 			boolean passivated;
 			
-			// if agent has new messages and isn't forced to passivate
-			if(agent.hasNewMessages() && !force)
+			// if agent has new messages
+			if(hasNewMessages)
 			{
 				// set flag to false and don't passivate
 				updates.set("hasNewMessages", false);
@@ -155,7 +181,8 @@ public class AgentRepository
 			else
 			{
 				// else do passivate
-				updates.set("state", AgentState.PASSIVE);
+				updates.set("state", AgentState.PASSIVE)
+						.set("activeInstances", 0);
 				passivated = true;
 			}
 			
@@ -166,11 +193,59 @@ public class AgentRepository
 			{
 				return passivated;
 			}
+			else
+			{
+				log.warn("Passivation of agent <{}> failed due to state change, try count {}, will retry at most {} times."
+						,agentName, i+1, MAX_RETRIES);
+			}
 		}
 		
 		// if unsuccessful after MAX_RETRIES times
 		log.error("Passivation of agent <{}> failed due to state change after {} retries, aborting.", agentName);
 		throw new AgentStateChangeFailed("Unable to passivate agent.");
+	}
+	
+	public Integer activateMultiThreadedInstance(String agentName)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.inc("activeInstances")
+				.set("state", AgentState.ACTIVE);
+		
+		AgentEntity agent = ds.findAndModify(basicQuery(agentName), updates, false);
+		
+		return agent.getActiveInstances();
+	}
+	
+	public Integer deactivateMultiThreadedInstance(String agentName)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.dec("activeInstances");
+		
+		AgentEntity agent = ds.findAndModify(basicQuery(agentName), updates, false);
+		
+		passivateMultiThreaded(agentName);
+		
+		return agent.getActiveInstances();
+	}
+	
+	private void passivateMultiThreaded(String agentName)
+	{
+		Query<AgentEntity> query = basicQuery(agentName)
+				.field("activeInstances").equal(0);
+		
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("state", AgentState.PASSIVE);
+		
+		ds.update(query, updates);
+	}
+	
+	public void forcePassivate(String agentName)
+	{
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("state", AgentState.PASSIVE)
+				.set("activeInstances", 0);
+		
+		ds.update(basicQuery(agentName), updates);
 	}
 	
 	public List<ACLMessage> retrieveMessages(String agentName)
@@ -181,11 +256,7 @@ public class AgentRepository
 		
 		// clear messages, set hasNewMessages to false and return old AgentEntity version
 		AgentEntity agent = ds.findAndModify(basicQuery(agentName), updates, true);
-		
-		if(agent == null)
-		{
-			throw new AgentNotFound();
-		}
+		assertAgentExists(agent);
 		
 		return new ArrayList<ACLMessage>(agent.getMessages());
 	}
@@ -204,6 +275,14 @@ public class AgentRepository
 				.set("hasNewMessages", false);
 		
 		ds.update(basicQuery(agentName), updates);
+	}
+	
+	public Integer getActiveInstances(String agentName)
+	{
+		return basicQuery(agentName)
+				.retrievedFields(true, "activeInstances")
+				.get()
+				.getActiveInstances();
 	}
 	
 	public boolean containsAgent(AgentIdentifier aid)
@@ -239,5 +318,13 @@ public class AgentRepository
 	private Query<AgentEntity> basicQuery(String agentName)
 	{
 		return ds.find(AgentEntity.class, "aid", agentName);
+	}
+	
+	private void assertAgentExists(AgentEntity agent)
+	{
+		if(agent == null)
+		{
+			throw new AgentNotFound();
+		}
 	}
 }

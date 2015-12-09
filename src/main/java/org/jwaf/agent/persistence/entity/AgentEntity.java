@@ -41,11 +41,15 @@ public class AgentEntity implements AgentEntityView
 	@XmlTransient
 	private boolean hasNewMessages;
 	
+	@XmlTransient
+	private Integer activeInstances;
+	
 	public AgentEntity()
 	{
 		messages = new ArrayList<>();
 		state = AgentState.INITIALIZING;
 		hasNewMessages = false;
+		activeInstances = 0;
 	}
 	
 	public AgentEntity(AgentType type, AgentIdentifier aid)
@@ -54,40 +58,40 @@ public class AgentEntity implements AgentEntityView
 		this.type = type;
 		this.aid = aid;
 	}
-
+	
 	@Override
 	public AgentIdentifier getAid() 
 	{
 		return aid;
 	}
-
+	
 	public void setAid(AgentIdentifier aid) 
 	{
 		this.aid = aid;
 	}
-
+	
 	@Override
 	public AgentType getType() 
 	{
 		return type;
 	}
-
+	
 	public void setType(AgentType type)
 	{
 		this.type = type;
 	}
-
+	
 	public List<ACLMessage> getMessages() 
 	{
 		return messages;
 	}
-
+	
 	@Override
 	public String getState() 
 	{
 		return state;
 	}
-
+	
 	public void setState(String state) 
 	{
 		this.state = state;
@@ -97,9 +101,19 @@ public class AgentEntity implements AgentEntityView
 	{
 		return hasNewMessages;
 	}
-
+	
 	public void setHasNewMessages(boolean hasNewMessages) 
 	{
 		this.hasNewMessages = hasNewMessages;
+	}
+	
+	public Integer getActiveInstances()
+	{
+		return activeInstances;
+	}
+	
+	public void setActiveInstances(Integer activeInstances)
+	{
+		this.activeInstances = activeInstances;
 	}
 }

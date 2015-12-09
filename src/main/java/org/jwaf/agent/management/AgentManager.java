@@ -154,6 +154,11 @@ public class AgentManager
 	{
 		agentRepo.ignoreNewMessages(name);
 	}
+	
+	public Integer getActiveInstances(String name)
+	{
+		return agentRepo.getActiveInstances(name);
+	}
 
 	public boolean contains(AgentIdentifier aid)
 	{
@@ -226,12 +231,12 @@ public class AgentManager
 
 	public void cancelDeparture(String agentName)
 	{
-		agentRepo.passivate(agentName, true);
+		agentRepo.forcePassivate(agentName);
 	}
 	
 	public void transportComplete(String agentName)
 	{
-		agentRepo.passivate(agentName, true);
+		agentRepo.forcePassivate(agentName);
 	}
 	
 	private void resendMessage(AgentIdentifier aid, ACLMessage message)
