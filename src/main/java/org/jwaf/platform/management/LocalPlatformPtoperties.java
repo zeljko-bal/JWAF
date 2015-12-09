@@ -1,7 +1,6 @@
 package org.jwaf.platform.management;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
@@ -12,6 +11,7 @@ import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.jwaf.common.util.PropertiesUtils;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotations.resource.LocalPlatformName;
@@ -32,20 +32,17 @@ public class LocalPlatformPtoperties
 	@PostConstruct
 	public void setup()
 	{
-		Properties properties;
-		InputStream inputStream  = getClass().getClassLoader().getResourceAsStream("platform.properties");
-		properties = new Properties();
 		try
 		{
-			properties.load(inputStream);
+			Properties properties = PropertiesUtils.getProperties("platform.properties");
 			
 			name = properties.getProperty("platform_name");
 			address = new URL(properties.getProperty("platform_address"));
 			ejbJNDIPrefix = properties.getProperty("agent_jndi_prefix");
 		}
-		catch (IOException e1)
+		catch (IOException e)
 		{
-			logger.error("Error while loading platform.properties", e1);
+			logger.error("Error while loading platform.properties", e);
 		}
 	}
 	

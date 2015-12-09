@@ -1,0 +1,11 @@
+{
+	"addresses":
+	[
+		{"host":"localhost", "port":27017}
+	],
+	"credentials":
+	[
+		{"db":"jwaf_system", "username":"", "password":""}
+		{"db":"agent_data",  "username":"", "password":""}
+	]
+}
