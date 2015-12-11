@@ -11,7 +11,7 @@ public class AbstractBehaviourAgent extends BaseAgent
 	protected void postConstruct()
 	{
 		super.postConstruct();
-		behaviours = new BehaviourTools(this, data, message, log, true);
+		behaviours = new BehaviourTools(this, data, messages, log, true);
 	}
 	
 	@Override

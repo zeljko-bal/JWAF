@@ -57,35 +57,35 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		assertEquals("test_public_data_val", data.getPublicDataMap().get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC)");
 		
 		// agent
-		assertEquals(AgentState.ACTIVE, agent.getState(aid.getName()), "agent.getState(aid.getName())");
-		assertTrue(agent.localPlatformContains(aid), "agent.localPlatformContains(aid)");
-		assertEquals(agent.locationOf(aid), localPlatformName, "agent.locationOf(aid)");
+		assertEquals(AgentState.ACTIVE, agentDirectory.getState(aid.getName()), "agent.getState(aid.getName())");
+		assertTrue(agentDirectory.localPlatformContains(aid), "agent.localPlatformContains(aid)");
+		assertEquals(agentDirectory.locationOf(aid), localPlatformName, "agent.locationOf(aid)");
 		
-		AgentIdentifier aidResult =  agent.findAid(aid.getName());
+		AgentIdentifier aidResult =  agentDirectory.findAid(aid.getName());
 		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
 		
-		assertEquals("test_public_data_val", agent.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
+		assertEquals("test_public_data_val", agentDirectory.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
 		
 		// create pong agent
 		CreateAgentRequest createPongReq = new CreateAgentRequest("TestPongAgent");
 		createPongReq.getParams().put("test_pong_param_key_1", "test_pong_param_val_1");
-		AgentIdentifier pongAid = agent.createAgent(createPongReq);
+		AgentIdentifier pongAid = agentDirectory.createAgent(createPongReq);
 		
-		assertTrue(agent.localPlatformContains(pongAid), "agent.localPlatformContains(pongAid)");
-		assertEquals(AgentState.PASSIVE, agent.getState(pongAid), "agent.getState(pongAid)");
+		assertTrue(agentDirectory.localPlatformContains(pongAid), "agent.localPlatformContains(pongAid)");
+		assertEquals(AgentState.PASSIVE, agentDirectory.getState(pongAid), "agent.getState(pongAid)");
 		
 		// type
-		assertEquals("IntegrationTestAgent", type.find("IntegrationTestAgent").getName(), "type.find('IntegrationTestAgent').getName()");
-		assertEquals("test_attr_value_1", type.find("IntegrationTestAgent").getAttributes().get("test_attr_key_1"), "type.find('IntegrationTestAgent').getAttributes()");
-		assertEquals("test_attr_value_2", type.find("TestPongAgent").getAttributes().get("test_attr_key_2"), "type.find('IntegrationTestAgent').getAttributes()");
+		assertEquals("IntegrationTestAgent", types.find("IntegrationTestAgent").getName(), "type.find('IntegrationTestAgent').getName()");
+		assertEquals("test_attr_value_1", types.find("IntegrationTestAgent").getAttributes().get("test_attr_key_1"), "type.find('IntegrationTestAgent').getAttributes()");
+		assertEquals("test_attr_value_2", types.find("TestPongAgent").getAttributes().get("test_attr_key_2"), "type.find('IntegrationTestAgent').getAttributes()");
 		params = new HashMap<>();
 		params.put("test_attr_key_1", "test_attr_value_1");
-		assertEquals("IntegrationTestAgent", type.find(params).get(0).getName(), "type.find(params)");
-		assertEquals("TestPongAgent", type.getTypeOf(pongAid).getName(), "type.getTypeOf(pongAid)");
+		assertEquals("IntegrationTestAgent", types.find(params).get(0).getName(), "type.find(params)");
+		assertEquals("TestPongAgent", types.getTypeOf(pongAid).getName(), "type.getTypeOf(pongAid)");
 		
 		// send ping
 		log.info("pinging pong agent <{}>.", pongAid.getName());
-		message.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
+		messages.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
 		
 		// await reply
 		behaviours.changeTo("expecting_pong");
@@ -105,26 +105,26 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		// newMessage tests
 		assertEquals("test_pong", newMessage.getPerformative(), "newMessage.getPerformative() = test_pong");
 		
-		assertTrue(agent.localPlatformContains(newMessage.getSender()), "agent.localPlatformContains(newMessage.getSender())");
+		assertTrue(agentDirectory.localPlatformContains(newMessage.getSender()), "agent.localPlatformContains(newMessage.getSender())");
 		
-		assertEquals("TestPongAgent", type.getTypeOf(newMessage.getSender()).getName(), "type.getTypeOf(newMessage.getSender())");
-		assertEquals(AgentState.PASSIVE, agent.getState(newMessage.getSender()), "agent.getState(newMessage.getSender())");
+		assertEquals("TestPongAgent", types.getTypeOf(newMessage.getSender()).getName(), "type.getTypeOf(newMessage.getSender())");
+		assertEquals(AgentState.PASSIVE, agentDirectory.getState(newMessage.getSender()), "agent.getState(newMessage.getSender())");
 		
 		// service
-		assertTrue(service.exists("TestAgentService"), "service.exists('TestAgentService')");
-		assertEquals("test_service_attr_val_1", service.getAttributes("TestAgentService").get("test_service_attr_key_1"), "service.getAttributes('TestAgentService')");
-		assertEquals("params=123", service.callSynch("TestAgentService", "1", "2", "3"), "service.callSynch('TestAgentService', '1', '2', '3')");
-		assertEquals("params=123", service.callAsynch("TestAgentService", "1", "2", "3").get(), "service.callAsynch('TestAgentService', '1', '2', '3')");
+		assertTrue(services.exists("TestAgentService"), "service.exists('TestAgentService')");
+		assertEquals("test_service_attr_val_1", services.getAttributes("TestAgentService").get("test_service_attr_key_1"), "service.getAttributes('TestAgentService')");
+		assertEquals("params=123", services.callSynch("TestAgentService", "1", "2", "3"), "service.callSynch('TestAgentService', '1', '2', '3')");
+		assertEquals("params=123", services.callAsynch("TestAgentService", "1", "2", "3").get(), "service.callAsynch('TestAgentService', '1', '2', '3')");
 		params = new HashMap<>();
 		params.put("test_service_attr_key_1", "test_service_attr_val_1");
-		assertEquals("TestAgentService", service.find(params).get(0), "service.find(params).get(0)");
+		assertEquals("TestAgentService", services.find(params).get(0), "service.find(params).get(0)");
 		
 		// event
-		event.register("integration_test_evt");
-		assertTrue(event.exists("integration_test_evt"), "event.exists");
+		events.register("integration_test_evt");
+		assertTrue(events.exists("integration_test_evt"), "event.exists");
 		
 		// request of pong agent to subscribe to integration_test_evt
-		message.send(new ACLMessage().setPerformative("subscribe_request").addReceivers(newMessage.getSender()).setContent("integration_test_evt"));
+		messages.send(new ACLMessage().setPerformative("subscribe_request").addReceivers(newMessage.getSender()).setContent("integration_test_evt"));
 		
 		behaviours.changeTo("expecting_subscribed_pong");
 	}
@@ -138,7 +138,7 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		assertEquals("subscribed_pong", newMessage.getPerformative(), "newMessage.getPerformative() = subscribed_pong");
 		
 		// fire event
-		event.fire("integration_test_evt", "event_ping");
+		events.fire("integration_test_evt", "event_ping");
 		
 		behaviours.changeTo("expecting_event_pong");
 	}
@@ -153,7 +153,7 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		assertEquals("event_ping", newMessage.getContent(), "newMessage.getContent() = event_ping");
 		
 		// register timer
-		timer.register("integration_test_timer", "integration_test_evt", (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
+		timers.register("integration_test_timer", "integration_test_evt", (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
 		
 		behaviours.changeTo("expecting_timer_pong");
 	}
@@ -173,30 +173,30 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		Thread.sleep(3000);
 		
 		// message
-		assertTrue(message.newMessagesAvailable(), "message.newMessagesAvailable()");
-		assertEquals("event_pong", message.getAll().get(0).getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
+		assertTrue(messages.newMessagesAvailable(), "message.newMessagesAvailable()");
+		assertEquals("event_pong", messages.getAll().get(0).getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
 		
 		// unregister timer
-		timer.unregister("integration_test_timer");
+		timers.unregister("integration_test_timer");
 		
 		// wait for messages to arrive
 		Thread.sleep(1000);
 		
 		// message
-		message.ignoreAndForgetNewMessages();
-		assertTrue(!message.newMessagesAvailable(), "ignoreAndForgetNewMessages");
+		messages.ignoreAndForgetNewMessages();
+		assertTrue(!messages.newMessagesAvailable(), "ignoreAndForgetNewMessages");
 		
 		// event unregister
-		event.unregister("integration_test_evt");
-		assertTrue(!event.exists("integration_test_evt"), "event.unregister");
+		events.unregister("integration_test_evt");
+		assertTrue(!events.exists("integration_test_evt"), "event.unregister");
 		
 		// send termination request
-		agent.requestAgentTermination(newMessage.getSender().getName());
+		agentDirectory.requestAgentTermination(newMessage.getSender().getName());
 		
 		// wait for agent to terminate
 		Thread.sleep(5000);
 		
-		assertTrue(!agent.localPlatformContains(newMessage.getSender()), "agent deleted");
+		assertTrue(!agentDirectory.localPlatformContains(newMessage.getSender()), "agent deleted");
 		
 		String errorCount = data.map(TEST_DATA).get("error_count");
 		
@@ -206,7 +206,7 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		{
 			String employer = data.map(TEST_DATA).get("task_employer");
 			String report = data.map(TEST_DATA).get("report");
-			task.submitResult(new TaskResult(employer, "IntegrationTestTask", report));
+			tasks.submitResult(new TaskResult(employer, "IntegrationTestTask", report));
 		}
 		
 		self.terminate();

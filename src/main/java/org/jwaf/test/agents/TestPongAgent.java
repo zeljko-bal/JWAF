@@ -22,16 +22,16 @@ public class TestPongAgent extends AbstractBehaviourAgent
 	{
 		log.info("Got ping from: <{}>.", newMessage.getSender().getName());
 		
-		message.send(new ACLMessage().setPerformative("test_pong").addReceivers(newMessage.getSender()));
+		messages.send(new ACLMessage().setPerformative("test_pong").addReceivers(newMessage.getSender()));
 	}
 	
 	@MessageHandler(performative="subscribe_request")
 	public void handleSubscribeRequest(ACLMessage newMessage)
 	{
 		log.info("Got subscribe request for event: <{}>.", newMessage.getContent());
-		event.subscribe(newMessage.getContent());
+		events.subscribe(newMessage.getContent());
 		data.map(TEST_DATA).put("ping_aid", newMessage.getSender().getName());
-		message.send(new ACLMessage().setPerformative("subscribed_pong").addReceivers(newMessage.getSender()));
+		messages.send(new ACLMessage().setPerformative("subscribed_pong").addReceivers(newMessage.getSender()));
 	}
 	
 	@MessageHandler
@@ -40,8 +40,8 @@ public class TestPongAgent extends AbstractBehaviourAgent
 		if("integration_test_evt".equals(newMessage.getPerformative()))
 		{
 			log.info("Got integration_test_evt event notification.");
-			AgentIdentifier pingAid = agent.findAid(data.map(TEST_DATA).get("ping_aid"));
-			message.send(new ACLMessage().setPerformative("event_pong").addReceivers(pingAid).setContent(newMessage.getContent()));
+			AgentIdentifier pingAid = agentDirectory.findAid(data.map(TEST_DATA).get("ping_aid"));
+			messages.send(new ACLMessage().setPerformative("event_pong").addReceivers(pingAid).setContent(newMessage.getContent()));
 		}
 		else
 		{

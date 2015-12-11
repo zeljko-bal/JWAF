@@ -71,15 +71,15 @@ public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAg
 	 * Agent tools
 	 */
 	
-	protected AgentDirectory agent;
-	protected MessageTools message;
+	protected AgentDirectory agentDirectory;
+	protected MessageTools messages;
 	protected AgentTools self;
-	protected TaskTools task;
-	protected EventTools event;
-	protected TimerTools timer;
+	protected TaskTools tasks;
+	protected EventTools events;
+	protected TimerTools timers;
 	protected RemotePlatformTools remotePlatforms;
-	protected ServiceDirectory service;
-	protected TypeTools type;
+	protected ServiceDirectory services;
+	protected TypeTools types;
 	protected DataTools data;
 	protected AutoPersister autoDataPersister;
 	
@@ -88,14 +88,14 @@ public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAg
 	{
 		super.postConstruct();
 		remotePlatforms = new RemotePlatformTools(this, remoteManager);
-		agent = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
-		message = new MessageTools(messageSender, agentManager);
+		agentDirectory = new AgentDirectory(aidManager, agentManager, agentDataManager, remoteManager, localPlatformName);
+		messages = new MessageTools(messageSender, agentManager);
 		self = new AgentTools(agentManager, aidManager);
-		task = new TaskTools(taskManager);
-		event = new EventTools(eventManager);
-		timer = new TimerTools(timerManager);
-		service = new ServiceDirectory(serviceManager);
-		type = new TypeTools(agentManager, typeManager);
+		tasks = new TaskTools(taskManager);
+		events = new EventTools(eventManager);
+		timers = new TimerTools(timerManager);
+		services = new ServiceDirectory(serviceManager);
+		types = new TypeTools(agentManager, typeManager);
 		data = new DataTools(agentDataManager);
 		autoDataPersister = new AutoPersister(this, data, true);
 	}
@@ -104,12 +104,12 @@ public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAg
 	protected void onSetAid(AgentIdentifier aid)
 	{
 		super.onSetAid(aid);
-		message.setAid(aid);
+		messages.setAid(aid);
 		self.setAid(aid);
-		task.setAid(aid);
-		event.setAid(aid);
+		tasks.setAid(aid);
+		events.setAid(aid);
 		remotePlatforms.setAid(aid);
-		service.setAid(aid);
+		services.setAid(aid);
 		data.setAid(aid);
 	}
 	
