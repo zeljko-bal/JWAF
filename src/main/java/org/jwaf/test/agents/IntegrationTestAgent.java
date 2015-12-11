@@ -10,8 +10,9 @@ import javax.ejb.Stateless;
 import org.jwaf.agent.AgentState;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
-import org.jwaf.base.implementations.fsm.AbstractFSMAgent;
-import org.jwaf.base.implementations.fsm.annotation.StateCallback;
+import org.jwaf.base.implementations.behaviour.AbstractBehaviourAgent;
+import org.jwaf.base.implementations.behaviour.annotations.InitialBehaviour;
+import org.jwaf.base.implementations.behaviour.annotations.MessageHandler;
 import org.jwaf.common.annotations.attributes.TypeAttribute;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.jwaf.message.persistence.entity.ACLMessage;
@@ -21,11 +22,12 @@ import org.jwaf.task.persistence.entity.TaskResult;
 @Stateless
 @LocalBean
 @TypeAttribute(key="test_attr_key_1",value="test_attr_value_1")
-public class IntegrationTestAgent extends AbstractFSMAgent
+@InitialBehaviour("initial")
+public class IntegrationTestAgent extends AbstractBehaviourAgent
 {
 	private static final String TEST_DATA = "TEST_DATA";
 	
-	@StateCallback(state="initial_state", initial=true)
+	@MessageHandler(behaviour="initial")
 	public void initialState(ACLMessage newMessage)
 	{
 		log.info("activated, running initial tests..");
@@ -86,10 +88,10 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		message.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
 		
 		// await reply
-		stateHandling.changeState("expecting_pong");
+		behaviours.changeTo("expecting_pong");
 	}
 	
-	@StateCallback(state="expecting_pong")
+	@MessageHandler(behaviour="expecting_pong")
 	public void expectingPong(ACLMessage newMessage) throws InterruptedException, ExecutionException
 	{
 		HashMap<String, String> params;
@@ -124,10 +126,10 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		// request of pong agent to subscribe to integration_test_evt
 		message.send(new ACLMessage().setPerformative("subscribe_request").addReceivers(newMessage.getSender()).setContent("integration_test_evt"));
 		
-		stateHandling.changeState("expecting_subscribed_pong");
+		behaviours.changeTo("expecting_subscribed_pong");
 	}
 	
-	@StateCallback(state="expecting_subscribed_pong")
+	@MessageHandler(behaviour="expecting_subscribed_pong")
 	public void expectingSubscribedPong(ACLMessage newMessage)
 	{
 		log.info("Got subscribed pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
@@ -138,10 +140,10 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		// fire event
 		event.fire("integration_test_evt", "event_ping");
 		
-		stateHandling.changeState("expecting_event_pong");
+		behaviours.changeTo("expecting_event_pong");
 	}
 	
-	@StateCallback(state="expecting_event_pong")
+	@MessageHandler(behaviour="expecting_event_pong")
 	public void expectingEventPong(ACLMessage newMessage)
 	{
 		log.info("Got event pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
@@ -153,10 +155,10 @@ public class IntegrationTestAgent extends AbstractFSMAgent
 		// register timer
 		timer.register("integration_test_timer", "integration_test_evt", (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
 		
-		stateHandling.changeState("expecting_timer_pong");
+		behaviours.changeTo("expecting_timer_pong");
 	}
 	
-	@StateCallback(state="expecting_timer_pong")
+	@MessageHandler(behaviour="expecting_timer_pong")
 	public void expectingTimerPong(ACLMessage newMessage) throws InterruptedException
 	{
 		log.info("Got timer pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());

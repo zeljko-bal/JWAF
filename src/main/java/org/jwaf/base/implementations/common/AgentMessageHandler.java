@@ -4,5 +4,5 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 
 public interface AgentMessageHandler
 {
-	void handle(ACLMessage message);
+	void handle(ACLMessage message) throws Exception;
 }

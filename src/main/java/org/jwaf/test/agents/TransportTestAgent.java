@@ -3,15 +3,15 @@ package org.jwaf.test.agents;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 
-import org.jwaf.base.implementations.reactive.AbstractReactiveAgent;
-import org.jwaf.base.implementations.reactive.annotation.DefaultMessageHandler;
+import org.jwaf.base.implementations.behaviour.AbstractBehaviourAgent;
+import org.jwaf.base.implementations.behaviour.annotations.MessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
 @LocalBean
-public class TransportTestAgent extends AbstractReactiveAgent
+public class TransportTestAgent extends AbstractBehaviourAgent
 {
-	@DefaultMessageHandler
+	@MessageHandler
 	public void travel(ACLMessage newMessage)
 	{
 		remotePlatforms.travelTo(newMessage.getContent());
