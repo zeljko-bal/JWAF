@@ -32,7 +32,7 @@ public class AgentRepository
 {
 	private static final int MAX_RETRIES = 50;
 	
-	@MorphiaAdvancedDatastore
+	@Inject @MorphiaAdvancedDatastore
 	private AdvancedDatastore ds;
 	
 	@Inject
@@ -61,9 +61,9 @@ public class AgentRepository
 		ds.insert(agent);
 	}
 	
-	public void remove(String name)
+	public void remove(String agentName)
 	{
-		ds.delete(AgentEntity.class, name);
+		ds.delete(basicQuery(agentName));
 	}
 	
 	public boolean activateSingleThreaded(String agentName)
@@ -81,7 +81,7 @@ public class AgentRepository
 					.retrievedFields(true, "state", "hasNewMessages")
 					.get();
 			
-			assertAgentExists(agent);
+			assertAgentExists(agent, agentName);
 			
 			String prevState = agent.getState();
 			boolean alreadyHasMessages = agent.hasNewMessages();
@@ -152,7 +152,7 @@ public class AgentRepository
 					.retrievedFields(true, "hasNewMessages")
 					.get();
 			
-			assertAgentExists(agent);
+			assertAgentExists(agent, agentName);
 			
 			boolean hasNewMessages = agent.hasNewMessages();
 			
@@ -257,20 +257,20 @@ public class AgentRepository
 		
 		// clear messages, set hasNewMessages to false and return old AgentEntity version
 		AgentEntity agent = ds.findAndModify(basicQuery(agentName), updates, true);
-		assertAgentExists(agent);
+		assertAgentExists(agent, agentName);
 		
 		return new ArrayList<ACLMessage>(agent.getMessages());
 	}
 	
-	public void removeFromInbox(String agentName, List<Integer> keys)
+	public void removeFromInbox(String agentName, List<ACLMessage> messages)
 	{
 		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
-				.removeAll("messages", keys);
+				.removeAll("messages", messages);
 		
 		ds.update(basicQuery(agentName), updates);
 	}
 	
-	public List<Integer> getMessageIDs(String agentName)
+	public List<String> getMessageIDs(String agentName)
 	{
 		return find(agentName) // TODO optimize, use Document directly to fetch only keys
 				.getMessages()
@@ -335,14 +335,14 @@ public class AgentRepository
 
 	private Query<AgentEntity> basicQuery(String agentName)
 	{
-		return ds.find(AgentEntity.class, "aid", agentName);
+		return ds.find(AgentEntity.class, "aid", new AgentIdentifier(agentName));
 	}
 	
-	private void assertAgentExists(AgentEntity agent)
+	private void assertAgentExists(AgentEntity agent, String agentName)
 	{
 		if(agent == null)
 		{
-			throw new AgentNotFound();
+			throw new AgentNotFound("Agent not found: <"+agentName+">");
 		}
 	}
 }

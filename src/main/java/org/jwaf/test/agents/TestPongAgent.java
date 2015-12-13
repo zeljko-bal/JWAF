@@ -12,7 +12,8 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 
 @Stateless
 @LocalBean
-@TypeAttribute(key="test_attr_key_2",value="test_attr_value_2")
+@TypeAttribute(key="key_1",value="val_1")
+@TypeAttribute(key="key_2",value="val_2")
 public class TestPongAgent extends AbstractBehaviourAgent
 {
 	private static final String TEST_DATA = "TEST_DATA";
@@ -31,13 +32,15 @@ public class TestPongAgent extends AbstractBehaviourAgent
 		log.info("Got subscribe request for event: <{}>.", newMessage.getContent());
 		events.subscribe(newMessage.getContent());
 		data.map(TEST_DATA).put("ping_aid", newMessage.getSender().getName());
+		data.map(TEST_DATA).put("event_name", newMessage.getContent());
 		messages.send(new ACLMessage().setPerformative("subscribed_pong").addReceivers(newMessage.getSender()));
 	}
 	
 	@MessageHandler
 	public void defaultHandler(ACLMessage newMessage)
 	{
-		if("integration_test_evt".equals(newMessage.getPerformative()))
+		String eventName = data.map(TEST_DATA).get("event_name");
+		if(eventName.equals(newMessage.getPerformative()))
 		{
 			log.info("Got integration_test_evt event notification.");
 			AgentIdentifier pingAid = agentDirectory.findAid(data.map(TEST_DATA).get("ping_aid"));

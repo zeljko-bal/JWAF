@@ -7,6 +7,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 
@@ -17,7 +18,7 @@ public class TaskResult
 {
 	@Id
 	@XmlTransient
-	private Integer id;
+	private ObjectId id;
 	
 	@XmlElement
 	private String employee;

@@ -13,6 +13,7 @@ import org.jwaf.base.implementations.common.MessageCallbackUtil;
 import org.jwaf.base.tools.AgentLogger;
 import org.jwaf.base.tools.DataTools;
 import org.jwaf.base.tools.MessageTools;
+import org.jwaf.common.data.map.DataMap;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
 public class BehaviourTools
@@ -105,13 +106,15 @@ public class BehaviourTools
 				// if no behaviour exists under this behaviourName create a new one
 				if(behaviour == null)
 				{
+					behaviour = new AgentBehaviour();
+					
 					if(behaviourName.equals(initialBehaviour))
 					{
-						initialBehaviour(behaviourName, new AgentBehaviour());
+						initialBehaviour(behaviourName, behaviour);
 					}
 					else
 					{
-						behaviour(behaviourName, new AgentBehaviour());
+						behaviour(behaviourName, behaviour);
 					}
 				}
 				
@@ -163,7 +166,7 @@ public class BehaviourTools
 	
 	public void changeTo(String newBehaviour)
 	{
-		if(behaviours.keySet().contains(newBehaviour))
+		if(!behaviours.keySet().contains(newBehaviour))
 		{
 			log.error("Tried to change to an undefined behaviour: <{}>.", newBehaviour);
 			return;
@@ -179,13 +182,24 @@ public class BehaviourTools
 	
 	public String getCurrentBehaviourName()
 	{
-		String currentBehaviour = dataTools.map(BEHAVIOUR_DATA).get(CURRENT_BEHAVIOUR);
+		DataMap behaviourData = dataTools.map(BEHAVIOUR_DATA);
 		
-		if(currentBehaviour == null)
+		if(!behaviourData.exists())
 		{
-			currentBehaviour = initialBehaviour;
+			changeTo(initialBehaviour);
+			return initialBehaviour;
 		}
-		
-		return currentBehaviour;
+		else
+		{
+			String currentBehaviour = dataTools.map(BEHAVIOUR_DATA).get(CURRENT_BEHAVIOUR);
+			
+			if(currentBehaviour == null)
+			{
+				currentBehaviour = initialBehaviour;
+				changeTo(currentBehaviour);
+			}
+			
+			return currentBehaviour;
+		}
 	}
 }

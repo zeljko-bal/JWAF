@@ -8,8 +8,8 @@ import org.jwaf.service.AgentService;
 
 @Stateless
 @LocalBean
-@TypeAttribute(key="test_service_attr_key_1",value="test_service_attr_val_1")
-public class TestAgentService extends AgentService
+@TypeAttribute(key="key_1",value="val_1")
+public class TestAgentService implements AgentService
 {
 	@Override
 	public Object call(Object... params)

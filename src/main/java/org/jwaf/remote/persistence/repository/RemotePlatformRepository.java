@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.data.mongo.annotations.MorphiaAdvancedDatastore;
@@ -16,7 +17,7 @@ import org.mongodb.morphia.query.UpdateOperations;
 @LocalBean
 public class RemotePlatformRepository
 {
-	@MorphiaAdvancedDatastore
+	@Inject @MorphiaAdvancedDatastore
 	private AdvancedDatastore ds;
 	
 	public AgentPlatform findPlatform(String name)

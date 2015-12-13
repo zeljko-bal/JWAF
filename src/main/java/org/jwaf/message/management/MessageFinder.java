@@ -17,7 +17,7 @@ public class MessageFinder
 	@Inject
 	private MessageRepository messageRepo;
 	
-	public List<ACLMessage> find(List<Integer> messageIDs, QueryFunction<ACLMessage> queryFunc)
+	public List<ACLMessage> find(List<String> messageIDs, QueryFunction<ACLMessage> queryFunc)
 	{
 		return messageRepo.find(messageIDs, queryFunc);
 	}

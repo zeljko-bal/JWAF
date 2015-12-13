@@ -1,35 +1,26 @@
 package org.jwaf.platform.management;
 
-import java.net.URL;
-import java.util.Set;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.DependsOn;
 import javax.ejb.LocalBean;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.util.AnnotationLiteral;
 import javax.inject.Inject;
 
-import org.jwaf.agent.annotations.LocalPlatformAid;
+import org.jwaf.agent.Agent;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
-import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.platform.annotations.SystemAgent;
-import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
-import org.jwaf.platform.annotations.resource.LocalPlatformName;
-import org.jwaf.task.management.TaskManager;
 import org.slf4j.Logger;
 
 
 @Singleton
 @LocalBean
 @Startup
-@DependsOn({"LocalPlatformPtoperties", "AgentSetup"})
+@DependsOn("AgentSetup")
 public class LocalPlatformSetup 
 {
 	@Inject
@@ -39,16 +30,7 @@ public class LocalPlatformSetup
 	private AgentManager agentManager;
 	
 	@Inject
-	TaskManager taskManager;
-	
-	@Inject
 	private BeanManager beanManager;
-	
-	@Inject @LocalPlatformName
-	private String localPlatformName;
-	
-	@Inject @LocalPlatformAddress
-	private URL localPlatformAddress;
 	
 	@Inject
 	Logger log;
@@ -58,8 +40,6 @@ public class LocalPlatformSetup
 	{
 		try
 		{
-			persistLocalPlatformAid();
-			
 			registerSystemAgents();
 		}
 		catch(Exception e)
@@ -67,43 +47,14 @@ public class LocalPlatformSetup
 			log.error("Error during platform setup.", e);
 		}
 	}
-
-	private void persistLocalPlatformAid()
-	{
-		if(!agentManager.contains(localPlatformName))
-		{
-			AgentIdentifier platformAid = createLocalPlatformAid();
-			aidManager.save(platformAid);
-		}
-	}
-	
-	private AgentIdentifier createLocalPlatformAid()
-	{
-		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
-		platformAid.getAddresses().add(localPlatformAddress);
-		return platformAid;
-	}
-	
-	@Produces @LocalPlatformAid
-	public AgentIdentifier getPlatformAid()
-	{
-		AgentIdentifier platformAid = aidManager.find(localPlatformName);
-		
-		if(platformAid != null)
-		{
-			return platformAid;
-		}
-		else
-		{
-			return createLocalPlatformAid();
-		}
-	}
 	
 	private void registerSystemAgents()
 	{
-		@SuppressWarnings("serial")
-		Set<Bean<?>> agentBeans = beanManager.getBeans(Object.class, new AnnotationLiteral<SystemAgent>() {});
-		agentBeans.forEach(this::registerSystemAgent);
+		beanManager.getBeans(Object.class)
+				.stream()
+				.filter(b->b.getBeanClass().isAnnotationPresent(SystemAgent.class) &&
+							Agent.class.isAssignableFrom(b.getBeanClass()))
+				.forEach(this::registerSystemAgent);
 	}
 	
 	private void registerSystemAgent(Bean<?> agentBean)

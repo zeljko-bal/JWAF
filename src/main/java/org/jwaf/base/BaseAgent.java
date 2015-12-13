@@ -1,8 +1,9 @@
 package org.jwaf.base;
 
+import java.net.URL;
+
 import javax.inject.Inject;
 
-import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AgentTypeManager;
 import org.jwaf.agent.management.AidManager;
@@ -22,12 +23,12 @@ import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.event.management.EventManager;
 import org.jwaf.event.management.TimerManager;
 import org.jwaf.message.management.MessageSender;
+import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
 
-@AgentQualifier
 public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAgent
 {
 	/*
@@ -66,6 +67,9 @@ public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAg
 	
 	@Inject @LocalPlatformName
 	protected String localPlatformName;
+	
+	@Inject @LocalPlatformAddress
+	protected URL localPlatformAddress;
 	
 	/*
 	 * Agent tools

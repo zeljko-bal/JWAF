@@ -9,6 +9,7 @@ import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
+import org.bson.types.ObjectId;
 import org.jwaf.common.data.mongo.MongoUtils;
 import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
@@ -55,7 +56,7 @@ public class MessageRepository
 				.dec("unreadCount"));
 		
 		// delete message if unreadCount is lessThanOrEq 0
-		WriteResult res = ds.delete(ds.find(ACLMessage.class, "id", message.getId())
+		WriteResult res = ds.delete(ds.find(ACLMessage.class, "id", new ObjectId(message.getId()))
 				.field("unreadCount").lessThanOrEq(0));
 		
 		// return true if message was found and deleted
@@ -76,13 +77,15 @@ public class MessageRepository
 				.collect(Collectors.toList());
 	}
 	
-	public List<ACLMessage> find(List<Integer> messageIDs, QueryFunction<ACLMessage> queryFunc)
+	public List<ACLMessage> find(List<String> messageIDs, QueryFunction<ACLMessage> queryFunc)
 	{
 		Query<ACLMessage> query = ds.createQuery(ACLMessage.class);
 		
 		query = queryFunc.apply(query);
 		
-		query.filter("_id in", messageIDs);
+		query.filter("_id in", messageIDs.stream()
+											.map(id->new ObjectId(id))
+											.collect(Collectors.toList()));
 		
 		return query.asList();
 	}

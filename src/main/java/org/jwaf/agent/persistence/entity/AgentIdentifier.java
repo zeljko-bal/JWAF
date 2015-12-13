@@ -64,4 +64,22 @@ public class AgentIdentifier
 	{
 		return resolvers;
 	}
+	
+	@Override
+	public boolean equals(Object o)
+	{
+		if(o == null) return false;
+		if(this == o) return true;
+		if(!(o instanceof AgentIdentifier)) return false;
+		
+		AgentIdentifier other = (AgentIdentifier) o;
+		
+		return name.equals(other.getName());
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return name.hashCode();
+	}
 }

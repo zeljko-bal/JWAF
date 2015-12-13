@@ -1,5 +1,6 @@
 package org.jwaf.common.data.mongo;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,6 +10,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
@@ -21,6 +23,7 @@ import org.jwaf.common.util.PropertiesUtils;
 import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.Morphia;
+import org.slf4j.Logger;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
@@ -37,28 +40,46 @@ public class MongoProducer
 	private MongoClient mongoClient;
 	private Morphia morphia;
 	
+	@Inject
+	private Logger logger;
+	
 	@SuppressWarnings("unchecked")
 	@PostConstruct
 	public void setup()
 	{
-		Document properties = PropertiesUtils.getJsonProperties("mongo_config.json");
-		
-		List<Document> addressesDoc = properties.get("addresses", List.class);
-		List<Document> credentialsDoc = properties.get("credentials", List.class);
-		
-		List<ServerAddress> addresses = addressesDoc.stream()
-				.map(a->new ServerAddress(a.getString("host"), a.getInteger("port")))
-				.collect(Collectors.toList());
-		
-		List<MongoCredential> credentials = credentialsDoc.stream()
-				.map(c->MongoCredential.createMongoCRCredential(c.getString("username"), 
-																c.getString("db"), 
-																c.getString("password").toCharArray()))
-				.collect(Collectors.toList());
-		
-		mongoClient = new MongoClient(addresses, credentials);
-		
-		morphia = new Morphia();
+		try
+		{
+			Document properties = PropertiesUtils.getJsonProperties("mongo_config.json");
+			
+			List<Document> addressesDoc = properties.get("addresses", List.class);
+			List<Document> credentialsDoc = properties.get("credentials", List.class);
+			
+			List<ServerAddress> addresses = addressesDoc.stream()
+					.map(a->new ServerAddress(a.getString("host"), a.getInteger("port")))
+					.collect(Collectors.toList());
+			
+			// if using credentials
+			if(credentialsDoc != null)
+			{
+				List<MongoCredential> credentials = credentialsDoc.stream()
+						.map(c->MongoCredential.createMongoCRCredential(c.getString("username"), 
+																		c.getString("db"), 
+																		c.getString("password").toCharArray()))
+						.collect(Collectors.toList());
+				
+				mongoClient = new MongoClient(addresses, credentials);
+			}
+			else
+			{
+				mongoClient = new MongoClient(addresses);
+			}
+			
+			morphia = new Morphia();
+		}
+		catch (IOException e)
+		{
+			logger.error("Error while loading mongo_config.json", e);
+		}
 	}
 	
 	@Produces @SystemMongoClient
@@ -104,6 +125,11 @@ public class MongoProducer
 		if(StringUtils.isEmpty(dbName))
 		{
 			dbName = SYSTEM_DB_NAME;
+		}
+		else
+		{
+			throw new RuntimeException("Different databases not supported for now, "
+					+ "due to issues in org.mongodb.morphia, see: https://github.com/mongodb/morphia/issues/757");
 		}
 		
 		return morphia.createDatastore(mongoClient, dbName);

@@ -183,6 +183,7 @@ public class AgentActivator
 			catch (Exception e)
 			{
 				onExecutionException(aid, e);
+				return;
 			}
 			
 			// try to passivate

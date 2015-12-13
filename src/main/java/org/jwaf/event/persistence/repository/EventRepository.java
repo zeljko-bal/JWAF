@@ -6,6 +6,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.mongodb.morphia.Datastore;
@@ -48,7 +49,7 @@ public class EventRepository
 	{
 		Query<EventEntity> query = ds.find(EventEntity.class, "name", eventName);
 		UpdateOperations<EventEntity> updates = ds.createUpdateOperations(EventEntity.class)
-				.add("registeredAgents", agentName);
+				.add("registeredAgents", new AgentIdentifier(agentName));
 		ds.update(query, updates);
 	}
 	
@@ -67,7 +68,7 @@ public class EventRepository
 	public void unsubscribe(String agentName, Query<EventEntity> query)
 	{
 		UpdateOperations<EventEntity> updates = ds.createUpdateOperations(EventEntity.class)
-				.removeAll("registeredAgents", agentName);
+				.removeAll("registeredAgents", new AgentIdentifier(agentName));
 		ds.update(query, updates);
 	}
 }

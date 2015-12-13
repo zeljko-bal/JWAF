@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.bson.types.ObjectId;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.util.SerializationUtils;
 import org.mongodb.morphia.annotations.Embedded;
@@ -27,7 +28,7 @@ public class ACLMessage
 {
 	@Id
 	@XmlTransient
-	private Integer id;
+	private ObjectId id;
 	
 	@XmlElement
 	private String performative;
@@ -87,6 +88,11 @@ public class ACLMessage
     	this.user_defined_parameters = new HashMap<>();
     }
     
+    public ACLMessage(String id)
+    {
+    	this.id = new ObjectId(id);
+    }
+    
 	public ACLMessage(String performative, AgentIdentifier sender)
 	{
 		this();
@@ -118,9 +124,9 @@ public class ACLMessage
 		this.conversation_id = conversation_id;
 	}
 	
-	public Integer getId()
+	public String getId()
 	{
-		return id;
+		return id.toHexString();
 	}
 
 	public String getPerformative()

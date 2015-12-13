@@ -164,4 +164,9 @@ public class DataMap implements Map<String, String>
 		put(key, newValue.toString());
 		return value;
 	}
+
+	public boolean exists()
+	{
+		return dataRepo.exists();
+	}
 }

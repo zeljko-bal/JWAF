@@ -9,4 +9,5 @@ public interface AgentDataMapRepository
 	String remove(String agentName, Object key);
 	void putAll(String agentName, Map<? extends String, ? extends String> m);
 	void clear(String agentName);
+	boolean exists(String agentName);
 }

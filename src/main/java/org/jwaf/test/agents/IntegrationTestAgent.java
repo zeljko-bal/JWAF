@@ -1,7 +1,9 @@
 package org.jwaf.test.agents;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.ScheduleExpression;
@@ -21,7 +23,7 @@ import org.jwaf.task.persistence.entity.TaskResult;
 
 @Stateless
 @LocalBean
-@TypeAttribute(key="test_attr_key_1",value="test_attr_value_1")
+@TypeAttribute(key="key_1",value="val_1")
 @InitialBehaviour("initial")
 public class IntegrationTestAgent extends AbstractBehaviourAgent
 {
@@ -32,6 +34,8 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 	{
 		log.info("activated, running initial tests..");
 		
+		printTestHeader("SETUP");
+		
 		data.map(TEST_DATA).put("error_count", "0");
 		
 		if(newMessage.getContentAsObject() instanceof TaskRequest)
@@ -41,68 +45,164 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		}
 		
 		HashMap<String, String> params;
+		List<String> typeResults;
 		
-		// aid
+		printTestHeader("aid tests");
+		
 		assertTrue(aid != null, "aid not null");
+		assertEquals(aid.getAddresses().get(0), localPlatformAddress, "aid.getAddresses().get(0) == localPlatformAddress");
 		
-		// self
-		assertEquals(AgentState.ACTIVE, self.getState(), "self.getState()");
-		assertEquals("IntegrationTestAgent", self.getType().getName(), "self.getType().getName()");
-		assertEquals("test_attr_value_1", self.getType().getAttributes().get("test_attr_key_1"), "self.getType().getAttributes()");
+		printTestHeader("self tests");
 		
-		data.map(TEST_DATA).put("test_private_data_key", "test_private_data_val");
-		assertEquals("test_private_data_val", data.map(TEST_DATA).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE)");
+		assertEquals(AgentState.ACTIVE, self.getState(), "self.getState() == ACTIVE");
+		assertEquals(getClass().getSimpleName(), self.getType().getName(), "self.getType().getName() == getClass().getSimpleName()");
+		assertEquals("val_1", self.getType().getAttributes().get("key_1"), "self.getType().getAttributes()");
 		
-		data.getPublicDataMap().put("test_public_data_key", "test_public_data_val");
-		assertEquals("test_public_data_val", data.getPublicDataMap().get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC)");
+		printTestHeader("data tests");
 		
-		// agent
-		assertEquals(AgentState.ACTIVE, agentDirectory.getState(aid.getName()), "agent.getState(aid.getName())");
-		assertTrue(agentDirectory.localPlatformContains(aid), "agent.localPlatformContains(aid)");
-		assertEquals(agentDirectory.locationOf(aid), localPlatformName, "agent.locationOf(aid)");
+		data.map(TEST_DATA).put("private_key", "private_val");
+		assertEquals("private_val", data.map(TEST_DATA).get("private_key"), "data.map(TEST_DATA).get('private_key')");
+		
+		data.getPublicDataMap().put("public_key", "public_val");
+		assertEquals("public_val", data.getPublicDataMap().get("public_key"), "data.getPublicDataMap().get('public_key')");
+		
+		printTestHeader("agentDirectory tests");
+		
+		assertEquals(AgentState.ACTIVE, agentDirectory.getState(aid), "agentDirectory.getState(aid) == ACTIVE");
+		assertEquals(AgentState.ACTIVE, agentDirectory.getState(aid.getName()), "agentDirectory.getState(aid.getName()) == ACTIVE");
+		assertTrue(agentDirectory.localPlatformContains(aid), "agentDirectory.localPlatformContains(aid)");
+		assertTrue(agentDirectory.localPlatformContains(aid.getName()), "agentDirectory.localPlatformContains(aid.getName())");
+		assertEquals(agentDirectory.locationOf(aid), localPlatformName, "agentDirectory.locationOf(aid) == localPlatformName");
+		assertEquals(agentDirectory.locationOf(aid.getName()), localPlatformName, "agentDirectory.locationOf(aid.getName()) == localPlatformName");
 		
 		AgentIdentifier aidResult =  agentDirectory.findAid(aid.getName());
-		assertEquals(aid.getName(), aidResult.getName(), "agent.findAid(aid.getName().getName()");
+		assertEquals(aid.getName(), aidResult.getName(), "agentDirectory.findAid(aid.getName())");
 		
-		assertEquals("test_public_data_val", agentDirectory.getPublicData(aid.getName()).get("test_public_data_key"), "agent.getPublicData(aid.getName())");
+		assertEquals("public_val", agentDirectory.getPublicData(aid.getName()).get("public_key"), "agentDirectory.getPublicData(aid.getName())");
 		
-		// create pong agent
+		printTestHeader("create pong agent");
+		
 		CreateAgentRequest createPongReq = new CreateAgentRequest("TestPongAgent");
-		createPongReq.getParams().put("test_pong_param_key_1", "test_pong_param_val_1");
 		AgentIdentifier pongAid = agentDirectory.createAgent(createPongReq);
 		
 		assertTrue(agentDirectory.localPlatformContains(pongAid), "agent.localPlatformContains(pongAid)");
-		assertEquals(AgentState.PASSIVE, agentDirectory.getState(pongAid), "agent.getState(pongAid)");
+		assertEquals(AgentState.PASSIVE, agentDirectory.getState(pongAid), "agent.getState(pongAid) == PASSIVE");
 		
-		// type
-		assertEquals("IntegrationTestAgent", types.find("IntegrationTestAgent").getName(), "type.find('IntegrationTestAgent').getName()");
-		assertEquals("test_attr_value_1", types.find("IntegrationTestAgent").getAttributes().get("test_attr_key_1"), "type.find('IntegrationTestAgent').getAttributes()");
-		assertEquals("test_attr_value_2", types.find("TestPongAgent").getAttributes().get("test_attr_key_2"), "type.find('IntegrationTestAgent').getAttributes()");
+		printTestHeader("type tests");
+		
+		assertEquals("IntegrationTestAgent", types.find("IntegrationTestAgent").getName(), "types.find('IntegrationTestAgent').getName()");
+		assertEquals("val_1", types.find("IntegrationTestAgent").getAttributes().get("key_1"), "types.find('IntegrationTestAgent').getAttributes()");
+		assertEquals("val_2", types.find("TestPongAgent").getAttributes().get("key_2"), "types.find('IntegrationTestAgent').getAttributes()");
+		assertEquals("TestPongAgent", types.getTypeOf(pongAid).getName(), "types.getTypeOf(pongAid)");
+		assertEquals("TestPongAgent", types.getTypeOf(pongAid.getName()).getName(), "types.getTypeOf(pongAid.getName())");
+		
+		printTestHeader("find type using parameter map");
+		
 		params = new HashMap<>();
-		params.put("test_attr_key_1", "test_attr_value_1");
-		assertEquals("IntegrationTestAgent", types.find(params).get(0).getName(), "type.find(params)");
-		assertEquals("TestPongAgent", types.getTypeOf(pongAid).getName(), "type.getTypeOf(pongAid)");
+		params.put("key_1", "val_1");
+		typeResults = types.find(params)
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertTrue(typeResults.contains("IntegrationTestAgent"), "types.find(key_1) contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1) contains 'TestPongAgent'");
 		
-		// send ping
+		params = new HashMap<>();
+		params.put("key_2", "val_2");
+		typeResults = types.find(params)
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_2) not contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_2) contains 'TestPongAgent'");
+		
+		params = new HashMap<>();
+		params.put("key_1", "val_1");
+		params.put("key_2", "val_2");
+		typeResults = types.find(params)
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_1 && key_2) not contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1 && key_2) contains 'TestPongAgent'");
+		
+		params = new HashMap<>();
+		params.put("key_1", "val_1");
+		params.put("key_2", "wrong_value");
+		typeResults = types.find(params)
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_1 && wrong_value) not contains 'IntegrationTestAgent'");
+		assertFalse(typeResults.contains("TestPongAgent"), "types.find(key_1 && wrong_value) not contains 'TestPongAgent'");
+		
+		printTestHeader("find type using query");
+		
+		typeResults = types.find(q->q.field("attributes.key_1").equal("val_1"))
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertTrue(typeResults.contains("IntegrationTestAgent"), "types.find(key_1) contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1) contains 'TestPongAgent'");
+		
+		typeResults = types.find(q->q.field("attributes.key_2").equal("val_2"))
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_1) contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1) contains 'TestPongAgent'");
+		
+		typeResults = types.find(q->
+				{
+					q.or(q.criteria("attributes.key_1").equal("val_1"), 
+						 q.criteria("attributes.key_2").equal("val_2"));
+					return q;
+				})
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertTrue(typeResults.contains("IntegrationTestAgent"), "types.find(key_1 || key_2) contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1 || key_2) contains 'TestPongAgent'");
+		
+		typeResults = types.find(q->q.field("attributes.key_1").equal("val_1")
+									 .field("attributes.key_2").equal("val_2"))
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_1 && key_2) contains 'IntegrationTestAgent'");
+		assertTrue(typeResults.contains("TestPongAgent"), "types.find(key_1 && key_2) contains 'TestPongAgent'");
+		
+		typeResults = types.find(q->q.field("attributes.key_1").equal("val_1")
+				 					 .field("attributes.key_2").equal("wrong_value"))
+				.stream()
+				.map(t->t.getName())
+				.collect(Collectors.toList());
+		assertFalse(typeResults.contains("IntegrationTestAgent"), "types.find(key_1 && wrong_value) contains 'IntegrationTestAgent'");
+		assertFalse(typeResults.contains("TestPongAgent"), "types.find(key_1 && wrong_value) contains 'TestPongAgent'");
+		
+		printTestHeader("awaiting reply from pong agent");
+		behaviours.changeTo("expecting_pong");
+		
+		printTestHeader("sending ping to pong agent");
 		log.info("pinging pong agent <{}>.", pongAid.getName());
 		messages.send(new ACLMessage().setPerformative("test_ping").addReceivers(pongAid));
-		
-		// await reply
-		behaviours.changeTo("expecting_pong");
 	}
 	
 	@MessageHandler(behaviour="expecting_pong")
 	public void expectingPong(ACLMessage newMessage) throws InterruptedException, ExecutionException
 	{
 		HashMap<String, String> params;
+		List<String> serviceResults;
 		
 		log.info("Got pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
-		// data between calls
-		assertEquals("test_private_data_val", data.map(TEST_DATA).get("test_private_data_key"), "self.getData(AgentDataType.PRIVATE) second time");
-		assertEquals("test_public_data_val", data.getPublicDataMap().get("test_public_data_key"), "self.getData(AgentDataType.PUBLIC) second time");
+		printTestHeader("testing data between calls");
 		
-		// newMessage tests
+		assertEquals("private_val", data.map(TEST_DATA).get("private_key"), "data.map(TEST_DATA).get('private_key') second time");
+		assertEquals("public_val", data.getPublicDataMap().get("public_key"), "data.getPublicDataMap().get('public_key') second time");
+		
+		printTestHeader("newMessage tests");
+		
 		assertEquals("test_pong", newMessage.getPerformative(), "newMessage.getPerformative() = test_pong");
 		
 		assertTrue(agentDirectory.localPlatformContains(newMessage.getSender()), "agent.localPlatformContains(newMessage.getSender())");
@@ -110,21 +210,40 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		assertEquals("TestPongAgent", types.getTypeOf(newMessage.getSender()).getName(), "type.getTypeOf(newMessage.getSender())");
 		assertEquals(AgentState.PASSIVE, agentDirectory.getState(newMessage.getSender()), "agent.getState(newMessage.getSender())");
 		
-		// service
+		printTestHeader("service tests");
+		
 		assertTrue(services.exists("TestAgentService"), "service.exists('TestAgentService')");
-		assertEquals("test_service_attr_val_1", services.getAttributes("TestAgentService").get("test_service_attr_key_1"), "service.getAttributes('TestAgentService')");
+		assertEquals("val_1", services.getAttributes("TestAgentService").get("key_1"), "service.getAttributes('TestAgentService')");
 		assertEquals("params=123", services.callSynch("TestAgentService", "1", "2", "3"), "service.callSynch('TestAgentService', '1', '2', '3')");
 		assertEquals("params=123", services.callAsynch("TestAgentService", "1", "2", "3").get(), "service.callAsynch('TestAgentService', '1', '2', '3')");
+		
 		params = new HashMap<>();
-		params.put("test_service_attr_key_1", "test_service_attr_val_1");
-		assertEquals("TestAgentService", services.find(params).get(0), "service.find(params).get(0)");
+		params.put("key_1", "val_1");
+		serviceResults = services.find(params);
+		assertTrue(serviceResults.contains("TestAgentService"), "service.find(key_1)");
 		
-		// event
-		events.register("integration_test_evt");
-		assertTrue(events.exists("integration_test_evt"), "event.exists");
+		params = new HashMap<>();
+		params.put("key_1", "wrong_value");
+		serviceResults = services.find(params);
+		assertFalse(serviceResults.contains("TestAgentService"), "service.find(wrong_value)");
 		
-		// request of pong agent to subscribe to integration_test_evt
-		messages.send(new ACLMessage().setPerformative("subscribe_request").addReceivers(newMessage.getSender()).setContent("integration_test_evt"));
+		serviceResults = services.find(q->q.field("attributes.key_1").equal("val_1"));
+		assertTrue(serviceResults.contains("TestAgentService"), "service.find(key_1) query");
+		
+		serviceResults = services.find(q->q.field("attributes.key_1").equal("wrong_value"));
+		assertFalse(serviceResults.contains("TestAgentService"), "service.find(wrong_value) query");
+		
+		printTestHeader("event tests");
+		
+		events.register(testEventName());
+		assertTrue(events.exists(testEventName()), "event.exists");
+		
+		printTestHeader("request of pong agent to subscribe to integration_test_evt");
+		
+		messages.send(new ACLMessage()
+				.setPerformative("subscribe_request")
+				.addReceivers(newMessage.getSender())
+				.setContent(testEventName()));
 		
 		behaviours.changeTo("expecting_subscribed_pong");
 	}
@@ -134,11 +253,11 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 	{
 		log.info("Got subscribed pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
-		// newMessage tests
+		printTestHeader("newMessage tests");
 		assertEquals("subscribed_pong", newMessage.getPerformative(), "newMessage.getPerformative() = subscribed_pong");
 		
-		// fire event
-		events.fire("integration_test_evt", "event_ping");
+		printTestHeader("fireing event");
+		events.fire(testEventName(), "event_ping");
 		
 		behaviours.changeTo("expecting_event_pong");
 	}
@@ -148,12 +267,12 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 	{
 		log.info("Got event pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
-		// newMessage tests
+		printTestHeader("newMessage tests");
 		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong");
 		assertEquals("event_ping", newMessage.getContent(), "newMessage.getContent() = event_ping");
 		
-		// register timer
-		timers.register("integration_test_timer", "integration_test_evt", (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
+		printTestHeader("registring timer");
+		timers.register(testTimerName(), testEventName(), (new ScheduleExpression()).hour("*").minute("*").second("*/1"));
 		
 		behaviours.changeTo("expecting_timer_pong");
 	}
@@ -163,51 +282,55 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 	{
 		log.info("Got timer pong from <{}>. Proceeding with tests..", newMessage.getSender().getName());
 		
-		// newMessage tests
+		printTestHeader("newMessage tests");
 		assertEquals("event_pong", newMessage.getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
 		TimerEventParam eventParam = (TimerEventParam) newMessage.getContentAsObject();
 		assertTrue(eventParam!=null, "eventParam!=null");
-		assertEquals("integration_test_timer", eventParam.getTimerName(), "eventParam.getTimerName()");
+		assertEquals(testTimerName(), eventParam.getTimerName(), "eventParam.getTimerName()");
 		
-		// wait for 3s
+		printTestHeader("waiting for 3s");
 		Thread.sleep(3000);
 		
-		// message
-		assertTrue(messages.newMessagesAvailable(), "message.newMessagesAvailable()");
+		printTestHeader("message tests");
+		assertTrue(messages.newMessagesAvailable(), "messages.newMessagesAvailable()");
 		assertEquals("event_pong", messages.getAll().get(0).getPerformative(), "newMessage.getPerformative() = event_pong in expecting_timer_pong");
 		
-		// unregister timer
-		timers.unregister("integration_test_timer");
+		printTestHeader("unregistring timer");
+		timers.unregister(testTimerName());
 		
-		// wait for messages to arrive
+		printTestHeader("waiting 1s for messages to arrive");
 		Thread.sleep(1000);
 		
-		// message
+		printTestHeader("message tests");
 		messages.ignoreAndForgetNewMessages();
-		assertTrue(!messages.newMessagesAvailable(), "ignoreAndForgetNewMessages");
+		assertFalse(messages.newMessagesAvailable(), "ignoreAndForgetNewMessages");
 		
-		// event unregister
-		events.unregister("integration_test_evt");
-		assertTrue(!events.exists("integration_test_evt"), "event.unregister");
+		printTestHeader("unregistring event");
+		events.unregister(testEventName());
+		assertFalse(events.exists("integration_test_evt"), "event.unregister");
 		
-		// send termination request
+		printTestHeader("sending termination request");
 		agentDirectory.requestAgentTermination(newMessage.getSender().getName());
 		
-		// wait for agent to terminate
-		Thread.sleep(5000);
+		printTestHeader("waiting 2s for agent to terminate");
+		Thread.sleep(2000);
 		
-		assertTrue(!agentDirectory.localPlatformContains(newMessage.getSender()), "agent deleted");
+		assertFalse(agentDirectory.localPlatformContains(newMessage.getSender()), "agent deleted");
 		
 		String errorCount = data.map(TEST_DATA).get("error_count");
 		
-		data.map(TEST_DATA).append("report", "[IntegrationTestAgent] tests complete. errorCount = "+errorCount+"\n");
+		data.map(TEST_DATA).append("report", 
+				"=============================\n	tests complete. errorCount = "+errorCount+"\n");
+		
+		String report = data.map(TEST_DATA).get("report");
 		
 		if(data.map(TEST_DATA).containsKey("task_employer"))
 		{
 			String employer = data.map(TEST_DATA).get("task_employer");
-			String report = data.map(TEST_DATA).get("report");
 			tasks.submitResult(new TaskResult(employer, "IntegrationTestTask", report));
 		}
+		
+		log.info("\n\n"+report);
 		
 		self.terminate();
 	}
@@ -233,8 +356,28 @@ public class IntegrationTestAgent extends AbstractBehaviourAgent
 		}
 	}
 	
+	private void assertFalse(boolean exp, String message)
+	{
+		assertTrue(!exp, message);
+	}
+	
 	private void incrementErrorCount()
 	{
 		data.map(TEST_DATA).increment("error_count");
+	}
+	
+	private void printTestHeader(String message)
+	{
+		log.info("--------"+message+"--------");
+	}
+	
+	private String testTimerName()
+	{
+		return "test_tmr_"+aid.getName();
+	}
+	
+	private String testEventName()
+	{
+		return "test_evt_"+aid.getName();
 	}
 }

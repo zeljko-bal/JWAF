@@ -42,4 +42,10 @@ public class AgentDataMapRepoWrapper implements DataMapRepository
 	{
 		dataRepo.clear(agentName);
 	}
+
+	@Override
+	public boolean exists()
+	{
+		return dataRepo.exists(agentName);
+	}
 }

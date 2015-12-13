@@ -9,4 +9,5 @@ public interface DataMapRepository
 	String remove(Object key);
 	void putAll(Map<? extends String, ? extends String> m);
 	void clear();
+	boolean exists();
 }

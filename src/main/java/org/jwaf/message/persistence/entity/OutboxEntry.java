@@ -2,6 +2,7 @@ package org.jwaf.message.persistence.entity;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.bson.types.ObjectId;
 import org.mongodb.morphia.annotations.Embedded;
 import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
@@ -11,7 +12,7 @@ public class OutboxEntry
 {
 	@Id
 	@XmlTransient
-	private Integer id;
+	private ObjectId id;
 	
 	private String receiverName;
 	

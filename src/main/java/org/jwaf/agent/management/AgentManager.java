@@ -2,11 +2,11 @@ package org.jwaf.agent.management;
 
 import java.net.URL;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Event;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 
@@ -28,6 +28,7 @@ import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.performative.PlatformPerformative;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
+import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.slf4j.Logger;
 
 /**
@@ -61,8 +62,8 @@ public class AgentManager
 	@Inject @LocalPlatformAddress
 	private URL localPlatformAddress;
 	
-	@Inject @LocalPlatformAid
-	private AgentIdentifier localPlatformAid;
+	@Inject @LocalPlatformName
+	private String localPlatformName;
 	
 	@Inject @AgentCreatedEvent
 	private Event<AgentIdentifier> agentCreatedEvent;
@@ -126,7 +127,7 @@ public class AgentManager
 	
 	public void requestTermination(String name)
 	{
-		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, localPlatformAid);
+		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, getPlatformAid());
 		message.getReceiverList().add(agentRepo.findView(name).getAid());
 		
 		messageSender.send(message);
@@ -159,15 +160,13 @@ public class AgentManager
 	public List<ACLMessage> findMessages(String name, QueryFunction<ACLMessage> queryFunc)
 	{
 		// get ids of inbox messages
-		List<Integer> messageIDs = agentRepo.getMessageIDs(name);
+		List<String> messageIDs = agentRepo.getMessageIDs(name);
 		
 		// find messages based on the query
 		List<ACLMessage> messages = messageFinder.find(messageIDs, queryFunc);
 		
 		// remove messages from inbox
-		agentRepo.removeFromInbox(name, messages.stream()
-												.map(m->m.getId())
-												.collect(Collectors.toList()));
+		agentRepo.removeFromInbox(name, messages);
 		
 		// signal that the agent has retrieved the messages
 		messages.forEach(messageRetrievedEvent::fire);
@@ -271,5 +270,13 @@ public class AgentManager
 		message.getReceiverList().add(aid);
 		
 		messageSender.send(message);
+	}
+	
+	@Produces @LocalPlatformAid
+	public AgentIdentifier getPlatformAid()
+	{
+		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
+		platformAid.getAddresses().add(localPlatformAddress);
+		return platformAid;
 	}
 }

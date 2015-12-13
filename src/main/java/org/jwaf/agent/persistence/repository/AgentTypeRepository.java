@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.common.data.mongo.QueryFunction;
@@ -16,7 +17,7 @@ import org.mongodb.morphia.query.Query;
 @LocalBean
 public class AgentTypeRepository
 {
-	@MorphiaDatastore
+	@Inject @MorphiaDatastore
 	private Datastore ds;
 	
 	public AgentType find(String name)

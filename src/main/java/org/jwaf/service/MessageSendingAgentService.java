@@ -10,7 +10,7 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.service.annotations.MessageSendingService;
 import org.slf4j.Logger;
 
-public abstract class MessageSendingAgentService extends AgentService
+public abstract class MessageSendingAgentService implements AgentService
 {
 	protected AgentIdentifier caller;
 	protected String serviceName;

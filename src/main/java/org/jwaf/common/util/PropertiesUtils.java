@@ -2,8 +2,10 @@ package org.jwaf.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.bson.Document;
 
 public class PropertiesUtils
@@ -17,9 +19,11 @@ public class PropertiesUtils
 		return properties;
 	}
 	
-	public static Document getJsonProperties(String name)
+	public static Document getJsonProperties(String name) throws IOException
 	{
-		return Document.parse(getInputStream(name).toString());
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(getInputStream(name), writer);
+		return Document.parse(writer.toString());
 	}
 	
 	private static InputStream getInputStream(String name)

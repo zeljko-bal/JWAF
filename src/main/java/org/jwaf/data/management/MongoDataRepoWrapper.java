@@ -29,7 +29,7 @@ public class MongoDataRepoWrapper implements AgentDataMapRepository
 		dataManager.getCollection(agentName)
 				.find(query)
 				.first()
-				.forEach((k,v)->ret.put(k, v.toString()));
+				.forEach((k,v)->ret.put(k, convertToString(v)));
 		
 		return ret;
 	}
@@ -70,5 +70,17 @@ public class MongoDataRepoWrapper implements AgentDataMapRepository
 	public void clear(String agentName)
 	{
 		dataManager.getCollection(agentName).deleteOne(query);
+	}
+	
+	private String convertToString(Object o)
+	{
+		if(o == null) return null;
+		else return o.toString();
+	}
+
+	@Override
+	public boolean exists(String agentName)
+	{
+		return dataManager.getCollection(agentName).find(query).first() != null;
 	}
 }

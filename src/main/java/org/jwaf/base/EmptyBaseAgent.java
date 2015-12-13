@@ -4,13 +4,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jwaf.agent.SingleThreadedAgent;
-import org.jwaf.agent.annotations.AgentQualifier;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.base.tools.AgentLogger;
 import org.jwaf.common.annotations.logger.NamedLogger;
 import org.slf4j.Logger;
 
-@AgentQualifier
 public abstract class EmptyBaseAgent implements SingleThreadedAgent
 {
 	@Inject @NamedLogger("AGENT")

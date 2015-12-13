@@ -3,9 +3,8 @@
 	[
 		{"host":"localhost", "port":27017}
 	],
-	"credentials":
+	"credentials(to use remove these parentheses, leave just 'credentials' in property name)":
 	[
 		{"db":"jwaf_system", "username":"", "password":""}
-		{"db":"agent_data",  "username":"", "password":""}
 	]
 }

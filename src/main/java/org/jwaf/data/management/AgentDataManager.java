@@ -5,9 +5,12 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.bson.Document;
+import org.jwaf.agent.annotations.events.AgentRemovedEvent;
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.common.data.map.AgentDataMapRepoWrapper;
 import org.jwaf.common.data.map.DataMap;
 import org.jwaf.common.data.mongo.QueryFunction;
@@ -171,5 +174,10 @@ public class AgentDataManager
 		@SuppressWarnings("unchecked")
 		List<Document> allData = (List<Document>) Document.parse(data).get(name);
 		getCollection(name).insertMany(allData);
+	}
+	
+	public void onAgentRemoved(@Observes @AgentRemovedEvent AgentIdentifier aid)
+	{
+		dataRepo.getCollection(aid.getName()).drop();
 	}
 }

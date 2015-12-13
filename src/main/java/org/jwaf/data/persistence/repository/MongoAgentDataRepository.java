@@ -28,149 +28,149 @@ import com.mongodb.client.MongoDatabase;
 @LocalBean
 public class MongoAgentDataRepository
 {
-	public static final String AGENT_DB_NAME = "agent_data";
+	public static final String COLLECTION_PREFIX = "agent_data.";
 	
-	@Inject @MorphiaAdvancedDatastore(AGENT_DB_NAME)
+	@Inject @MorphiaAdvancedDatastore
 	private AdvancedDatastore ds;
 	
-	@Inject @MongoDB(AGENT_DB_NAME)
+	@Inject @MongoDB
 	private MongoDatabase db;
 	
 	@Inject @MorphiaODM
 	private Morphia morphia;
 	
-	public MongoCollection<Document> getCollection(String colName)
+	public MongoCollection<Document> getCollection(String agentName)
 	{
-		return db.getCollection(colName);
+		return db.getCollection(createCollectionName(agentName));
 	}
 	
-	public <T> Key<T> insert(String colName, T entity)
+	public <T> Key<T> insert(String agentName, T entity)
 	{
-		return ds.insert(colName, entity);
+		return ds.insert(createCollectionName(agentName), entity);
 	}
 	
-	public <T> Iterable<Key<T>> insert(String colName, Iterable<T> entities)
+	public <T> Iterable<Key<T>> insert(String agentName, Iterable<T> entities)
 	{
-		return ds.insert(colName, entities);
+		return ds.insert(createCollectionName(agentName), entities);
 	}
 	
-	public <T> Iterable<Key<T>> insert(String colName, Iterable<T> entities, WriteConcern wc)
+	public <T> Iterable<Key<T>> insert(String agentName, Iterable<T> entities, WriteConcern wc)
 	{
-		return ds.insert(colName, entities, wc);
+		return ds.insert(createCollectionName(agentName), entities, wc);
 	}
 	
-	public <T> T find(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	public <T> T find(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return query.get();
 	}
 	
-	public <T> List<T> findAll(String colName, Class<T> type)
+	public <T> List<T> findAll(String agentName, Class<T> type)
 	{
-		return ds.find(colName, type).asList();
+		return ds.find(createCollectionName(agentName), type).asList();
 	}
 	
-	public <T> List<T> findMany(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	public <T> List<T> findMany(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return query.asList();
 	}
 	
-	public <T> WriteResult delete(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	public <T> WriteResult delete(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return ds.delete(query);
 	}
 	
-	public <T> WriteResult delete(String colName, Class<T> type, QueryFunction<T> queryFunc, WriteConcern wc)
+	public <T> WriteResult delete(String agentName, Class<T> type, QueryFunction<T> queryFunc, WriteConcern wc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return ds.delete(query, wc);
 	}
 	
-	public <T> long getCount(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	public <T> long getCount(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return ds.getCount(query);
 	}
 	
-	public <T> Key<T> save(String colName, T entity)
+	public <T> Key<T> save(String agentName, T entity)
 	{
-		return ds.save(colName, entity);
+		return ds.save(createCollectionName(agentName), entity);
 	}
 	
-	public <T> Key<T> save(String colName, T entity, WriteConcern wc)
+	public <T> Key<T> save(String agentName, T entity, WriteConcern wc)
 	{
-		return ds.save(colName, entity, wc);
+		return ds.save(createCollectionName(agentName), entity, wc);
 	}
 	
-	public <T> UpdateResults update(String colName, Class<T> type, 
+	public <T> UpdateResults update(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates);
 	}
 	
-	public <T> UpdateResults update(String colName, Class<T> type, 
+	public <T> UpdateResults update(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean createIfMissing)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates, createIfMissing);
 	}
 	
-	public <T> UpdateResults update(String colName, Class<T> type, 
+	public <T> UpdateResults update(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
 			boolean createIfMissing, WriteConcern wc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates, createIfMissing, wc);
 	}
 	
-	public <T> T findAndDelete(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	public <T> T findAndDelete(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		return ds.findAndDelete(query);
 	}
 	
-	public <T> T findAndModify(String colName, Class<T> type, 
+	public <T> T findAndModify(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates);
 	}
 	
-	public <T> T findAndModify(String colName, Class<T> type, 
+	public <T> T findAndModify(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean oldVersion)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates, oldVersion);
 	}
 	
-	public <T> T findAndModify(String colName, Class<T> type, 
+	public <T> T findAndModify(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
 			boolean oldVersion, boolean createIfMissing)
 	{
-		Query<T> query = createQuery(colName, type, queryFunc);
+		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates, oldVersion, createIfMissing);
 	}
 
-	private <T> Query<T> createQuery(String colName, Class<T> type, QueryFunction<T> queryFunc)
+	private <T> Query<T> createQuery(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = ds.createQuery(colName, type);
+		Query<T> query = ds.createQuery(createCollectionName(agentName), type);
 		query = queryFunc.apply(query);
-		if(!colName.equals(query.getCollection().getName()))
+		if(!createCollectionName(agentName).equals(query.getCollection().getName()))
 		{
 			throw new IllegalArgumentException("MongoAgentDataRepository: supplied QueryFunction returned a query for a different collection.");
 		}
@@ -182,5 +182,10 @@ public class MongoAgentDataRepository
 		UpdateOperations<T> updates = ds.createUpdateOperations(type);
 		updates = updateFunc.apply(updates);
 		return updates;
+	}
+	
+	private String createCollectionName(String agentName)
+	{
+		return COLLECTION_PREFIX+agentName;
 	}
 }
