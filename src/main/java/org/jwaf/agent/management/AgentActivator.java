@@ -211,11 +211,16 @@ public class AgentActivator
 	
 	private void onExecutionException(AgentIdentifier aid, Exception e)
 	{
-		Throwable cause = e.getCause();
-		
-		if(cause instanceof AgentSuccessException)
+		Throwable successEx = e;
+		while(successEx != null)
 		{
-			log.info(cause.getMessage());
+			if(successEx instanceof AgentSuccessException) break;
+			else successEx = successEx.getCause();
+		}
+		
+		if(successEx != null)
+		{
+			log.info(successEx.getMessage());
 		}
 		else
 		{

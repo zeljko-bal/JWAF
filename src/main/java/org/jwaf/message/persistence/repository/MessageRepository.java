@@ -85,7 +85,7 @@ public class MessageRepository
 		
 		query.filter("_id in", messageIDs.stream()
 											.map(id->new ObjectId(id))
-											.collect(Collectors.toList()));
+											.toArray());
 		
 		return query.asList();
 	}

@@ -31,6 +31,12 @@ public class MessageTools
 		messageSender.send(message);
 	}
 	
+	public void reply(ACLMessage to, ACLMessage message)
+	{
+		message.addReceivers(to.getSender());
+		send(message);
+	}
+	
 	public List<ACLMessage> getAll()
 	{
 		return agentManager.retrieveMessages(aid.getName());
@@ -39,6 +45,11 @@ public class MessageTools
 	public List<ACLMessage> find(QueryFunction<ACLMessage> queryFunc)
 	{
 		return agentManager.findMessages(aid.getName(), queryFunc);
+	}
+	
+	public int getCount()
+	{
+		return agentManager.getMessagesCount(aid.getName());
 	}
 	
 	public boolean newMessagesAvailable()

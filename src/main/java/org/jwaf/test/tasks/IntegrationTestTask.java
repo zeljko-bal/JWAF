@@ -32,9 +32,9 @@ public class IntegrationTestTask implements TaskDeployer
 		CreateAgentRequest testCreateReq = new CreateAgentRequest("IntegrationTestAgent");
 		AgentIdentifier testAid = agentManager.initialize(testCreateReq);
 		
-		ACLMessage testMessage = new ACLMessage("test", new AgentIdentifier(localPlatformName));
-		testMessage.getReceiverList().add(testAid);
-		testMessage.setContentAsObject(request);
+		ACLMessage testMessage = new ACLMessage("test", new AgentIdentifier(localPlatformName))
+			.addReceivers(testAid)
+			.setContentAsObject(request);
 		
 		messageSender.send(testMessage);
 	}

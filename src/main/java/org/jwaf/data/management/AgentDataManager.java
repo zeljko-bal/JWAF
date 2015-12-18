@@ -9,9 +9,9 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
-import org.jwaf.common.data.map.AgentDataMapRepoWrapper;
 import org.jwaf.common.data.map.DataMap;
 import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.common.data.mongo.UpdateFunction;
@@ -29,14 +29,14 @@ import com.mongodb.client.model.FindOneAndReplaceOptions;
 @LocalBean
 public class AgentDataManager
 {
-	public static final String PUBLIC_DATA = "public_agent_data";
+	public static final String PUBLIC_DATA_COLLECTION = "public_agent_data";
 	
 	@Inject
 	private MongoAgentDataRepository dataRepo;
 	
-	public MongoCollection<Document> getCollection(String name)
+	public MongoCollection<Document> getAgentCollection(String name)
 	{
-		return dataRepo.getCollection(name);
+		return dataRepo.getAgentCollection(name);
 	}
 	
 	public <T> Key<T> insert(String name, T entity)
@@ -52,6 +52,11 @@ public class AgentDataManager
 	public <T> Iterable<Key<T>> insert(String name, Iterable<T> entities, WriteConcern wc)
 	{
 		return dataRepo.insert(name, entities, wc);
+	}
+	
+	public <T> T find(String name, Class<T> type, Object id)
+	{
+		return dataRepo.find(name, type, id);
 	}
 	
 	public <T> T find(String name, Class<T> type, QueryFunction<T> queryFunc)
@@ -139,32 +144,42 @@ public class AgentDataManager
 	
 	public Document getPublicData(String name)
 	{
-		return getCollection(name).find(Filters.eq("_id", PUBLIC_DATA)).first();
+		return getPublicCollection()
+				.find(Filters.eq("_id", name))
+				.first();
 	}
 	
 	public void putPublicData(String name, Document data)
 	{
-		getCollection(name).findOneAndReplace(Filters.eq("_id", PUBLIC_DATA), data, 
+		getPublicCollection().findOneAndReplace(Filters.eq("_id", name), data, 
 				new FindOneAndReplaceOptions().upsert(true));
 	}
 	
-	public DataMap getPublicDataMap(String name)
+	public List<String> findByPublicData(Bson query)
 	{
-		return createDataMap(name, PUBLIC_DATA);
+		return getPublicCollection().find(query).map(d->d.getString("_id")).into(new ArrayList<String>());
 	}
 	
-	public DataMap createDataMap(String name, String dataName)
+	public DataMap createPublicDataMap(String name)
 	{
-		return new DataMap(
-				new AgentDataMapRepoWrapper(
-						new MongoDataRepoWrapper(dataName, this), name));
+		return createDataMap(dataRepo.getCollection(PUBLIC_DATA_COLLECTION), name);
+	}
+	
+	public DataMap createDataMap(MongoCollection<Document> coll, String dataName)
+	{
+		return new DataMap(new MongoDataMapRepository(coll, dataName));
+	}
+	
+	public DataMap createAgentDataMap(String agentName, String dataName)
+	{
+		return new DataMap(new MongoDataMapRepository(dataRepo.getAgentCollection(agentName), dataName));
 	}
 	
 	public String getAllDataAsString(String name)
 	{
 		List<Document> allData = new ArrayList<>();
 		
-		getCollection(name).find().forEach((Document d)->allData.add(d));
+		getAgentCollection(name).find().forEach((Document d)->allData.add(d));
 		
 		return new Document(name, allData).toJson();
 	}
@@ -173,11 +188,17 @@ public class AgentDataManager
 	{
 		@SuppressWarnings("unchecked")
 		List<Document> allData = (List<Document>) Document.parse(data).get(name);
-		getCollection(name).insertMany(allData);
+		getAgentCollection(name).insertMany(allData);
 	}
 	
 	public void onAgentRemoved(@Observes @AgentRemovedEvent AgentIdentifier aid)
 	{
-		dataRepo.getCollection(aid.getName()).drop();
+		dataRepo.getAgentCollection(aid.getName()).drop();
+		getPublicCollection().deleteOne(Filters.eq("_id", aid.getName()));
+	}
+	
+	private MongoCollection<Document> getPublicCollection()
+	{
+		return dataRepo.getCollection(PUBLIC_DATA_COLLECTION);
 	}
 }

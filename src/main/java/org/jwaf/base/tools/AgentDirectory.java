@@ -1,6 +1,10 @@
 package org.jwaf.base.tools;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.jwaf.agent.management.AgentManager;
 import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
@@ -33,6 +37,14 @@ public class AgentDirectory
 	public AgentIdentifier findAid(String name)
 	{
 		return aidManager.find(name);
+	}
+	
+	public List<AgentIdentifier> findAgentsByPublicData(Bson query)
+	{
+		List<String> names = agentDataManager.findByPublicData(query);
+		return names.stream()
+				.map(name->findAid(name))
+				.collect(Collectors.toList());
 	}
 	
 	public boolean localPlatformContains(AgentIdentifier aid)

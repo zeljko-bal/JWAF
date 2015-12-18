@@ -38,14 +38,19 @@ public class AgentRepository
 	@Inject
 	private Logger log;
 	
-	public AgentEntity findAgent(String name)
+	// crud
+	
+	public AgentEntity findAgent(String agentName)
 	{
-		return find(name);
+		return find(agentName);
 	}
 	
-	public AgentEntityView findView(String name)
+	public AgentEntityView findView(String agentName)
 	{
-		AgentEntityView ret = find(name);
+		AgentEntityView ret = basicQuery(agentName)
+				.retrievedFields(true, "aid", "type", "state")
+				.get();
+		
 		if(ret == null)
 		{
 			throw new AgentNotFound();
@@ -61,10 +66,12 @@ public class AgentRepository
 		ds.insert(agent);
 	}
 	
-	public void remove(String agentName)
+	public AgentEntity remove(String agentName)
 	{
-		ds.delete(basicQuery(agentName));
+		return ds.findAndDelete(basicQuery(agentName));
 	}
+	
+	// activation
 	
 	public boolean activateSingleThreaded(String agentName)
 	{
@@ -95,8 +102,7 @@ public class AgentRepository
 			
 			if(newMessageAvailable)
 			{
-				updates.add("messages", message)
-						.set("hasNewMessages", true);
+				updates.add("messages", message);
 			}
 			
 			// if prevState was PASSIVE
@@ -123,6 +129,16 @@ public class AgentRepository
 				}
 			}
 			
+			// if agent is about to be activated
+			if(activated)
+			{
+				updates.set("hasNewMessages", false);
+			}
+			else if(newMessageAvailable)
+			{
+				updates.set("hasNewMessages", true);
+			}
+			
 			UpdateResults res = ds.update(query, updates);
 			
 			// if updated return, else retry
@@ -133,7 +149,8 @@ public class AgentRepository
 			else
 			{
 				log.warn("Activation of agent <{}> failed due to state change, try count {}, will retry at most {} times."
-						,agentName, i+1, MAX_RETRIES);
+						+ " Expected: {}"
+						,agentName, i+1, MAX_RETRIES, query);
 			}
 		}
 		
@@ -188,7 +205,8 @@ public class AgentRepository
 			else
 			{
 				log.warn("Passivation of agent <{}> failed due to state change, try count {}, will retry at most {} times."
-						,agentName, i+1, MAX_RETRIES);
+						+ " Expected: {}"
+						,agentName, i+1, MAX_RETRIES, query);
 			}
 		}
 		
@@ -240,6 +258,8 @@ public class AgentRepository
 		ds.update(basicQuery(agentName), updates);
 	}
 	
+	// messages
+	
 	public void putToInbox(String agentName, ACLMessage message)
 	{
 		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
@@ -264,16 +284,23 @@ public class AgentRepository
 	
 	public void removeFromInbox(String agentName, List<ACLMessage> messages)
 	{
+		if(messages.isEmpty()) return;
+		
 		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
-				.removeAll("messages", messages);
+				.removeAll("messages", messages)
+				.set("hasNewMessages", false);
 		
 		ds.update(basicQuery(agentName), updates);
 	}
 	
 	public List<String> getMessageIDs(String agentName)
 	{
-		return find(agentName) // TODO optimize, use Document directly to fetch only keys
-				.getMessages()
+		Query<AgentEntity> query = basicQuery(agentName).retrievedFields(true, "messages");
+		
+		UpdateOperations<AgentEntity> updates = ds.createUpdateOperations(AgentEntity.class)
+				.set("hasNewMessages", false);
+		
+		return ds.findAndModify(query, updates).getMessages()
 				.stream()
 				.map(m->m.getId())
 				.collect(Collectors.toList());
@@ -295,6 +322,8 @@ public class AgentRepository
 		ds.update(basicQuery(agentName), updates);
 	}
 	
+	// data query
+	
 	public Integer getActiveInstances(String agentName)
 	{
 		return basicQuery(agentName)
@@ -312,6 +341,8 @@ public class AgentRepository
 	{
 		return basicQuery(agentName).countAll() > 0;
 	}
+	
+	// transport
 	
 	public AgentEntity depart(String agentName)
 	{

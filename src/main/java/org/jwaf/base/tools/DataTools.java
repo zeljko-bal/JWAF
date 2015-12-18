@@ -32,7 +32,7 @@ public class DataTools
 	
 	public MongoCollection<Document> getCollection()
 	{
-		return agentDataManager.getCollection(aid.getName());
+		return agentDataManager.getAgentCollection(aid.getName());
 	}
 	
 	public <T> Key<T> insert(T entity)
@@ -48,6 +48,11 @@ public class DataTools
 	public <T> Iterable<Key<T>> insert(Iterable<T> entities, WriteConcern wc)
 	{
 		return agentDataManager.insert(aid.getName(), entities, wc);
+	}
+	
+	public <T> T find(Class<T> type, Object id)
+	{
+		return agentDataManager.find(aid.getName(), type, id);
 	}
 	
 	public <T> T find(Class<T> type, QueryFunction<T> queryFunc)
@@ -155,11 +160,11 @@ public class DataTools
 	
 	public DataMap getPublicDataMap()
 	{
-		return agentDataManager.getPublicDataMap(aid.getName());
+		return agentDataManager.createPublicDataMap(aid.getName());
 	}
 	
 	public DataMap map(String dataName)
 	{
-		return agentDataManager.createDataMap(aid.getName(), dataName);
+		return agentDataManager.createAgentDataMap(aid.getName(), dataName);
 	}
 }

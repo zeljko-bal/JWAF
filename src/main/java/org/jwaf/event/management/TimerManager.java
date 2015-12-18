@@ -2,6 +2,7 @@ package org.jwaf.event.management;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.NoSuchElementException;
 
 import javax.annotation.Resource;
 import javax.ejb.LocalBean;
@@ -14,6 +15,7 @@ import javax.ejb.TimerConfig;
 import javax.ejb.TimerService;
 import javax.inject.Inject;
 
+import org.jwaf.event.exceptions.EventNotFound;
 import org.jwaf.event.persistence.entity.TimerEventInfo;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.slf4j.Logger;
@@ -30,6 +32,20 @@ public class TimerManager
 	
 	@Inject
 	private Logger log;
+	
+	public Timer find(String eventName, String timerName)
+	{
+		return timerService.getAllTimers()
+				.stream()
+				.filter(timer->timer.getInfo() instanceof TimerEventInfo)
+				.filter(timer->
+				{
+					TimerEventInfo info = (TimerEventInfo) timer.getInfo();
+					return info.getEventName().equals(eventName) && info.getTimerName().equals(timerName);
+				})
+				.findFirst()
+				.get();
+	}
 	
 	public void register(String timerName, String eventName, Date initialExpiration, long intervalDuration)
 	{
@@ -67,18 +83,28 @@ public class TimerManager
 		return new TimerConfig(info, true);
 	}
 	
-	public void unregister(String timerName)
+	public void unregister( String eventName, String timerName)
 	{
-		for(Timer t : timerService.getAllTimers())
+		try
 		{
-			if(t.getInfo() instanceof TimerEventInfo)
-			{
-				if(((TimerEventInfo)t.getInfo()).getTimerName().equals(timerName))
-				{
-					t.cancel();
-					break;
-				}
-			}
+			find(eventName, timerName).cancel();
+		}
+		catch(NoSuchElementException e)
+		{
+			log.warn("Tried to cancel a nonexistent timer.");
+		}
+	}
+	
+	public boolean exists(String eventName, String timerName)
+	{
+		try
+		{
+			find(eventName, timerName);
+			return true;
+		}
+		catch(NoSuchElementException e)
+		{
+			return false;
 		}
 	}
 	
@@ -94,7 +120,16 @@ public class TimerManager
 				TimerEventInfo info = (TimerEventInfo)serializableInfo;
 				TimerEventParam param = new TimerEventParam(info.getTimerName(), new Date());
 				
-				eventManager.fire(info.getEventName(), param);
+				try
+				{
+					eventManager.fire(info.getEventName(), param);
+				}
+				catch(EventNotFound e)
+				{
+					log.error("Timer <{}> registered to a nonexistent event <{}>, canceling timer.", 
+							info.getTimerName(), info.getEventName());
+					timer.cancel();
+				}
 			}
 		}
 		catch(NoSuchObjectLocalException ex)

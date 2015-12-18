@@ -39,9 +39,14 @@ public class MongoAgentDataRepository
 	@Inject @MorphiaODM
 	private Morphia morphia;
 	
-	public MongoCollection<Document> getCollection(String agentName)
+	public MongoCollection<Document> getAgentCollection(String agentName)
 	{
 		return db.getCollection(createCollectionName(agentName));
+	}
+	
+	public MongoCollection<Document> getCollection(String collectionName)
+	{
+		return db.getCollection(collectionName);
 	}
 	
 	public <T> Key<T> insert(String agentName, T entity)
@@ -59,9 +64,14 @@ public class MongoAgentDataRepository
 		return ds.insert(createCollectionName(agentName), entities, wc);
 	}
 	
+	public <T> T find(String agentName, Class<T> type, Object id)
+	{
+		return find(agentName, type, q->q.field("_id").equal(id));
+	}
+	
 	public <T> T find(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return query.get();
 	}
 	
@@ -72,25 +82,25 @@ public class MongoAgentDataRepository
 	
 	public <T> List<T> findMany(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return query.asList();
 	}
 	
 	public <T> WriteResult delete(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return ds.delete(query);
 	}
 	
 	public <T> WriteResult delete(String agentName, Class<T> type, QueryFunction<T> queryFunc, WriteConcern wc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return ds.delete(query, wc);
 	}
 	
 	public <T> long getCount(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return ds.getCount(query);
 	}
 	
@@ -107,7 +117,7 @@ public class MongoAgentDataRepository
 	public <T> UpdateResults update(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates);
@@ -116,7 +126,7 @@ public class MongoAgentDataRepository
 	public <T> UpdateResults update(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean createIfMissing)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates, createIfMissing);
@@ -126,7 +136,7 @@ public class MongoAgentDataRepository
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
 			boolean createIfMissing, WriteConcern wc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.update(query, updates, createIfMissing, wc);
@@ -134,14 +144,14 @@ public class MongoAgentDataRepository
 	
 	public <T> T findAndDelete(String agentName, Class<T> type, QueryFunction<T> queryFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		return ds.findAndDelete(query);
 	}
 	
 	public <T> T findAndModify(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates);
@@ -150,7 +160,7 @@ public class MongoAgentDataRepository
 	public <T> T findAndModify(String agentName, Class<T> type, 
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, boolean oldVersion)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates, oldVersion);
@@ -160,7 +170,7 @@ public class MongoAgentDataRepository
 			QueryFunction<T> queryFunc, UpdateFunction<T> updateFunc, 
 			boolean oldVersion, boolean createIfMissing)
 	{
-		Query<T> query = createQuery(createCollectionName(agentName), type, queryFunc);
+		Query<T> query = createQuery(agentName, type, queryFunc);
 		UpdateOperations<T> updates = createUpdates(type, updateFunc);
 		
 		return ds.findAndModify(query, updates, oldVersion, createIfMissing);

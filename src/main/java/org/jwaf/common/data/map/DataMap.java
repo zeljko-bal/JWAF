@@ -154,7 +154,7 @@ public class DataMap implements Map<String, String>
 		int value = getIntOrDefault(key, 0);
 		Integer newValue = value + 1;
 		put(key, newValue.toString());
-		return value;
+		return newValue;
 	}
 	
 	public int decrement(String key)
@@ -162,7 +162,7 @@ public class DataMap implements Map<String, String>
 		int value = getIntOrDefault(key, 0);
 		Integer newValue = value - 1;
 		put(key, newValue.toString());
-		return value;
+		return newValue;
 	}
 
 	public boolean exists()

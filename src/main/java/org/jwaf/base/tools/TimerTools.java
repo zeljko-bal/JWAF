@@ -40,8 +40,13 @@ public class TimerTools
 		timerManager.register(timerName, eventName, duration);
 	}
 	
-	public void unregister(String timerName)
+	public void unregister(String eventName, String timerName)
 	{
-		timerManager.unregister(timerName);
+		timerManager.unregister(eventName, timerName);
+	}
+	
+	public boolean exists(String eventName, String timerName)
+	{
+		return timerManager.exists(eventName, timerName);
 	}
 }

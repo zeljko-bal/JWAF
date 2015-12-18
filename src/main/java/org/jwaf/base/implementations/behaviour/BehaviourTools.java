@@ -35,25 +35,32 @@ public class BehaviourTools
 		this.dataTools = dataTools;
 		this.messageTools = messageTools;
 		this.log = log;
-		if(scanMethods) scanMessageOwnerMethods();
+		if(scanMethods) scanOwnerMethods();
 	}
 	
 	public void handleAll() throws Exception
 	{
-		List<ACLMessage> messages;
+		List<ACLMessage> relevantMessages = getRelevantMessages();
 		
+		while(relevantMessages.size() > 0)
+		{
+			handle(relevantMessages);
+			relevantMessages = getRelevantMessages();
+		}
+	}
+	
+	private List<ACLMessage> getRelevantMessages()
+	{
 		// if defaultMessageHandler is specified
 		if(getCurrentBehaviour().hasDefaultHandler())
 		{
-			messages = messageTools.getAll();
+			return messageTools.getAll();
 		}
 		else
 		{
 			Set<String> supportedPerformatives = getSupportedPerformatives();
-			messages = messageTools.find(q->q.field("performative").in(supportedPerformatives));
+			return messageTools.find(q->q.field("performative").in(supportedPerformatives));
 		}
-		
-		handle(messages);
 	}
 	
 	public void handle(ACLMessage message) throws Exception
@@ -80,7 +87,7 @@ public class BehaviourTools
 	 * Method scanning
 	 */
 	
-	public void scanMessageOwnerMethods()
+	public void scanOwnerMethods()
 	{
 		if(owner.getClass().isAnnotationPresent(InitialBehaviour.class))
 		{

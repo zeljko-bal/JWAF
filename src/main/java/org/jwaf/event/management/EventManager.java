@@ -14,12 +14,14 @@ import org.jwaf.agent.annotations.LocalPlatformAid;
 import org.jwaf.agent.annotations.events.AgentRemovedEvent;
 import org.jwaf.agent.annotations.events.AidRemovedEvent;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
+import org.jwaf.event.exceptions.EventNotFound;
 import org.jwaf.event.persistence.entity.EventEntity;
 import org.jwaf.event.persistence.repository.EventRepository;
 import org.jwaf.event.processor.EventProcessor;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
+import org.slf4j.Logger;
 
 @Stateless
 @LocalBean
@@ -36,6 +38,9 @@ public class EventManager
 
 	@Inject @EJBJNDIPrefix
 	private String ejbJNDIPrefix;
+	
+	@Inject
+	private Logger log;
 
 	public boolean exists(String name)
 	{
@@ -76,6 +81,8 @@ public class EventManager
 	public void fire(String eventName, String content)
 	{
 		EventEntity event = eventRepo.find(eventName);
+		
+		assertEventExists(event, eventName);
 
 		EventProcessor processor = findEventProcessor(event.getType());
 
@@ -88,11 +95,13 @@ public class EventManager
 		
 		sendEventMessage(event, new ACLMessage().setContent(contentToSend));
 	}
-	
+
 	@Asynchronous
 	public void fire(String eventName, Serializable content)
 	{
 		EventEntity event = eventRepo.find(eventName);
+		
+		assertEventExists(event, eventName);
 
 		EventProcessor processor = findEventProcessor(event.getType());
 
@@ -131,5 +140,14 @@ public class EventManager
 	public void unregisterDestroyedAgent(@Observes @AgentRemovedEvent AgentIdentifier aid)
 	{
 		eventRepo.getAll().forEach(event -> unsubscribe(aid.getName(), event.getName()));
+	}
+	
+	private void assertEventExists(EventEntity event, String eventName)
+	{
+		if(event == null)
+		{
+			log.error("Tried to fire nonexistent event: <{}>", eventName);
+			throw new EventNotFound("Event <"+eventName+"> not found.");
+		}
 	}
 }

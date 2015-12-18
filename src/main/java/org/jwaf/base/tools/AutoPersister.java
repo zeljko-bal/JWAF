@@ -1,6 +1,8 @@
 package org.jwaf.base.tools;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,7 @@ public class AutoPersister
 	private Object owner;
 	private List<Field> ownerFields;
 	private DataTools dataTools;
+	private AgentLogger log;
 	
 	public AutoPersister(Object owner, DataTools dataTools, boolean doScanFields)
 	{
@@ -32,36 +35,66 @@ public class AutoPersister
 	
 	public void autoPersist()
 	{
-		ownerFields.forEach(field -> 
+		PersistentFields data = new PersistentFields();
+		
+		for(Field field : ownerFields)
 		{
 			try
 			{
-				dataTools.save(field.get(owner));
+				data.getFields().put(field.getName(), field.get(owner));
 			}
-			catch (Exception e)
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Unable to auto-persist field <{}>", field.getName(), e);
 			}
-		});
+		}
+		
+		dataTools.save(data);
 	}
 	
 	public void autoLoad()
 	{
-		ownerFields.forEach(field -> 
+		PersistentFields data = dataTools.find(PersistentFields.class, PersistentFields.ID);
+		
+		for(Field field : ownerFields)
 		{
+			Object value = null;
+			
 			try
 			{
-				Object value = dataTools.find(field.getType(), 
-						q->q.field("_id").equal(field.getName()));
+				if(data != null)
+				{
+					value = data.getFields().get(field.getName());
+				}
+				
+				if(value == null)
+				{
+					if(field.getType().isPrimitive())
+					{
+						continue;
+					}
+					else
+					{
+						Class<?> type = field.getAnnotation(Persistent.class).type();
+						
+						// if not default value
+						if(!Serializable.class.equals(type))
+						{
+							value = type.getDeclaredConstructor().newInstance();
+						}
+					}
+				}
 				
 				field.set(owner, value);
 			}
-			catch (Exception e)
+			catch (IllegalArgumentException | IllegalAccessException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("Unable to auto-load field <{}>", field.getName(), e);
 			}
-		});
+			catch (InstantiationException | InvocationTargetException | NoSuchMethodException | SecurityException e)
+			{
+				log.error("Unable to auto-instatiate field <{}>", field.getName(), e);
+			}
+		}
 	}
 }

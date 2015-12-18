@@ -1,5 +1,8 @@
 package org.jwaf.agent.exceptions;
 
+import javax.ejb.ApplicationException;
+
+@ApplicationException
 public class AgentStateChangeFailed extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;

@@ -198,7 +198,9 @@ public class AgentManager
 	{
 		AgentIdentifier removedAid = agentRepo.findView(name).getAid();
 		
-		agentRepo.remove(name);
+		AgentEntity removedAgent = agentRepo.remove(name);
+		
+		removedAgent.getMessages().forEach(messageRetrievedEvent::fire);
 		
 		agentRemovedEvent.fire(removedAid);
 	}
@@ -278,5 +280,10 @@ public class AgentManager
 		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 		platformAid.getAddresses().add(localPlatformAddress);
 		return platformAid;
+	}
+
+	public int getMessagesCount(String name)
+	{
+		return agentRepo.getMessageIDs(name).size();
 	}
 }

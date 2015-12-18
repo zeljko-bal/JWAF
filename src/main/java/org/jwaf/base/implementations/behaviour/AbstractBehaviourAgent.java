@@ -15,7 +15,7 @@ public class AbstractBehaviourAgent extends BaseAgent
 	}
 	
 	@Override
-	public void execute() throws Exception
+	protected void execute() throws Exception
 	{
 		behaviours.handleAll();
 	}
