@@ -286,4 +286,9 @@ public class AgentManager
 	{
 		return agentRepo.getMessageIDs(name).size();
 	}
+	
+	public void putBackToInbox(String agentName, ACLMessage message)
+	{
+		agentRepo.putBackToInbox(agentName, message);
+	}
 }

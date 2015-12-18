@@ -66,4 +66,9 @@ public class MessageTools
 	{
 		getAll();
 	}
+
+	public void putBackToInbox(ACLMessage aclMessage)
+	{
+		agentManager.putBackToInbox(aid.getName(), aclMessage);
+	}
 }

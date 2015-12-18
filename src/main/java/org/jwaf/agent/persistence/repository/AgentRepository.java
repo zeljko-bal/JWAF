@@ -23,6 +23,8 @@ import org.mongodb.morphia.query.UpdateOperations;
 import org.mongodb.morphia.query.UpdateResults;
 import org.slf4j.Logger;
 
+import com.mongodb.DuplicateKeyException;
+
 /**
  * Session Bean implementation class AgentRepository
  */
@@ -267,6 +269,56 @@ public class AgentRepository
 				.set("hasNewMessages", true);
 		
 		ds.update(basicQuery(agentName), updates);
+	}
+	
+	public void putBackToInbox(String agentName, ACLMessage message)
+	{
+		// bind message to agent
+		UpdateOperations<AgentEntity> agentUpdates = ds.createUpdateOperations(AgentEntity.class)
+				.add("messages", message);
+		
+		ds.update(basicQuery(agentName), agentUpdates);
+		
+		saveMessageBackToDB(message);
+	}
+	
+	private void saveMessageBackToDB(ACLMessage message)
+	{
+		// try at most MAX_RETRIES times
+		for(int i=0; i<MAX_RETRIES; i++)
+		{
+			// increase unreadCount or insert
+			if(ds.exists(message) != null)
+			{
+				Query<ACLMessage> query = ds.find(ACLMessage.class, "_id", message.getId());
+				
+				UpdateOperations<ACLMessage> updates = ds.createUpdateOperations(ACLMessage.class)
+						.inc("unreadCount");
+				
+				UpdateResults res = ds.update(query, updates);
+				
+				// if updated return, else retry
+				if(res.getUpdatedCount() > 0)
+				{
+					return;
+				}
+			}
+			else
+			{
+				try
+				{
+					message.setUnreadCount(1);
+					ds.insert(message);
+					return;
+				}
+				catch(DuplicateKeyException e)
+				{/*retry*/}
+			}
+		}
+		
+		// if unsuccessful after MAX_RETRIES times
+		log.error("Putting a message back to inbox failed after {} attempts.", MAX_RETRIES);
+		throw new AgentStateChangeFailed("Unable to put a message back to inbox.");
 	}
 	
 	public List<ACLMessage> retrieveFromInbox(String agentName)

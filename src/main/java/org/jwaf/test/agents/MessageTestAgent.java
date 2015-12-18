@@ -98,7 +98,7 @@ public class MessageTestAgent extends AbstractTestAgent
 	}
 	
 	@MessageHandler(behaviour="expecting_message_query")
-	public void expectingSelfMessages(ACLMessage message)
+	public void expectingMessageQuery(ACLMessage message)
 	{
 		TestData testData = (TestData) message.getContentAsObject();
 		t.appendErrors(testData.getErrors());

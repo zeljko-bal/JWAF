@@ -33,6 +33,10 @@ public class MessageQueryTestHelper extends BaseAgent
 			t.assertEqual(messages.getCount(), 0, "messages.getCount() == 0 after forget");
 			t.assertEqual(messages.getAll().size(), 0, "messages.getAll().size() == 0 after forget");
 			
+			messages.putBackToInbox(newMessages.get(0));
+			
+			t.assertTrue(messages.getCount() > 0, "messages.getCount() > 0 after putBackToInbox");
+			
 			t.sendResults(newMessages.get(0).getSender());
 			self.terminate();
 		}
