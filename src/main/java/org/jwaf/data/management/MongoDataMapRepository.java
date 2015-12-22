@@ -11,7 +11,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 
-
+/**
+ * An implementation of the {@link DataMapRepository} using MongoDB.
+ * 
+ * @author zeljko.bal
+ */
 public class MongoDataMapRepository implements DataMapRepository
 {
 	private MongoCollection<Document> collection;

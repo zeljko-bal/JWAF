@@ -18,6 +18,11 @@ import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 
+/**
+ * A bean that contains the methods for {@link AgentIdentifier} management.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AidManager
@@ -54,7 +59,6 @@ public class AidManager
 
 	public void remove(String name)
 	{
-		// TODO call from agent terminate and remote agent unregister
 		aidRepository.remove(name);
 		aidRemovedEvent.fire(name);
 	}
@@ -106,6 +110,6 @@ public class AidManager
 	
 	public void agentRemovedEventHandler(@Observes @AgentRemovedEvent AgentIdentifier aid)
 	{
-		aidRepository.remove(aid.getName());
+		remove(aid.getName());
 	}
 }

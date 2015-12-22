@@ -4,6 +4,11 @@ import javax.ejb.ApplicationException;
 
 import org.jwaf.common.exceptions.AgentSuccessException;
 
+/**
+ * Thrown when an agent requests self termination, do not catch this exception in agent code.
+ * 
+ * @author zeljko.bal
+ */
 @ApplicationException
 public class AgentSelfTerminatedException extends AgentSuccessException
 {

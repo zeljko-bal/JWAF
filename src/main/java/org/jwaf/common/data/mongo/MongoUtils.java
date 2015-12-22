@@ -8,6 +8,9 @@ import org.mongodb.morphia.query.Query;
 
 public class MongoUtils
 {
+	/**
+	 * Find and delete all of the documents specified by a query and return the list of deleted entities.
+	 */
 	public static <T> List<T> findAndDeleteAll(Query<T> query, Datastore ds)
 	{
 		List<T> ret = new ArrayList<>();

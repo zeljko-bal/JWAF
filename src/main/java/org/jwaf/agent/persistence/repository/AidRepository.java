@@ -13,6 +13,11 @@ import org.mongodb.morphia.AdvancedDatastore;
 import org.mongodb.morphia.query.Query;
 import org.mongodb.morphia.query.UpdateOperations;
 
+/**
+ * A repository bean that contains methods for crud operations on {@link AidRepository}.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AidRepository

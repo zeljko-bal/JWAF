@@ -13,6 +13,11 @@ import org.jwaf.data.management.AgentDataManager;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with other agents.
+ * 
+ * @author zeljko.bal
+ */
 public class AgentDirectory
 {
 	private AidManager aidManager;

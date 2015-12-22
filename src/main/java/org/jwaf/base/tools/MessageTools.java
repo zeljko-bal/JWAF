@@ -8,6 +8,11 @@ import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.message.management.MessageSender;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
+/**
+ *  A facade exposing functionalities of platform manager beans that deal with sending and receiving messages.
+ * 
+ * @author zeljko.bal
+ */
 public class MessageTools
 {
 	private MessageSender messageSender;

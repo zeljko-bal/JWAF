@@ -16,6 +16,11 @@ import org.jwaf.common.annotations.attributes.TypeAttribute;
 import org.jwaf.common.annotations.attributes.TypeAttributes;
 import org.slf4j.Logger;
 
+/**
+ * Setup bean that registers agent types.
+ * 
+ * @author zeljko.bal
+ */
 @Singleton
 @LocalBean
 @Startup
@@ -59,7 +64,8 @@ public class AgentSetup
 		}
 		
 		AgentType type = new AgentType(typeName);
-
+		
+		// extract type parameters info
 		if(agentClass.isAnnotationPresent(TypeAttributes.class))
 		{
 			for(TypeAttribute attribute : agentClass.getAnnotation(TypeAttributes.class).value())

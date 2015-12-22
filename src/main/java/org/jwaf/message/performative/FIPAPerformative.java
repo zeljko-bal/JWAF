@@ -1,5 +1,10 @@
 package org.jwaf.message.performative;
 
+/**
+ * A collection of performatives as specified in the FIPA specification.
+ * 
+ * @author zeljko.bal
+ */
 public class FIPAPerformative
 {
 	public static final String ACCEPT_PROPOSAL = "accept-proposal";

@@ -11,6 +11,11 @@ import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.agent.persistence.repository.AgentTypeRepository;
 import org.jwaf.common.data.mongo.QueryFunction;
 
+/**
+ * A bean that contains crud methods for {@link AgentType}.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AgentTypeManager

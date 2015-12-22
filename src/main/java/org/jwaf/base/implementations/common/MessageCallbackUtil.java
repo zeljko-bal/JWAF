@@ -10,6 +10,12 @@ public class MessageCallbackUtil
 {
 	private static Logger log = LoggerFactory.getLogger("MessageCallbackUtil");
 	
+	/**
+	 * A valid message callback must have exactly one parameter of type {@link ACLMessage}.
+	 * 
+	 * @param method callback to be examined
+	 * @return true if the method is a valid message callback
+	 */
 	public static boolean isValidMessageCallback(Method method)
 	{
 		// has one parameter of type ACLMessage

@@ -11,6 +11,13 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
+import org.jwaf.agent.persistence.entity.AgentIdentifier;
+
+/**
+ * A qualifier for injecting the {@link AgentIdentifier} that represents the local platform.
+ * 
+ * @author zeljko.bal
+ */
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier

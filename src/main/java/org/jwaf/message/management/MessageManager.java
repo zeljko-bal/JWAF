@@ -27,7 +27,7 @@ import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.jwaf.remote.management.RemotePlatformManager;
 
 /**
- * Session Bean implementation class MessageManager
+ * A management bean that routes all the messages that pass through this platform to their destination.
  */
 @Stateless
 @LocalBean

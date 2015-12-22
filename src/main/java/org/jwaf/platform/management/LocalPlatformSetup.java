@@ -16,7 +16,13 @@ import org.jwaf.agent.persistence.entity.CreateAgentRequest;
 import org.jwaf.platform.annotations.SystemAgent;
 import org.slf4j.Logger;
 
-
+/**
+ * A setup bean that registers system agents. 
+ * System agents must be annotated with {@link SystemAgent} which should contain 
+ * a unique name for that system agent.
+ * 
+ * @author zeljko.bal
+ */
 @Singleton
 @LocalBean
 @Startup

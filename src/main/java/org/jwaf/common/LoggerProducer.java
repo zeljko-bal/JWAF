@@ -10,6 +10,11 @@ import org.jwaf.common.annotations.logger.NamedLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A producer bean for CDI injection of loggers.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class LoggerProducer

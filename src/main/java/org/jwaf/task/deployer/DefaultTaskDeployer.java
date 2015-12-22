@@ -14,6 +14,13 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 
+/**
+ * A default implementation of {@link TaskDeployer}. Creates a new agent whose type name is equal to the task 
+ * type name and sends him a message with TASK_REQUEST performative and the task request contents.
+ * When the result is done a request for self termination is sent to the agent.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class DefaultTaskDeployer implements TaskDeployer

@@ -14,6 +14,11 @@ import org.jwaf.service.persistence.entity.AgentServiceType;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
+/**
+ * A repository bean that contains methods for crud operations on {@link AgentServiceType}.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AgentServiceRepository

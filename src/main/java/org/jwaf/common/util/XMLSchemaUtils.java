@@ -9,6 +9,11 @@ import javax.xml.bind.SchemaOutputResolver;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
+/**
+ * A helper class for generating XML schemas based on JAXB entities.
+ * 
+ * @author zeljko.bal
+ */
 public class XMLSchemaUtils
 {
 	public static String generate(Class<?> c) throws IOException, JAXBException

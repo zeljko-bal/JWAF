@@ -12,6 +12,11 @@ import java.lang.annotation.Target;
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 
+/**
+ * CDI qualifier for injecting a named logger instance.
+ * 
+ * @author zeljko.bal
+ */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
 @Target({TYPE, METHOD, FIELD, PARAMETER})

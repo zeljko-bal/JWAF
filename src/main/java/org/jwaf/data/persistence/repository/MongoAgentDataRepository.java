@@ -24,6 +24,11 @@ import com.mongodb.WriteResult;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * A repository bean that contains methods for CRUD operations on agent data.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class MongoAgentDataRepository

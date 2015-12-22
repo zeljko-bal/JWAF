@@ -7,6 +7,11 @@ import org.jwaf.task.management.TaskManager;
 import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with agent tasks.
+ * 
+ * @author zeljko.bal
+ */
 public class TaskTools
 {
 	private TaskManager taskManager;

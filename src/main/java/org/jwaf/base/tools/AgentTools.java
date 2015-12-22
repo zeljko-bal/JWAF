@@ -8,6 +8,11 @@ import org.jwaf.agent.management.AidManager;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 
+/**
+ *  A facade exposing functionalities of platform manager beans that deal with agent's own informations and state.
+ * 
+ * @author zeljko.bal
+ */
 public class AgentTools
 {
 	private AgentManager agentManager;

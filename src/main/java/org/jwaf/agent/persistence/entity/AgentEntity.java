@@ -16,6 +16,11 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Reference;
 
+/**
+ * Entity class representing an agent on this platform.
+ * 
+ * @author zeljko.bal
+ */
 @Entity
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -38,9 +43,15 @@ public class AgentEntity implements AgentEntityView
 	@Reference
 	private List<ACLMessage> messages;
 	
+	/**
+	 * true if agent has new messages that he wasn't yet notified about
+	 */
 	@XmlTransient
 	private boolean hasNewMessages;
 	
+	/**
+	 * number of active instances
+	 */
 	@XmlTransient
 	private Integer activeInstances;
 	

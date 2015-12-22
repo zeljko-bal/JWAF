@@ -7,7 +7,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 
@@ -24,7 +23,12 @@ import org.jwaf.remote.exceptions.AgentDeparted;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 import org.jwaf.remote.persistence.repository.RemotePlatformRepository;
 
-
+/**
+ * A management bean that contains methods for keeping track of other platforms 
+ * and transporting agents to/from other platforms.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class RemotePlatformManager
@@ -88,6 +92,7 @@ public class RemotePlatformManager
 	public void unregisterAid(String platformName, String agentName)
 	{
 		repo.unregister(agentName, platformName);
+		aidManager.remove(agentName);
 	}
 	
 	public List<AgentPlatform> retrievePlatforms()
@@ -102,7 +107,7 @@ public class RemotePlatformManager
 	
 	public void agentInitializedEventHandler(@Observes @AgentInitializedEvent AgentIdentifier aid)
 	{
-		// automatic registering not workimg, disbled for now
+		// automatic registering not working, disabled for now
 		/*
 		retrievePlatforms().forEach((AgentPlatform platform) -> 
 		{
@@ -113,11 +118,13 @@ public class RemotePlatformManager
 	
 	public void agentRemovedEventHandler(@Observes @AgentRemovedEvent AgentIdentifier aid)
 	{
-		retrievePlatforms().forEach((AgentPlatform platform) -> 
+		// automatic unregistering not working, disabled for now
+		/*
+		retrievePlatforms().forEach(platform -> 
 		{
 			Client client = ClientBuilder.newClient();
 			client.target(platform.getAddress().toString()).path("remote").path("aid").path(localPlatformName).path(aid.getName()).request().delete();
-		});
+		});*/
 	}
 	
 	/*

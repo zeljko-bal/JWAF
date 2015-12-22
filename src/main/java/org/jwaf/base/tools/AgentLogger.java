@@ -4,6 +4,11 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.Marker;
 
+/**
+ * A logger wrapper that adds agent's name to the logs.
+ * 
+ * @author zeljko.bal
+ */
 public class AgentLogger
 {
 	private AgentIdentifier aid;

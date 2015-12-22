@@ -9,17 +9,33 @@ import org.jwaf.base.implementations.behaviour.exceptions.UndefinedHandlerExcept
 import org.jwaf.base.implementations.common.AgentMessageHandler;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
+/**
+ * A class representing a certain agent behaviour as a set of message handling methods.
+ * 
+ * @author zeljko.bal
+ */
 public class AgentBehaviour
 {
 	private Map<String, AgentMessageHandler> handlers;
 	private AgentMessageHandler defaultHandler;
+	
+	/**
+	 * A function that determines the String key of a handler that should handle the given message.
+	 */
 	private Function<ACLMessage, String> mapToKey;
 	
+	/**
+	 * By default the performative is used as the key.
+	 */
 	public AgentBehaviour()
 	{
+		// by default the performative is used as the key
 		this(m->m.getPerformative());
 	}
 	
+	/**
+	 * @param mapToKey function that determines the String key of a handler that should handle the given message.
+	 */
 	public AgentBehaviour(Function<ACLMessage, String> mapToKey)
 	{
 		handlers = new HashMap<>();
@@ -60,14 +76,17 @@ public class AgentBehaviour
 		
 		if(handler != null)
 		{
+			// if a handler is found handle the message
 			handler.handle(message);
 		}
 		else if(hasDefaultHandler())
 		{
+			// if no handler was found handle the message with a default one if specified
 			defaultHandler.handle(message);
 		}
 		else
 		{
+			// if no handler could be found throw an exception
 			throw new UndefinedHandlerException(key);
 		}
 	}

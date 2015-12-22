@@ -15,6 +15,11 @@ import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
 import com.mongodb.client.MongoCollection;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with agent's own data.
+ * 
+ * @author zeljko.bal
+ */
 public class DataTools
 {
 	private AgentDataManager agentDataManager;

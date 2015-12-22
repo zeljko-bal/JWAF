@@ -6,6 +6,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A tool that enables automatic serialization and persistence of agent fields annotated with @{@link Persistent}.
+ * Fields must be {@link Serializable}. In case of empty collections null values will be initialized, in order to 
+ * initialize the field with a custom class that class can be specified in the @Persistent annotation (it must have a 
+ * no-arguments constructor).
+ * 
+ * @author zeljko.bal
+ */
 public class AutoPersister
 {
 	private Object owner;

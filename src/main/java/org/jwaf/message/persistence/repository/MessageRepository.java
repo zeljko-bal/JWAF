@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -13,7 +12,6 @@ import org.bson.types.ObjectId;
 import org.jwaf.common.data.mongo.MongoUtils;
 import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
-import org.jwaf.message.annotations.events.MessageRemovedEvent;
 import org.jwaf.message.annotations.events.MessageRetrievedEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.message.persistence.entity.OutboxEntry;
@@ -23,7 +21,9 @@ import org.mongodb.morphia.query.Query;
 import com.mongodb.WriteResult;
 
 /**
- * Session Bean implementation class MessageRepository
+ * A repository bean that contains methods for crud operations on {@link ACLMessage}.
+ * 
+ * @author zeljko.bal
  */
 @Stateless
 @LocalBean
@@ -32,10 +32,6 @@ public class MessageRepository
 	@Inject @MorphiaDatastore
 	private Datastore ds;
 	
-	// TODO remove if unused
-	@Inject @MessageRemovedEvent
-	private Event<ACLMessage> messageRemovedEvent;
-	
 	public void persist(ACLMessage message)
 	{
 		ds.save(message);
@@ -43,10 +39,7 @@ public class MessageRepository
 	
 	public void messageRetrievedEventHandler(@Observes @MessageRetrievedEvent ACLMessage message)
 	{
-		if(removeUnusedMessage(message))
-		{
-			messageRemovedEvent.fire(message);
-		}
+		removeUnusedMessage(message);
 	}
 	
 	private boolean removeUnusedMessage(ACLMessage message)

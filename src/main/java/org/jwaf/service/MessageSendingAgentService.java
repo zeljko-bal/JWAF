@@ -10,6 +10,14 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.service.annotations.MessageSendingService;
 import org.slf4j.Logger;
 
+/**
+ * An abstract helper class that implements the AgentService interface and returns the result as a message to 
+ * the specified agent. Agent name should be passed as a first argument to the service. 
+ * Message sending services should be annotated with {@link MessageSendingService} annotation that specifies 
+ * the service name and the performative of the result message.
+ * 
+ * @author zeljko.bal
+ */
 public abstract class MessageSendingAgentService implements AgentService
 {
 	protected AgentIdentifier caller;

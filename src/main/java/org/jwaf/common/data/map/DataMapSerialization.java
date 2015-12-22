@@ -8,6 +8,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+/**
+ * A utility class for serializing / deserializing a {@link DataMap} to json.
+ * 
+ * @author zeljko.bal
+ */
 public class DataMapSerialization
 {
 	public static String serialize(DataMap dataStore)

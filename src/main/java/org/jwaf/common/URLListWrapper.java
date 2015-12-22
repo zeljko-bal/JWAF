@@ -11,6 +11,12 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A wrapper that wraps a list of {@link String}s into a list of {@link URL}s.
+ * Used for easier persistence of lists of addresses.
+ * 
+ * @author zeljko.bal
+ */
 public class URLListWrapper implements List<URL>
 {
 	private List<String> wrappedList;

@@ -30,6 +30,11 @@ import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 
+/**
+ * A bean that produces MongoDB and Morphia related objects.
+ * 
+ * @author zeljko.bal
+ */
 @Singleton
 @LocalBean
 @Startup

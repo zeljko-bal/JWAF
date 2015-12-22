@@ -29,6 +29,12 @@ import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.task.management.TaskManager;
 
+/**
+ * An abstract implementation of the {@link EmptyBaseAgent} 
+ * that includes all the standard tools for interfacing with the platform.
+ * 
+ * @author zeljko.bal
+ */
 public abstract class BaseAgent extends EmptyBaseAgent implements SerializableAgent
 {
 	/*

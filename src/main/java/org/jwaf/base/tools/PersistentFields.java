@@ -7,6 +7,12 @@ import org.mongodb.morphia.annotations.Entity;
 import org.mongodb.morphia.annotations.Id;
 import org.mongodb.morphia.annotations.Serialized;
 
+/**
+ * An entity class for storing serialized agent data.
+ * @see AutoPersister
+ * 
+ * @author zeljko.bal
+ */
 @Entity
 public class PersistentFields
 {

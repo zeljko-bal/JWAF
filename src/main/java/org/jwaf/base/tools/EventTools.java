@@ -5,6 +5,11 @@ import java.io.Serializable;
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.event.management.EventManager;
 
+/**
+ * A facade exposing {@link EventManager} functionality to the agent.
+ * 
+ * @author zeljko.bal
+ */
 public class EventTools
 {
 	private EventManager eventManager;
@@ -14,7 +19,7 @@ public class EventTools
 	{
 		this.eventManager = eventManager;
 	}
-
+	
 	public void setAid(AgentIdentifier aid)
 	{
 		this.aid = aid;
@@ -29,27 +34,27 @@ public class EventTools
 	{
 		eventManager.register(name);
 	}
-
+	
 	public void register(String name, String type)
 	{
 		eventManager.register(name, type);
 	}
-
+	
 	public void unregister(String name)
 	{
 		eventManager.unregister(name);
 	}
-
+	
 	public void subscribe(String eventName)
 	{
 		eventManager.subscribe(aid.getName(), eventName);
 	}
-
+	
 	public void unsubscribe(String eventName)
 	{
 		eventManager.unsubscribe(aid.getName(), eventName);
 	}
-
+	
 	public void fire(String eventName, String content)
 	{
 		eventManager.fire(eventName, content);

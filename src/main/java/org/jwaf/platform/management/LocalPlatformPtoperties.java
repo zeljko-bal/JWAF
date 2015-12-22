@@ -17,6 +17,11 @@ import org.jwaf.platform.annotations.resource.LocalPlatformAddress;
 import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.slf4j.Logger;
 
+/**
+ * A helper bean that loads platform properties from the file system and makes them available for CDI.
+ * 
+ * @author zeljko.bal
+ */
 @Singleton
 @LocalBean
 @Startup

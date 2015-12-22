@@ -18,6 +18,12 @@ import org.jwaf.service.AgentService;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 import org.jwaf.service.persistence.repository.AgentServiceRepository;
 
+/**
+ * A management bean that contains {@link AgentService} management methods 
+ * and methods for synchronous and asynchronous service invocation.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class ServiceManager

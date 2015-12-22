@@ -9,6 +9,11 @@ import org.jwaf.common.data.mongo.QueryFunction;
 import org.jwaf.service.management.ServiceManager;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with agent services.
+ * 
+ * @author zeljko.bal
+ */
 public class ServiceDirectory
 {
 	private ServiceManager serviceManager;

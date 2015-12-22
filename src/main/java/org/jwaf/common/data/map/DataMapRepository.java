@@ -2,6 +2,11 @@ package org.jwaf.common.data.map;
 
 import java.util.Map;
 
+/**
+ * An interface that represents a data repository used in a {@link DataMap}.
+ * 
+ * @author zeljko.bal
+ */
 public interface DataMapRepository
 {
 	Map<String, String> getData();

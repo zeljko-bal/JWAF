@@ -15,6 +15,12 @@ import org.jwaf.task.persistence.entity.TaskRequest;
 import org.jwaf.task.persistence.entity.TaskResult;
 import org.jwaf.task.persistence.repository.TaskResultRepository;
 
+/**
+ * A management bean that contains methods for deploying tasks, processing results and storing results for later 
+ * retrieval.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class TaskManager
@@ -59,7 +65,7 @@ public class TaskManager
 		
 		resultRepo.persist(toPersist);
 	}
-
+	
 	public List<TaskResult> retrieveResultSet(String employer)
 	{
 		return resultRepo.retrieveResultSet(employer);

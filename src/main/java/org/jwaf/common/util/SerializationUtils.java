@@ -11,6 +11,11 @@ import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A helper class for Java serialization.
+ * 
+ * @author zeljko.bal
+ */
 public class SerializationUtils
 {
 	private static Logger log = LoggerFactory.getLogger("SerializationUtils");

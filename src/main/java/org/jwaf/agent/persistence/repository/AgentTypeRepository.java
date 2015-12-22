@@ -13,6 +13,11 @@ import org.jwaf.common.data.mongo.annotations.MorphiaDatastore;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
+/**
+ * A repository bean that contains methods for crud operations on {@link AgentType}.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AgentTypeRepository

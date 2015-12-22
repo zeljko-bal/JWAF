@@ -6,6 +6,11 @@ import javax.ejb.ScheduleExpression;
 
 import org.jwaf.event.management.TimerManager;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with event timers.
+ * 
+ * @author zeljko.bal
+ */
 public class TimerTools
 {
 	private TimerManager timerManager;

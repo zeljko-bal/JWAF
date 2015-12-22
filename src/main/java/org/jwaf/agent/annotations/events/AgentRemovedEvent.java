@@ -11,6 +11,13 @@ import java.lang.annotation.Target;
 
 import javax.inject.Qualifier;
 
+import org.jwaf.agent.persistence.entity.AgentEntity;
+
+/**
+ * Fired whenever an {@link AgentEntity} is removed from the platform.
+ * 
+ * @author zeljko.bal
+ */
 @Target({TYPE, METHOD, FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Qualifier

@@ -26,7 +26,8 @@ import org.slf4j.Logger;
 import com.mongodb.DuplicateKeyException;
 
 /**
- * Session Bean implementation class AgentRepository
+ * A repository bean that contains methods for crud operations on {@link AgentEntity} 
+ * and for transactions that change agent's state.
  */
 @Stateless
 @LocalBean

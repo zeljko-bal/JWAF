@@ -44,7 +44,7 @@ public class EventResource
 		eventManager.register(eventName);
 		return Response.ok().build();
 	}
-
+	
 	@POST
 	@Path("info/{eventName}/{type}")
 	public Response register(@PathParam("eventName") String eventName, @PathParam("type") String type)
@@ -52,7 +52,7 @@ public class EventResource
 		eventManager.register(eventName, type);
 		return Response.ok().build();
 	}
-
+	
 	@DELETE
 	@Path("info/{eventName}")
 	public Response unregister(@PathParam("eventName") String name)
@@ -60,7 +60,7 @@ public class EventResource
 		eventManager.unregister(name);
 		return Response.ok().build();
 	}
-
+	
 	@POST
 	@Path("subscriber/{agentName}/{eventName}")
 	public Response subscribe(@PathParam("agentName") String agentName, @PathParam("eventName") String eventName)

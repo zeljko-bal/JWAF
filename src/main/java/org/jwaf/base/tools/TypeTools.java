@@ -9,6 +9,11 @@ import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.agent.persistence.entity.AgentType;
 import org.jwaf.common.data.mongo.QueryFunction;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with agent types.
+ * 
+ * @author zeljko.bal
+ */
 public class TypeTools
 {
 	private AgentManager agentManager;

@@ -34,7 +34,7 @@ public class MessageResource
 		messageManager.handleMessage(message);
 		return Response.accepted().build();
 	}
-
+	
 	@POST
 	@Path("transport")
 	@Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
@@ -51,7 +51,7 @@ public class MessageResource
 	{
 		return Response.ok(messageManager.retrieveOutboxMessage(receiverName)).build();
 	}
-
+	
 	@GET
 	@Path("/acl/schema")
 	@Produces(MediaType.APPLICATION_XML)
@@ -59,7 +59,7 @@ public class MessageResource
 	{
 		return Response.ok(XMLSchemaUtils.generate(ACLMessage.class)).build();
 	}
-
+	
 	@GET
 	@Path("/transport/schema")
 	@Produces(MediaType.APPLICATION_XML)

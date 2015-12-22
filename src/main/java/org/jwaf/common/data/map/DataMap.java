@@ -7,6 +7,12 @@ import java.util.Set;
 
 import org.jwaf.common.util.SerializationUtils;
 
+/**
+ * A class that simplifies access to agent data by providing a map like interface.
+ * The data is provided by a {@link DataMapRepository}.
+ * 
+ * @author zeljko.bal
+ */
 public class DataMap implements Map<String, String>
 {
 	private DataMapRepository dataRepo;

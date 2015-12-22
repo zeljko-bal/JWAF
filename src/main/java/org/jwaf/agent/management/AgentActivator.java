@@ -27,6 +27,11 @@ import org.jwaf.message.persistence.entity.ACLMessage;
 import org.jwaf.platform.annotations.resource.EJBJNDIPrefix;
 import org.slf4j.Logger;
 
+/**
+ * A management bean that contains the logic for invocation of {@link Agent}'s lifecycle methods.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AgentActivator
@@ -52,6 +57,22 @@ public class AgentActivator
 	@Inject
 	private Logger log;
 	
+	/**
+	 * Notifies an agent that a new message has arrived. 
+	 * <br><br>
+	 * In case of a {@link SingleThreadedAgent} the message is put into the agents inbox 
+	 * and the {@link AgentRepository} tries to transition the agent into an ACTIVE state.
+	 * If the agent has been activated the {@link SingleThreadedAgent#_execute(AgentIdentifier) _execute} 
+	 * method is called repeatedly until the {@link AgentRepository} successfully transitions the agent 
+	 * into a PASSIVE state (there are no new messages that agent hasn't been notified about).
+	 * <br><br>
+	 * In case of a {@link MultiThreadedAgent} the message is passed to the agent directly by calling 
+	 * the {@link MultiThreadedAgent#_handle(AgentIdentifier, ACLMessage) _handle} method.
+	 * If the agent is in an INITIALIZING state, the message is stored in the agents inbox.
+	 * 
+	 * @param aid agent to be activated
+	 * @param message activation message
+	 */
 	@Asynchronous
 	public void activate(AgentIdentifier aid, ACLMessage message)
 	{
@@ -66,15 +87,16 @@ public class AgentActivator
 			{
 				SingleThreadedAgent stAgent = (SingleThreadedAgent)agentBean;
 				
-				// activate agent and get previous state
+				// try to transition the agent into an ACTIVE state
 				boolean activated = agentRepo.activateSingleThreaded(aid.getName(), message);
 				
 				if(activated)
 				{
-					executeSingle(aid, stAgent);
+					// invoke _execute method
+					executeSingleThreaded(aid, stAgent);
 				}
 			}
-			else if(agentBean instanceof MultiThreadedAgent)// AgentType.MULTI_THREADED
+			else if(agentBean instanceof MultiThreadedAgent)
 			{
 				MultiThreadedAgent mtAgent = (MultiThreadedAgent)agentBean;
 				
@@ -87,9 +109,10 @@ public class AgentActivator
 				}
 				else
 				{
-					executeMulti(aid, mtAgent, message);
+					// invoke _handle method
+					executeMultiThreaded(aid, mtAgent, message);
 					
-					// TODO Transit state
+					// TODO handle IN_TRANSIT state
 				}
 			}
 			else
@@ -99,6 +122,7 @@ public class AgentActivator
 		}
 		catch(AgentNotFound e)
 		{
+			// if for some reason agent can't be found on this platform resend the message with only the agent's name
 			resendMessage(aid, message);
 		}
 		catch(AgentStateChangeFailed e)
@@ -106,7 +130,15 @@ public class AgentActivator
 			log.error("Error during agent activation.", e);
 		}
 	}
-
+	
+	/**
+	 * Invokes {@link Agent}'s _setup method after the agent has been created. 
+	 * After successful invocation transitions the agent into a PASSIVE state and fires the {@link AgentInitializedEvent}.
+	 * Also asynchronously notifies the agent about any messages that arrived before the agent has been initialized.
+	 * 
+	 * @param aid agent to be initialized
+	 * @param type name of the {@link AgentType}
+	 */
 	public void setup(AgentIdentifier aid, String type)
 	{
 		Agent agentBean;
@@ -137,11 +169,13 @@ public class AgentActivator
 			{
 				SingleThreadedAgent stAgent = (SingleThreadedAgent)agentBean;
 				
+				// activate if there already are messages waiting to be processed
 				boolean activated = agentRepo.activateSingleThreaded(aid.getName());
 				
 				if(activated)
 				{
-					executeSingle(aid, stAgent);
+					// execute asynchronously
+					executorService.execute(()->executeSingleThreaded(aid, stAgent));
 				}
 			}
 			else if(agentBean instanceof MultiThreadedAgent)
@@ -151,7 +185,7 @@ public class AgentActivator
 				for(ACLMessage msg : agentRepo.retrieveFromInbox(aid.getName()))
 				{
 					// handle every message asynchronously
-					executorService.execute(()->executeMulti(aid, mtAgent, msg));
+					executorService.execute(()->executeMultiThreaded(aid, mtAgent, msg));
 				}
 			}
 			else
@@ -165,7 +199,13 @@ public class AgentActivator
 		}
 	}
 	
-	private void executeSingle(AgentIdentifier aid, SingleThreadedAgent stAgent)
+	/**
+	 * Invokes agent's _execute method while there are new messages.
+	 * 
+	 * @param aid agent identifier
+	 * @param stAgent agent bean instance
+	 */
+	private void executeSingleThreaded(AgentIdentifier aid, SingleThreadedAgent stAgent)
 	{
 		// if agent was passive activate him
 		log.info("activating agent: <{}>", aid.getName());
@@ -190,8 +230,15 @@ public class AgentActivator
 			done = agentRepo.passivateSingleThreaded(aid.getName());
 		}
 	}
-
-	private void executeMulti(AgentIdentifier aid, MultiThreadedAgent mtAgent, ACLMessage message)
+	
+	/**
+	 * Passes the message directly to agent's _handle method.
+	 * 
+	 * @param aid agent identifier
+	 * @param mtAgent agent bean instance
+	 * @param message
+	 */
+	private void executeMultiThreaded(AgentIdentifier aid, MultiThreadedAgent mtAgent, ACLMessage message)
 	{
 		agentRepo.activateMultiThreadedInstance(aid.getName());
 		
@@ -211,6 +258,7 @@ public class AgentActivator
 	
 	private void onExecutionException(AgentIdentifier aid, Exception e)
 	{
+		// recursively find if the cause is instance of AgentSuccessException
 		Throwable successEx = e;
 		while(successEx != null)
 		{
@@ -230,6 +278,13 @@ public class AgentActivator
 		}
 	}
 	
+	/**
+	 * Invokes agent's _onArrival method.
+	 * 
+	 * @param aid agent that has arrived
+	 * @param type type name
+	 * @param data serialized data
+	 */
 	@Asynchronous
 	public void onArrival(AgentIdentifier aid, String type, String data)
 	{
@@ -247,7 +302,7 @@ public class AgentActivator
 			throw e;
 		}
 	}
-
+	
 	private Agent findAgent(String type)
 	{
 		try
@@ -262,6 +317,10 @@ public class AgentActivator
 		}
 	}
 	
+	/**
+	 * Sends the message with aid only containing the name and no addresses, 
+	 * so that the platform can try to determine the correct address.
+	 */
 	private void resendMessage(AgentIdentifier aid, ACLMessage message)
 	{
 		aid.getAddresses().clear();

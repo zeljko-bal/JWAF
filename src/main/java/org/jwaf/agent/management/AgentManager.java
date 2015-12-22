@@ -32,7 +32,7 @@ import org.jwaf.platform.annotations.resource.LocalPlatformName;
 import org.slf4j.Logger;
 
 /**
- * Session Bean implementation class AgentManager
+ * A bean that contains agent directory management methods.
  */
 @Stateless
 @LocalBean
@@ -77,11 +77,17 @@ public class AgentManager
 	@Inject
 	private Logger log;
 	
+	/**
+	 * Initializes an agent based on the provided {@link CreateAgentRequest} and fires {@link AgentCreatedEvent}.
+	 * 
+	 * @param request containing agent type and additional createion context information
+	 * @return created agent's identifier
+	 */
 	public AgentIdentifier initialize(CreateAgentRequest request)
 	{
 		AgentIdentifier aid = createAgentEntity(request);
 		
-		// invoke custom setup method
+		// invoke agent's _setup method
 		activator.setup(aid, request.getType());
 		
 		agentCreatedEvent.fire(aid);
@@ -89,6 +95,15 @@ public class AgentManager
 		return aid;
 	}
 	
+	/**
+	 * Creates the {@link AgentEntity} of requested type and with the requested name if specified. 
+	 * If the name is not specified a random name is used.
+	 * @see AgentNameUtils 
+	 * @see CreateAgentRequest
+	 * 
+	 * @param request containing agent type and additional createion context information
+	 * @return created agent's identifier
+	 */
 	private AgentIdentifier createAgentEntity(CreateAgentRequest request)
 	{
 		AgentType type = null;
@@ -125,10 +140,15 @@ public class AgentManager
 		return aid;
 	}
 	
-	public void requestTermination(String name)
+	/**
+	 * Sends a message to the specified agent that requests from the agent to self terminate.
+	 * 
+	 * @param agentName name of the agent that should self terminate
+	 */
+	public void requestTermination(String agentName)
 	{
 		ACLMessage message = new ACLMessage(PlatformPerformative.SELF_TERMINATE, getPlatformAid());
-		message.getReceiverList().add(agentRepo.findView(name).getAid());
+		message.getReceiverList().add(agentRepo.findView(agentName).getAid());
 		
 		messageSender.send(message);
 	}
@@ -137,19 +157,38 @@ public class AgentManager
 	 * methods delegated to AgentRepository
 	 */
 	
-	public AgentEntityView findView(String name)
+	/**
+	 * Find an {@link AgentEntityView}. A view of an {@link AgentEntity} that exposes only aid, type and state.
+	 * 
+	 * @param agentName
+	 * @return AgentEntityView
+	 */
+	public AgentEntityView findView(String agentName)
 	{
-		return agentRepo.findView(name);
+		return agentRepo.findView(agentName);
 	}
 	
-	public boolean hasNewMessages(String name)
+	/**
+	 * Check if an agent has new messages that he wasn't notified about.
+	 * 
+	 * @param agentName
+	 * @return true if new messages are available
+	 */
+	public boolean hasNewMessages(String agentName)
 	{
-		return agentRepo.hasNewMessages(name);
+		return agentRepo.hasNewMessages(agentName);
 	}
-
-	public List<ACLMessage> retrieveMessages(String name)
+	
+	/**
+	 * Returns all messages currently in agent's inbox. The messages are removed from the inbox.
+	 * Also fires {@link MessageRetrievedEvent} for all retrieved messages.
+	 * 
+	 * @param agentName
+	 * @return list of retrieved messages
+	 */
+	public List<ACLMessage> retrieveMessages(String agentName)
 	{
-		List<ACLMessage> messages = agentRepo.retrieveFromInbox(name);
+		List<ACLMessage> messages = agentRepo.retrieveFromInbox(agentName);
 		
 		// notify that messages have ben retrieved
 		messages.forEach(messageRetrievedEvent::fire);
@@ -157,16 +196,25 @@ public class AgentManager
 		return messages;
 	}
 	
-	public List<ACLMessage> findMessages(String name, QueryFunction<ACLMessage> queryFunc)
+	/**
+	 * Find a message based on a query creating function. 
+	 * Found messages are removed from the inbox and returned as a result.
+	 * @see QueryFunction
+	 * 
+	 * @param agentName
+	 * @param queryFunc a function that configures the query
+	 * @return a list of retrieved messages
+	 */
+	public List<ACLMessage> findMessages(String agentName, QueryFunction<ACLMessage> queryFunc)
 	{
 		// get ids of inbox messages
-		List<String> messageIDs = agentRepo.getMessageIDs(name);
+		List<String> messageIDs = agentRepo.getMessageIDs(agentName);
 		
 		// find messages based on the query
 		List<ACLMessage> messages = messageFinder.find(messageIDs, queryFunc);
 		
 		// remove messages from inbox
-		agentRepo.removeFromInbox(name, messages);
+		agentRepo.removeFromInbox(agentName, messages);
 		
 		// signal that the agent has retrieved the messages
 		messages.forEach(messageRetrievedEvent::fire);
@@ -174,31 +222,75 @@ public class AgentManager
 		return messages;
 	}
 	
-	public void ignoreNewMessages(String name)
+	/**
+	 * Ignores all new messages in agent's inbox. Agent will not be notified about them.
+	 */
+	public void ignoreNewMessages(String agentName)
 	{
-		agentRepo.ignoreNewMessages(name);
+		agentRepo.ignoreNewMessages(agentName);
 	}
 	
-	public Integer getActiveInstances(String name)
+	/**
+	 * Returns the number of messages currently in agent's inbox.
+	 * 
+	 * @param agentName
+	 * @return the number of messages currently in agent's inbox
+	 */
+	public int getMessagesCount(String agentName)
 	{
-		return agentRepo.getActiveInstances(name);
+		return agentRepo.getMessageIDs(agentName).size();
 	}
-
+	
+	/**
+	 * Puts a message back to agent's inbox.
+	 */
+	public void putBackToInbox(String agentName, ACLMessage message)
+	{
+		agentRepo.putBackToInbox(agentName, message);
+	}
+	
+	/**
+	 * Returns the number of active instances of a given agent.
+	 * 
+	 * @param agentName
+	 * @return number of active instances
+	 */
+	public Integer getActiveInstances(String agentName)
+	{
+		return agentRepo.getActiveInstances(agentName);
+	}
+	
+	/**
+	 * Check if this platform contains an agent with the given identifier.
+	 * 
+	 * @param aid agent identifier
+	 * @return true if the agent exists
+	 */
 	public boolean contains(AgentIdentifier aid)
 	{
 		return agentRepo.containsAgent(aid);
 	}
-
-	public boolean contains(String name)
+	
+	/**
+	 * Check if this platform contains an agent with the given name.
+	 * 
+	 * @param agentName
+	 * @return true if the agent exists
+	 */
+	public boolean contains(String agentName)
 	{
-		return agentRepo.containsAgent(name);
+		return agentRepo.containsAgent(agentName);
 	}
 	
-	public void remove(String name)
+	/**
+	 * Removes an agent with the given name from the local platform.
+	 * Also fires {@link AgentRemovedEvent}.
+	 */
+	public void remove(String agentName)
 	{
-		AgentIdentifier removedAid = agentRepo.findView(name).getAid();
+		AgentIdentifier removedAid = agentRepo.findView(agentName).getAid();
 		
-		AgentEntity removedAgent = agentRepo.remove(name);
+		AgentEntity removedAgent = agentRepo.remove(agentName);
 		
 		removedAgent.getMessages().forEach(messageRetrievedEvent::fire);
 		
@@ -208,22 +300,37 @@ public class AgentManager
 	/*
 	 * agent transport methods
 	 */
-
+	
+	/**
+	 * Puts the requested agent in IN_TRANSIT state and returns the {@link AgentEntity}.
+	 * 
+	 * @param agentName
+	 * @return departed AgentEntity
+	 */
 	public AgentEntity depart(String agentName)
 	{
 		return agentRepo.depart(agentName);
 	}
-
+	
+	/**
+	 * Persists an agent from a remote platform and  invokes agent's _onArrival method.
+	 * 
+	 * @param agent that has arrived
+	 * @param serializedData data that the agent has serialized for transport
+	 * @throws Exception
+	 */
 	public void receiveAgent(AgentEntity agent, String serializedData) throws Exception
 	{
 		try
 		{
+			// persist aid
 			AgentIdentifier remoteAid = agent.getAid();
 			AgentIdentifier aid = new AgentIdentifier(remoteAid.getName());
 			aid.getAddresses().add(localPlatformAddress);
 			aid.getResolvers().addAll(remoteAid.getResolvers());
 			aid = aidManager.save(aid);
 			
+			// persist agent entity
 			AgentEntity newAgent = new AgentEntity();
 			newAgent.setAid(aid);
 			newAgent.setState(AgentState.IN_TRANSIT);
@@ -231,6 +338,7 @@ public class AgentManager
 			
 			agentRepo.create(newAgent);
 			
+			// invoke _onArrival
 			activator.onArrival(aid, agent.getType().getName(), serializedData);
 			
 			// TODO implement acceptance check
@@ -242,6 +350,14 @@ public class AgentManager
 		}
 	}
 	
+	/**
+	 * Changes the location of agent's identifier, removes the {@link AgentEntity} from this platform 
+	 * and resends all the unread messages.
+	 * Also fires {@link MessageRetrievedEvent}.
+	 * 
+	 * @param agentName
+	 * @param destinationPlatform the platform that the agent has traveled to
+	 */
 	public void completeDeparture(String agentName, String destinationPlatform)
 	{
 		// update aid
@@ -254,17 +370,27 @@ public class AgentManager
 		// resend messages
 		messages.forEach(m->resendMessage(new AgentIdentifier(agentName), m));
 	}
-
+	
+	/**
+	 * Passivates the agent after the transport has failed.
+	 */
 	public void cancelDeparture(String agentName)
 	{
 		agentRepo.forcePassivate(agentName);
 	}
 	
+	/**
+	 * Passivates the agent after departure from the source platform.
+	 */
 	public void transportComplete(String agentName)
 	{
 		agentRepo.forcePassivate(agentName);
 	}
 	
+	/**
+	 * Sends the message with aid only containing the name and no addresses, 
+	 * so that the platform can try to determine the correct address.
+	 */
 	private void resendMessage(AgentIdentifier aid, ACLMessage message)
 	{
 		aid.getAddresses().clear();
@@ -274,21 +400,16 @@ public class AgentManager
 		messageSender.send(message);
 	}
 	
+	/**
+	 * Creates an {@link AgentIdentifier} that represents this platform.
+	 * 
+	 * @return AgentIdentifier that represents this platform
+	 */
 	@Produces @LocalPlatformAid
 	public AgentIdentifier getPlatformAid()
 	{
 		AgentIdentifier platformAid = new AgentIdentifier(localPlatformName);
 		platformAid.getAddresses().add(localPlatformAddress);
 		return platformAid;
-	}
-
-	public int getMessagesCount(String name)
-	{
-		return agentRepo.getMessageIDs(name).size();
-	}
-	
-	public void putBackToInbox(String agentName, ACLMessage message)
-	{
-		agentRepo.putBackToInbox(agentName, message);
 	}
 }

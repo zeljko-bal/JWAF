@@ -4,11 +4,15 @@ import java.util.List;
 
 import org.jwaf.agent.persistence.entity.AgentIdentifier;
 import org.jwaf.base.SerializableAgent;
-import org.jwaf.remote.exceptions.AgentTransportFailed;
-import org.jwaf.remote.exceptions.AgentTransportSuccessful;
+import org.jwaf.remote.exceptions.AgentDeparted;
 import org.jwaf.remote.management.RemotePlatformManager;
 import org.jwaf.remote.persistence.entity.AgentPlatform;
 
+/**
+ * A facade exposing functionalities of platform manager beans that deal with remote platforms.
+ * 
+ * @author zeljko.bal
+ */
 public class RemotePlatformTools
 {
 	private RemotePlatformManager remoteManager;
@@ -56,7 +60,7 @@ public class RemotePlatformTools
 		return remoteManager.locationOf(agentName);
 	}
 	
-	public void travelTo(String platformName) throws AgentTransportSuccessful, AgentTransportFailed
+	public void travelTo(String platformName) throws AgentDeparted
 	{
 		remoteManager.sendAgent(aid.getName(), platformName, owner.serialize());
 	}

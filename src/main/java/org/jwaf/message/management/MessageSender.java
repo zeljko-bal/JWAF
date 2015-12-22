@@ -8,6 +8,11 @@ import javax.inject.Inject;
 import org.jwaf.message.annotations.events.MessageSentEvent;
 import org.jwaf.message.persistence.entity.ACLMessage;
 
+/**
+ * A helper bean that notifies the {@link MessageManager} about a message that has ben sent from this platform.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class MessageSender

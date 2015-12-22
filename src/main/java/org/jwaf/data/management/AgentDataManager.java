@@ -25,6 +25,11 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.FindOneAndReplaceOptions;
 
+/**
+ * A management bean that contains methods for CRUD and query operations on agent data.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class AgentDataManager

@@ -14,6 +14,11 @@ import org.jwaf.service.AgentService;
 import org.jwaf.service.persistence.entity.AgentServiceType;
 import org.slf4j.Logger;
 
+/**
+ * A setup bean that registers services based on beans that implement the {@link AgentService} interface.
+ * 
+ * @author zeljko.bal
+ */
 @Singleton
 @LocalBean
 @Startup

@@ -3,6 +3,13 @@ package org.jwaf.event.persistence.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.jwaf.event.management.TimerManager;
+
+/**
+ * A class that represents the content of a message sent by the {@link TimerManager} when an event is fired.
+ * 
+ * @author zeljko.bal
+ */
 public class TimerEventParam implements Serializable
 {
 	private static final long serialVersionUID = 6965027537459479316L;

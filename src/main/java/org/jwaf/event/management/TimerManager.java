@@ -20,6 +20,11 @@ import org.jwaf.event.persistence.entity.TimerEventInfo;
 import org.jwaf.event.persistence.entity.TimerEventParam;
 import org.slf4j.Logger;
 
+/**
+ * A management bean that contains timer management methods.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class TimerManager

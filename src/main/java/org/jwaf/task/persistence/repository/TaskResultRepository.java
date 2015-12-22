@@ -12,6 +12,11 @@ import org.jwaf.task.persistence.entity.TaskResult;
 import org.mongodb.morphia.Datastore;
 import org.mongodb.morphia.query.Query;
 
+/**
+ * A repository bean that contains methods for persistence and retrieval of {@link TaskResult}.
+ * 
+ * @author zeljko.bal
+ */
 @Stateless
 @LocalBean
 public class TaskResultRepository
