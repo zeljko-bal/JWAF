@@ -79,7 +79,6 @@ public class TaskManager
 		}
 		catch (NamingException | ClassCastException e)
 		{
-			// TODO log cant find TaskDeployer of type
 			return null;
 		}
 	}
