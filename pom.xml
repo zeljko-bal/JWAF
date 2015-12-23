@@ -12,6 +12,9 @@
   		<!-- maven-compiler-plugin -->
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
+		
+		<!-- maven-war-plugin -->
+		<failOnMissingWebXml>false</failOnMissingWebXml>
   	</properties>
 
 	<repositories>
@@ -148,16 +151,4 @@
 		</dependency>
   	</dependencies>
   	
-  	<build>
-  		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<configuration>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	
 </project>
