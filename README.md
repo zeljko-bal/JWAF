@@ -47,6 +47,7 @@ For more insight in platform features, you can look at the example test agents i
 
 - Download and install Java JDK 8
 - Download and unpack Eclipse IDE (the project was built and tested with the eclipse compiler, javac can produce some errors due to certain incompatibilities)
+- Add [JBossTools] plugin to eclipse
 - Download and unpack WildFly 8 or 9
 - In Eclipse Preferences > Server > Runtime Environment: add new WildFly server runtime environment
 - Download and install [MongoDB]
@@ -103,3 +104,4 @@ JWAF is a free and opensource project licensed under the MIT license (see LICENC
 [multi agent platform]:https://en.wikipedia.org/wiki/Multi-agent_system
 [FIPA]:http://www.fipa.org/
 [JADE]:http://jade.tilab.com/
+[JBossTools]:http://tools.jboss.org/
